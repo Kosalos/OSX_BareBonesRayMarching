@@ -547,6 +547,9 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         case "T" : toggle(&control.HoleSphere)
         case "Y" : toggle(&control.unSphere)
         case "U" : toggle(&control.gravity)
+            
+        case ",","<" : changeWindowSize(-1)
+        case ".",">" : changeWindowSize(+1)
         default : break
         }
         
@@ -852,6 +855,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         }
         
         widget.updateInstructions()
+        updateWindowTitle()
     }
     
     
@@ -880,6 +884,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         var r:CGRect = (view.window?.frame)!
         r.size.width *= CGFloat(isStereo ? 2.0 : 0.5)
         view.window?.setFrame(r, display:true)
+    }
+    
+    func changeWindowSize(_ dir:Int) {
+        var r:CGRect = (view.window?.frame)!
+        let ratio:CGFloat = 1.0 + CGFloat(dir) * 0.1
+        r.size.width *= ratio
+        r.size.height *= ratio
+        view.window?.setFrame(r, display:true)
+        
+        resizeIfNecessary()
     }
     
     func resizeIfNecessary() {
@@ -911,7 +925,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             metalViewL.frame = CGRect(x:1, y:1, width:r.size.width-2, height:r.size.height-2)
         }
         
-        instructions.frame = CGRect(x:5, y:5, width:400, height:700)
+        instructions.frame = CGRect(x:5, y:5, width:500, height:700)
         instructions.textColor = .white
         instructions.backgroundColor = .black
         instructions.bringToFront()

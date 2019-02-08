@@ -1,6 +1,7 @@
 import Cocoa
 
 enum WidgetKind { case integer,float,dash }
+enum AlterationSpeed { case normal,fast,slow }
 
 struct WidgetData {
     var kind:WidgetKind = .float
@@ -10,10 +11,17 @@ struct WidgetData {
     var range = float2()
     var showValue:Bool = false
     
-    func alterValue(_ direction:Int, _ fineTune:Bool) -> Bool {
+    func alterValue(_ direction:Int, _ speed:AlterationSpeed) -> Bool {
         var value:Float = valuePtr.load(as:Float.self)
         let oldValue = value
-        let amt = fineTune ? delta/10 : delta
+
+        var amt:Float = delta
+        switch speed {
+        case .normal : break
+        case .slow : amt *= 0.1
+        case .fast : amt *= 10
+        }
+        
         value += direction > 0 ? amt : -amt
         value = max( min(value, range.y), range.x)
 
@@ -87,15 +95,18 @@ class Widget {
         
         let rv = event.modifierFlags.intersection(.deviceIndependentFlagsMask).rawValue
         let shiftKeyDown:Bool = rv & (1 << 17) != 0
+        let optionKeyDown:Bool = rv & (1 << 19) != 0
+        var speed:AlterationSpeed = .normal
+        if shiftKeyDown { speed = .slow } else if optionKeyDown { speed = .fast }
         
         switch event.keyCode {
         case 123: // Left arrow
-            if data[focus].alterValue(-1,shiftKeyDown) {
+            if data[focus].alterValue(-1,speed) {
                 vc.setIsDirty()
                 if data[focus].showValue { updateInstructions() }
             }
         case 124: // Right arrow
-            if data[focus].alterValue(+1,shiftKeyDown) {
+            if data[focus].alterValue(+1,speed) {
                 vc.setIsDirty()
                 if data[focus].showValue { updateInstructions() }
             }
@@ -126,7 +137,7 @@ class Widget {
             str.normal("S : Stop all Movement")
         }
         
-        str.normal("")
+        str.normal("<, > : Change window size")
         str.normal("1,2 : Change Equation (previous, next)")
         str.normal("3 : Toggle Cross-Eyed Stereo")
         
@@ -154,7 +165,7 @@ class Widget {
         }
 
         str.normal("")
-        str.normal("Left/Right Arrows alter value (+ Shift for finetune)")
+        str.normal("Left/Right Arrows alter value (+ 'Shift' for slow, 'Option' for fast)")
         str.normal("Up/Down Arrows move focus")
         str.normal("Spacebar: Toggle instructions Display")
         str.normal("")
