@@ -161,6 +161,8 @@ class Widget {
             booleanEntry(vc.control.HoleSphere,"T: HoleSphere")
             booleanEntry(vc.control.unSphere,"Y: unSphere")
             booleanEntry(vc.control.gravity,"U: gravity")
+        case EQU_MHELIX :
+            booleanEntry(vc.control.gravity,"U: Moebius")
         default : break
         }
 

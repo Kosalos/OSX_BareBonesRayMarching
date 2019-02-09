@@ -22,6 +22,7 @@
 // quat mandelbrot : https://github.com/3Dickulus/FragM/blob/master/Fragmentarium-Source/Examples/Experimental/QuaternionMandelbrot4D.frag
 // spudsville : https://github.com/3Dickulus/FragM/blob/master/Fragmentarium-Source/Examples/Experimental/Spudsville2.frag
 // menger polyhedra : https://github.com/3Dickulus/FragM/blob/master/Fragmentarium-Source/Examples/Benesi/MengersmoothPolyhedra.frag
+// menger helix by dr2 : https://www.shadertoy.com/view/4sVyDt
 
 #include <metal_stdlib>
 #include "Shader.h"
@@ -1158,6 +1159,51 @@ float DE_MPOLY(float3 pos,device Control &control) {
     return abs(length(pos)) / w;
 }
 
+//MARK: -
+
+float mHelixPrBoxDf(float3 p, float3 b) {
+    float3 d = abs(p) - b;
+    return min (max (d.x, max (d.y, d.z)), 0.) + length (max (d, 0.));
+}
+
+float2 mHelixRot2D(float2 q, float a) {
+    float2 cs = sin(a + float2(0.5 * PI, 0.));
+    return float2(dot (q, float2 (cs.x, - cs.y)), dot (q.yx, cs));
+}
+
+float DE_MHELIX(float3 pos,device Control &control) {
+#define sclFac control.cx
+#define nIt 5.0
+
+    float3 b;
+    float r, a;
+    
+    b = (sclFac - 1.) * control.julia;
+    pos.xz = mHelixRot2D(pos.xz, control.angle1);
+    r = length (pos.xz);
+    a = (r > 0.) ? atan2(pos.z, - pos.x) / (2. * PI) : 0.;
+    
+    if(control.gravity) pos.y = mod (pos.y - 4. * a + 2., 4.) - 2.;
+    pos.x = mod (16. * a + 1., 2.) - 1.;
+    pos.z = r - 32. / (2. * PI);
+
+    if(control.gravity)
+        pos.yz = Rot2D (pos.yz, 2. * PI * a);
+    else
+        pos.yz = Rot2D (pos.yz, PI * a);
+
+    for (float n = 0.; n < control.fMaxSteps; n++) {
+        pos = abs(pos);
+        pos.xy = (pos.x > pos.y) ? pos.xy : pos.yx;
+        pos.xz = (pos.x > pos.z) ? pos.xz : pos.zx;
+        pos.yz = (pos.y > pos.z) ? pos.yz : pos.zy;
+        pos = sclFac * pos - b;
+        pos.z += b.z * step(pos.z, -0.5 * b.z);
+    }
+    
+    return 0.8 * mHelixPrBoxDf(pos, float3(1.)) / pow(sclFac, nIt);
+}
+
 //MARK: - distance estimate
 float DE(float3 pos,device Control &control) {
     switch(control.equation) {
@@ -1193,6 +1239,7 @@ float DE(float3 pos,device Control &control) {
         case EQU_KALIBOX     : return DE_KALIBOX(pos,control);
         case EQU_SPUDS       : return DE_SPUDS(pos,control);
         case EQU_MPOLY       : return DE_MPOLY(pos,control);
+        case EQU_MHELIX      : return DE_MHELIX(pos,control);
     }
     
     return 0;
