@@ -33,7 +33,10 @@ QuadRay \
 3Dickulus Quaternion Mandelbrot \
 Kali's MandelBox \
 Spudsville \
-Menger Smooth Polyhedra
+Menger Smooth Polyhedra \
+Menger Helix \
+Flower Hive \
+Prisoner
 
 ![Screenshot](screenshot4.png)
 
