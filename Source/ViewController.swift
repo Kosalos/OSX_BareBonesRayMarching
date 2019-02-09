@@ -111,7 +111,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
               "Knighty Polychora","QuadRay","3Dickulus FragM",
               "3Dickulus Quaternion Julia","3Dickulus Quaternion Mandelbrot",
               "Kali's MandelBox","Spudsville","Menger Smooth Polyhedra",
-              "Menger Helix" ]
+              "Menger Helix","Flower Hive","Jungle","Prisoner" ]
      
         let index = Int(control.equation)
         view.window?.title = Int(index + 1).description + ": " + titleString[index] + " : " + widget.focusString()
@@ -389,6 +389,31 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             juliaZ =  -10.0
             control.bright = 1.12
             control.gravity = true // 'moebius'
+        case EQU_FLOWER :
+            control.camera = float3(-0.16991696, -2.5964863, -12.54011)
+            control.cx = 1.6740334
+            control.cy = 2.1570902
+            control.fMaxSteps = 10.0
+            juliaX =  6.0999966
+            juliaY =  13.999996
+            juliaZ =  3.0999992
+            control.bright = 1.5000001
+        case EQU_JUNGLE :
+            control.camera = float3(-1.8932692, -10.888095, -12.339884)
+            control.cx = 1.8540331
+            control.cy = 0.16000009
+            control.cz = 3.1000001
+            control.cw = 2.1499999
+            control.fMaxSteps = 1.0
+        case EQU_PRISONER :
+            control.camera = float3(-0.002694401, -0.36424443, -3.5887358)
+            control.cx = 1.0799996
+            control.cy = 1.06
+            control.angle1 = 1.0759996
+            control.fMaxSteps = 3.0
+            control.bright = 1.5000001
+            control.contrast = 0.15999986
+            control.power = 4.8999977
         default : break
         }
         
@@ -405,6 +430,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             c.camera += ident == 0 ? offset : -offset
         }
         
+        func prepareJulia() { c.julia = float3(juliaX,juliaY,juliaZ) }
+
         c.light = c.camera + float3(sin(lightAngle)*100,cos(lightAngle)*100,-100)
         c.nlight = normalize(c.light)
         c.maxSteps = Int32(control.fMaxSteps);
@@ -414,8 +441,6 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             c.Final_Iterations = Int32(control.fFinal_Iterations)
             c.Box_Iterations = Int32(control.fBox_Iterations)
             c.InvCenter = float3(c.InvCx, c.InvCy, c.InvCz)
-        case EQU_MANDELBOX :
-            c.julia = float3(juliaX,juliaY,juliaZ)
         case EQU_MONSTER :
             c.mm[0][0] = 99   // mark as needing calculation in shader
         case EQU_POLY_MENGER :
@@ -446,8 +471,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             c.sRA = sin(c.dz)
             c.nd = float4(-0.5,-0.5,-0.5,0.5)
         case EQU_FRAGM :
-            c.julia = float3(juliaX,juliaY,juliaZ)
-            
+            prepareJulia()
+
             c.msIterations = Int32(c.fmsIterations)
             c.mbIterations = Int32(c.fmbIterations)
             c.msScale = 2.57144
@@ -461,16 +486,14 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             
             c.absScalem1 = abs(c.mbScale - 1.0)
             c.AbsScaleRaisedTo1mIters = pow(abs(c.mbScale), Float(1 - c.mbIterations))
-        case EQU_QUATJULIA2, EQU_MBROT :
-            c.julia = float3(juliaX,juliaY,juliaZ)
         case EQU_KALIBOX :
             c.absScalem1 = abs(c.cx - 1.0)
             c.AbsScaleRaisedTo1mIters = pow(abs(c.cx), Float(1 - c.maxSteps))
             c.n1 = float3(c.dx,c.dy,c.dz)
             c.mins = float4(c.cx, c.cx, c.cx, abs(c.cx)) / c.cy
-            c.julia = float3(juliaX,juliaY,juliaZ)
-        case EQU_MHELIX :
-            c.julia = float3(juliaX,juliaY,juliaZ)
+            prepareJulia()
+        case EQU_MHELIX, EQU_FLOWER, EQU_MANDELBOX, EQU_QUATJULIA2, EQU_MBROT, EQU_FLOWER :
+            prepareJulia()
         default : break
         }
         
@@ -594,6 +617,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         print("juliaZ = ",juliaZ)
         
         print("control.bright =",control.bright)
+        print("control.contrast =",control.contrast)
         print("control.power =",control.power)
     }
 
@@ -862,6 +886,24 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             widget.addEntry("scaleX",&juliaX,-50,50, 2)
             widget.addEntry("scaleY",&juliaY,-50,50, 2)
             widget.addEntry("scaleZ",&juliaZ,-50,50, 2)
+        case EQU_FLOWER :
+            widget.addEntry("Iterations",&control.fMaxSteps,2,30,1)
+            widget.addEntry("Scale",&control.cx,0.5,3,0.01)
+            widget.addEntry("Offset X",&juliaX,-15,15,0.1)
+            widget.addEntry("Offset Y",&juliaY,-15,15,0.1)
+            widget.addEntry("Offset Z",&juliaZ,-15,15,0.1)
+        case EQU_JUNGLE :
+            widget.addEntry("Iterations",&control.fMaxSteps,1,12,1)
+            widget.addEntry("X",&control.cx,0.1,5,0.01)
+            widget.addEntry("Y",&control.cy,0.01,2,0.005)
+            widget.addEntry("Pattern",&control.cz,1,20,0.7)
+            widget.addEntry("Sabs",&control.cw,2,6,0.03)
+        case EQU_PRISONER :
+            widget.addEntry("Iterations",&control.fMaxSteps,1,12,1)
+            widget.addEntry("Power",&control.power,1.5,12,0.1)
+            widget.addEntry("Angle",&control.angle1,-4,4,0.02)
+            widget.addEntry("Cage",&control.cx,0.6,2.8,0.01)
+            widget.addEntry("Thickness",&control.cy,1,10,0.02)
         default : break
         }
         

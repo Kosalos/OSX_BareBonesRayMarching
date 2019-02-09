@@ -23,6 +23,9 @@
 // spudsville : https://github.com/3Dickulus/FragM/blob/master/Fragmentarium-Source/Examples/Experimental/Spudsville2.frag
 // menger polyhedra : https://github.com/3Dickulus/FragM/blob/master/Fragmentarium-Source/Examples/Benesi/MengersmoothPolyhedra.frag
 // menger helix by dr2 : https://www.shadertoy.com/view/4sVyDt
+// FlowerHive: https://www.shadertoy.com/view/lt3Gz8
+// Jungle : https://www.shadertoy.com/view/Wd23RD
+// Prisoner : https://www.shadertoy.com/view/llVGDR
 
 #include <metal_stdlib>
 #include "Shader.h"
@@ -1160,7 +1163,6 @@ float DE_MPOLY(float3 pos,device Control &control) {
 }
 
 //MARK: -
-
 float mHelixPrBoxDf(float3 p, float3 b) {
     float3 d = abs(p) - b;
     return min (max (d.x, max (d.y, d.z)), 0.) + length (max (d, 0.));
@@ -1204,6 +1206,120 @@ float DE_MHELIX(float3 pos,device Control &control) {
     return 0.8 * mHelixPrBoxDf(pos, float3(1.)) / pow(sclFac, nIt);
 }
 
+//MARK: -
+float DE_FLOWER(float3 pos,device Control &control) {
+    float4 q = float4(pos, 1);
+    float4 juliaOffset = float4(control.julia,0);
+    
+    for(int i = 0; i < control.maxSteps; ++i) { //kaliset fractal with no mirroring offset
+        q.xyz = abs(q.xyz);
+        float r = dot(q.xyz, q.xyz);
+        q /= clamp(r, 0.0, control.cx);
+        
+        q = 2.0 * q - juliaOffset;
+    }
+    
+    return (length(q.xy)/q.w - 0.003); // cylinder primative instead of a sphere primative.
+}
+
+//MARK: -
+float pattern(float2 p) {
+    return abs(sin(p.x) + sin(p.y));
+}
+
+float boxmap(float3 p) {
+    p *= 0.3;
+    float3 m = pow(abs(normalize(p)), float3(20));
+    float3 a = float3(pattern(p.yz),pattern(p.zx),pattern(p.xy));
+    return dot(a,m)/(m.x+m.y+m.z);
+}
+
+float3 smin(float3 a, float3 b) {
+    float k = 0.08;
+    float3 h = clamp( 0.5 + 0.5*(b-a)/k, 0.0, 1.0 );
+    return mix( b, a, h ) - k*h*(1.0-h);
+}
+
+float3 sabs(float3 p) {
+    return  p - 2.0 * smin(float3(0), p);
+}
+
+float DE_JUNGLE(float3 pos,device Control &control) {
+    float s = control.cx;
+    float amp = 1.0/s;
+    float c = control.cy;
+    pos = sabs(mod(pos, c * control.cw) - c);
+    float de = 100.;
+    
+    for(int i=0; i< control.maxSteps; ++i) {
+        pos = sabs(pos);
+        pos *= s;
+        pos -= float3(0.2 * pos.z, 0.6 * pos.x, 0.4) * (s - 1.0);
+        de = abs(length(pos * amp) - 0.2) ;
+        amp /= s;
+    }
+    
+    return de + boxmap(pos * control.cz) * 0.02 - 0.01;
+}
+
+//MARK: -
+float opS(float d1, float d2) { return (-d2>d1)? -d2:d1; }
+
+float sdBox(float3 p, float3 b) {
+    float3 d = abs(p) - b;
+    return min(max(d.x,max(d.y,d.z)),0.0) + length(max(d,0.0));
+}
+
+float shBox(float3 p, float3 b,float thickness) {
+    float dist = opS(sdBox(p,b),sdBox(p+float3(0.0,-p.y,0.0),b/thickness));
+    dist = opS(dist,sdBox(p+float3(0.0,p.y,0.0),b/thickness));
+    dist = opS(dist,sdBox(p+float3(p.x,0.0,0.0),b/thickness));
+    dist = opS(dist,sdBox(p+float3(-p.x,0.0,0.0),b/thickness));
+    dist = opS(dist,sdBox(p+float3(0.0,0.0,p.z),b/thickness));
+    dist = opS(dist,sdBox(p+float3(0.0,0.0,-p.z),b/thickness));
+    return dist;
+}
+
+float DE_PRISONER(float3 pos,device Control &control) {
+    float dr = 1.0;
+    float3 w = pos;
+    float wo,wi,wr,orbitTrap = 1;
+    float pwr2 = control.power - 1;
+    
+    w = rotatePosition(w,2,control.angle1);
+
+    for(int i=0; i< control.maxSteps; ++i) {
+        wr = length(w);
+        if(wr*wr > 2) {
+            orbitTrap = float(i);
+            break;
+        }
+        dr = control.power * pow(wr,pwr2) * dr + 1;
+
+        wo = acos(w.y/wr) * pwr2;
+        wi = atan2(w.x,w.z) * pwr2;
+
+        wr = pow(wr, pwr2);
+
+        w.x = wr * sin(wo)*sin(wi);
+        w.y = wr * cos(wo);
+        w.z = wr * sin(wo)*cos(wi);
+        
+        w += pos;
+    }
+    
+    if(wr*wr <= 14) {
+        float bboy1 = shBox(w, float3(control.cx),control.cy) * pow(20.0,-orbitTrap);
+        float bboy2 = 0.5 * log(wr)*wr/dr;
+        
+        if(bboy1 < bboy2) return bboy1;
+        return bboy2;
+    }
+    
+   return 0.4 * log(wr) * wr/dr;
+}
+
+
 //MARK: - distance estimate
 float DE(float3 pos,device Control &control) {
     switch(control.equation) {
@@ -1240,6 +1356,9 @@ float DE(float3 pos,device Control &control) {
         case EQU_SPUDS       : return DE_SPUDS(pos,control);
         case EQU_MPOLY       : return DE_MPOLY(pos,control);
         case EQU_MHELIX      : return DE_MHELIX(pos,control);
+        case EQU_FLOWER      : return DE_FLOWER(pos,control);
+        case EQU_JUNGLE      : return DE_JUNGLE(pos,control);
+        case EQU_PRISONER    : return DE_PRISONER(pos,control);
     }
     
     return 0;
