@@ -552,14 +552,15 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
     //MARK: -
     
     var isFullScreen:Bool = false
-    
+
     override func keyDown(with event: NSEvent) {
         func toggle(_ v:inout Bool) { v = !v;    updateWidgets(); setIsDirty() }
         
         super.keyDown(with: event)
-        
+        widget.updateAlterationSpeed(event)
+
         switch event.charactersIgnoringModifiers!.uppercased() {
-        case "9" :
+        case "0" :
             view.window?.toggleFullScreen(self)
             isFullScreen = !isFullScreen
             resizeIfNecessary()
@@ -570,6 +571,13 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             adjustWindowSizeForStereo()
             updateWidgets()
             setIsDirty()
+        case "4","$" :jog(float3(-1,0,0))
+        case "5","%" :jog(float3(+1,0,0))
+        case "6","^" :jog(float3(0,-1,0))
+        case "7","&" :jog(float3(0,+1,0))
+        case "8","*" :jog(float3(0,0,-1))
+        case "9","(" :jog(float3(0,0,+1))
+
         case "B" : toggle(&control.showBalls)
         case "F" : toggle(&control.fourGen)
         case "I" : toggle(&control.doInversion)
@@ -609,6 +617,11 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
     
     func stopMovement() { movement = float3() }
     
+    func jog(_ direction:float3) {
+        control.camera += direction * alterationSpeed * 0.01
+        setIsDirty()
+    }
+
     func parameterDisplay() {
         print("control.camera =",control.camera.debugDescription)
         print("control.cx =",control.cx)

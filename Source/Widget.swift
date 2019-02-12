@@ -1,7 +1,8 @@
 import Cocoa
 
 enum WidgetKind { case integer,float,dash }
-enum AlterationSpeed { case normal,fast,slow }
+
+var alterationSpeed:Float = 1
 
 struct WidgetData {
     var kind:WidgetKind = .float
@@ -11,16 +12,10 @@ struct WidgetData {
     var range = float2()
     var showValue:Bool = false
     
-    func alterValue(_ direction:Int, _ speed:AlterationSpeed) -> Bool {
+    func alterValue(_ direction:Int) -> Bool {
         var value:Float = valuePtr.load(as:Float.self)
         let oldValue = value
-
-        var amt:Float = delta
-        switch speed {
-        case .normal : break
-        case .slow : amt *= 0.1
-        case .fast : amt *= 10
-        }
+        let amt:Float = delta * alterationSpeed
         
         value += direction > 0 ? amt : -amt
         value = max( min(value, range.y), range.x)
@@ -90,23 +85,28 @@ class Widget {
         }
     }
 
-    func keyPress(_ event:NSEvent) {
-        //print(event.keyCode)
-        
+    func updateAlterationSpeed(_ event:NSEvent) {
         let rv = event.modifierFlags.intersection(.deviceIndependentFlagsMask).rawValue
         let shiftKeyDown:Bool = rv & (1 << 17) != 0
         let optionKeyDown:Bool = rv & (1 << 19) != 0
-        var speed:AlterationSpeed = .normal
-        if shiftKeyDown { speed = .slow } else if optionKeyDown { speed = .fast }
+
+        alterationSpeed = 1
+        if shiftKeyDown { alterationSpeed = 0.1 } else if optionKeyDown { alterationSpeed = 10 }
+    }
+    
+    func keyPress(_ event:NSEvent) {
+        //print(event.keyCode)
+        
+        updateAlterationSpeed(event)
         
         switch event.keyCode {
         case 123: // Left arrow
-            if data[focus].alterValue(-1,speed) {
+            if data[focus].alterValue(-1) {
                 vc.setIsDirty()
                 if data[focus].showValue { updateInstructions() }
             }
         case 124: // Right arrow
-            if data[focus].alterValue(+1,speed) {
+            if data[focus].alterValue(+1) {
                 vc.setIsDirty()
                 if data[focus].showValue { updateInstructions() }
             }
@@ -137,10 +137,11 @@ class Widget {
             str.normal("S : Stop all Movement")
         }
         
-        str.normal("<, > : Change window size,  9 : Toggle Full Screen")
+        str.normal("<, > : Change window size,  0 : Toggle Full Screen")
         str.normal("1,2 : Change Equation (previous, next)")
         str.normal("3 : Toggle Cross-Eyed Stereo")
-        
+        str.normal("4,5; 6,7; 8,9 : Jog in X,Y,Z (+ 'Shift' for slow, 'Option' for fast)")
+
         switch Int(vc.control.equation) {
         case EQU_KLEINIAN :
             booleanEntry(vc.control.showBalls,"B: ShowBalls")
