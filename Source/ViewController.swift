@@ -545,12 +545,18 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
     
     //MARK: -
     
+    var isFullScreen:Bool = false
+    
     override func keyDown(with event: NSEvent) {
         func toggle(_ v:inout Bool) { v = !v;    updateWidgets(); setIsDirty() }
         
         super.keyDown(with: event)
         
         switch event.charactersIgnoringModifiers!.uppercased() {
+        case "9" :
+            view.window?.toggleFullScreen(self)
+            isFullScreen = !isFullScreen
+            resizeIfNecessary()
         case "1" : changeEquation(-1)
         case "2" : changeEquation(+1)
         case "3" :
@@ -934,51 +940,73 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
     }
     
     func adjustWindowSizeForStereo() {
-        var r:CGRect = (view.window?.frame)!
-        r.size.width *= CGFloat(isStereo ? 2.0 : 0.5)
-        view.window?.setFrame(r, display:true)
+        if !isFullScreen {
+            var r:CGRect = (view.window?.frame)!
+            r.size.width *= CGFloat(isStereo ? 2.0 : 0.5)
+            view.window?.setFrame(r, display:true)
+        }
+        else {
+            resizeIfNecessary()
+        }
     }
     
     func changeWindowSize(_ dir:Int) {
-        var r:CGRect = (view.window?.frame)!
-        let ratio:CGFloat = 1.0 + CGFloat(dir) * 0.1
-        r.size.width *= ratio
-        r.size.height *= ratio
-        view.window?.setFrame(r, display:true)
-        
-        resizeIfNecessary()
+        if !isFullScreen {
+            var r:CGRect = (view.window?.frame)!
+            let ratio:CGFloat = 1.0 + CGFloat(dir) * 0.1
+            r.size.width *= ratio
+            r.size.height *= ratio
+            view.window?.setFrame(r, display:true)
+            
+            resizeIfNecessary()
+        }
     }
     
     func resizeIfNecessary() {
-        let minWinSize:CGSize = CGSize(width:300, height:300)
-        var r:CGRect = (view.window?.frame)!
-        var changed:Bool = false
+        var r:CGRect = view.frame
         
-        if r.size.width < minWinSize.width {
-            r.size.width = minWinSize.width
-            changed = true
-        }
-        if r.size.height < minWinSize.height {
-            r.size.height = minWinSize.height
-            changed = true
-        }
-        
-        if changed {  view.window?.setFrame(r, display:true) }
-        
-        r.size.height -= 22 // menu bar
-        
-        if isStereo {
-            metalViewR.isHidden = false
-            let xc:CGFloat = r.size.width/2 + 1
-            metalViewL.frame = CGRect(x:0, y:0, width:xc, height:r.size.height)
-            metalViewR.frame = CGRect(x:xc-1, y:0, width:xc, height:r.size.height)
+        if isFullScreen {
+            r = NSScreen.main!.frame
+            
+            if isStereo {
+                metalViewR.isHidden = false
+                let xc:CGFloat = r.size.width/2 + 1
+                metalViewL.frame = CGRect(x:0, y:0, width:xc, height:r.size.height)
+                metalViewR.frame = CGRect(x:xc-1, y:0, width:xc, height:r.size.height)
+            }
+            else {
+                metalViewR.isHidden = true
+                metalViewL.frame = CGRect(x:0, y:0, width:r.size.width, height:r.size.height)
+            }
         }
         else {
-            metalViewR.isHidden = true
-            metalViewL.frame = CGRect(x:1, y:1, width:r.size.width-2, height:r.size.height-2)
+            let minWinSize:CGSize = CGSize(width:300, height:300)
+            var changed:Bool = false
+            
+            if r.size.width < minWinSize.width {
+                r.size.width = minWinSize.width
+                changed = true
+            }
+            if r.size.height < minWinSize.height {
+                r.size.height = minWinSize.height
+                changed = true
+            }
+            
+            if changed {  view.window?.setFrame(r, display:true) }
+            
+            if isStereo {
+                metalViewR.isHidden = false
+                let xc:CGFloat = r.size.width/2 + 1
+                metalViewL.frame = CGRect(x:0, y:0, width:xc, height:r.size.height)
+                metalViewR.frame = CGRect(x:xc-1, y:0, width:xc, height:r.size.height)
+            }
+            else {
+                metalViewR.isHidden = true
+                metalViewL.frame = CGRect(x:1, y:1, width:r.size.width-2, height:r.size.height-2)
+            }
         }
         
-        instructions.frame = CGRect(x:5, y:5, width:500, height:700)
+        instructions.frame = CGRect(x:5, y:30, width:500, height:700)
         instructions.textColor = .white
         instructions.backgroundColor = .black
         instructions.bringToFront()

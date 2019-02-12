@@ -137,7 +137,7 @@ class Widget {
             str.normal("S : Stop all Movement")
         }
         
-        str.normal("<, > : Change window size")
+        str.normal("<, > : Change window size,  9 : Toggle Full Screen")
         str.normal("1,2 : Change Equation (previous, next)")
         str.normal("3 : Toggle Cross-Eyed Stereo")
         
