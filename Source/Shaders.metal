@@ -26,6 +26,7 @@
 // FlowerHive: https://www.shadertoy.com/view/lt3Gz8
 // Jungle : https://www.shadertoy.com/view/Wd23RD
 // Prisoner : https://www.shadertoy.com/view/llVGDR
+// SpiralBox : https://fractalforums.org/fragmentarium/17/last-length-increase-colouring-well-sort-of/2515
 
 #include <metal_stdlib>
 #include "Shader.h"
@@ -1319,6 +1320,27 @@ float DE_PRISONER(float3 pos,device Control &control) {
    return 0.4 * log(wr) * wr/dr;
 }
 
+//MARK: -
+float DE_SPIRALBOX(float3 pos,device Control &control) {
+    float3 z = pos;
+    float r,DF = 1.0;
+    float3 offset = (control.juliaboxMode ? control.julia/10 : pos);
+    
+    for(int i=0; i < control.maxSteps; ++i) {
+        z.xyz = clamp(z.xyz, -control.cx, control.cx)*2. - z.xyz;
+        
+        r = dot(z,z);
+        if (r< 0.001 || r> 1000.) break;
+        
+        z/=-r;
+        DF/= r;
+        z.xz *= -1.;
+        z += offset;
+    }
+    
+    r = length(z);
+    return 0.5 * sqrt(0.1*r) / (abs(DF)+1.);
+}
 
 //MARK: - distance estimate
 float DE(float3 pos,device Control &control) {
@@ -1359,6 +1381,7 @@ float DE(float3 pos,device Control &control) {
         case EQU_FLOWER      : return DE_FLOWER(pos,control);
         case EQU_JUNGLE      : return DE_JUNGLE(pos,control);
         case EQU_PRISONER    : return DE_PRISONER(pos,control);
+        case EQU_SPIRALBOX   : return DE_SPIRALBOX(pos,control);
     }
     
     return 0;

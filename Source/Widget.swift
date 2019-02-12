@@ -146,7 +146,7 @@ class Widget {
             booleanEntry(vc.control.showBalls,"B: ShowBalls")
             booleanEntry(vc.control.fourGen,"F: FourGen")
             booleanEntry(vc.control.doInversion,"I: Do Inversion")
-        case EQU_MANDELBOX, EQU_KALIBOX :
+        case EQU_MANDELBOX, EQU_KALIBOX, EQU_SPIRALBOX :
             juliaEntry()
         case EQU_FRAGM :
             juliaEntry()

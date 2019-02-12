@@ -111,7 +111,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
               "Knighty Polychora","QuadRay","3Dickulus FragM",
               "3Dickulus Quaternion Julia","3Dickulus Quaternion Mandelbrot",
               "Kali's MandelBox","Spudsville","Menger Smooth Polyhedra",
-              "Menger Helix","Flower Hive","Jungle","Prisoner" ]
+              "Menger Helix","Flower Hive","Jungle","Prisoner","Pupukuusikkos Spiralbox" ]
      
         let index = Int(control.equation)
         view.window?.title = Int(index + 1).description + ": " + titleString[index] + " : " + widget.focusString()
@@ -414,6 +414,12 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             control.bright = 1.5000001
             control.contrast = 0.15999986
             control.power = 4.8999977
+        case EQU_SPIRALBOX :
+            control.camera = float3(0.047575176, -0.122939646, 1.5686907)
+            control.cx = 0.8810008
+            juliaX =  1.9000009
+            juliaY =  1.0999998
+            juliaZ =  0.19999993
         default : break
         }
         
@@ -435,11 +441,11 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         c.light = c.camera + float3(sin(lightAngle)*100,cos(lightAngle)*100,-100)
         c.nlight = normalize(c.light)
         c.maxSteps = Int32(control.fMaxSteps);
-        
+        c.Box_Iterations = Int32(control.fBox_Iterations)
+
         switch Int(control.equation) {
         case EQU_KLEINIAN :
             c.Final_Iterations = Int32(control.fFinal_Iterations)
-            c.Box_Iterations = Int32(control.fBox_Iterations)
             c.InvCenter = float3(c.InvCx, c.InvCy, c.InvCz)
         case EQU_MONSTER :
             c.mm[0][0] = 99   // mark as needing calculation in shader
@@ -492,7 +498,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             c.n1 = float3(c.dx,c.dy,c.dz)
             c.mins = float4(c.cx, c.cx, c.cx, abs(c.cx)) / c.cy
             prepareJulia()
-        case EQU_MHELIX, EQU_FLOWER, EQU_MANDELBOX, EQU_QUATJULIA2, EQU_MBROT, EQU_FLOWER :
+        case EQU_MHELIX, EQU_FLOWER, EQU_MANDELBOX, EQU_QUATJULIA2, EQU_MBROT, EQU_FLOWER, EQU_SPIRALBOX :
             prepareJulia()
         default : break
         }
@@ -910,6 +916,14 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             widget.addEntry("Angle",&control.angle1,-4,4,0.02)
             widget.addEntry("Cage",&control.cx,0.6,2.8,0.01)
             widget.addEntry("Thickness",&control.cy,1,10,0.02)
+        case EQU_SPIRALBOX :
+            widget.addEntry("Iterations",&control.fMaxSteps,6,20,1)
+            widget.addEntry("Fold",&control.cx,0.5,1,0.003)
+            if control.juliaboxMode {
+                widget.addEntry("Julia X",&juliaX,-2,2, 0.1)
+                widget.addEntry("Julia Y",&juliaY,-2,2, 0.1)
+                widget.addEntry("Julia Z",&juliaZ,-2,2, 0.1)
+            }
         default : break
         }
         
