@@ -3,6 +3,7 @@
 // also visit: http://paulbourke.net/fractals/apollony/
 // apollonian: https://www.shadertoy.com/view/4ds3zn
 // apollonian2: https://www.shadertoy.com/view/llKXzh
+// mandelbox : http://www.fractalforums.com/3d-fractal-generation/a-mandelbox-distance-estimate-formula/
 // mandelbulb: https://github.com/jtauber/mandelbulb/blob/master/mandel8.py
 // tes1.frag:  http://www.fractalforums.com/3d-fractal-generation/an-escape-tim-algorithm-for-kleinian-group-limit-sets/45/
 // monster: https://www.shadertoy.com/view/4sX3R2
@@ -68,7 +69,7 @@ float3 rotatePosition(float3 pos, int axis, float angle) {
     return pos;
 }
 
-//MARK: -
+//MARK: - 2
 float DE_APOLLONIAN(float3 pos,device Control &control) {
     float k,t = control.foam2 + 0.25 * cos(control.bend * PI * control.multiplier * (pos.z - pos.x));
     float scale = 1;
@@ -83,7 +84,7 @@ float DE_APOLLONIAN(float3 pos,device Control &control) {
     return 1.5 * (0.25 * abs(pos.y) / scale);
 }
 
-//MARK: -
+//MARK: - 3
 float DE_APOLLONIAN2(float3 pos,device Control &control) {
     float t = control.foam2 + 0.25 * cos(control.bend * PI * control.multiplier * (pos.z - pos.x));
     float scale = 1;
@@ -104,7 +105,7 @@ float DE_APOLLONIAN2(float3 pos,device Control &control) {
 
 // spider: https://www.shadertoy.com/view/XtKcDm
 
-//MARK: -
+//MARK: - 1
 float DE_MANDELBULB(float3 pos,device Control &control) {
     float dr = 1;
     float r,theta,phi,pwr,ss;
@@ -128,7 +129,7 @@ float DE_MANDELBULB(float3 pos,device Control &control) {
     return 0.5 * log(r) * r/dr;
 }
 
-//MARK: -
+//MARK: - 4
 
 float dot2(float3 z) { return dot(z,z);}
 
@@ -213,39 +214,47 @@ float DE_KLEINIAN(float3 pos,device Control &control) {
     return JosKleinian(pos,control);
 }
 
-//MARK: -
+//MARK: - 5
 float DE_MANDELBOX(float3 pos,device Control &control) {
-    float asf = abs(control.scaleFactor);
-    float constant1 = abs(control.scaleFactor - 1.0);
-    float constant2 = pow(asf, float(1 - control.maxSteps));
-    
     // For the Juliabox, c is a constant. For the Mandelbox, c is variable.
     float3 c = control.juliaboxMode ? control.julia : pos;
-    float mag,dr = 1.5;
+    float r2,dr = control.power;
+    
+    float fR2 = control.cz * control.cz;
+    float mR2 = control.cw * control.cw;
     
     for(int i = 0; i < control.maxSteps; ++i) {
-        // Box fold
-        pos = clamp(pos, -control.box1, control.box1) * control.box2 - pos;
+        if (pos.x > control.cx)
+            pos.x = control.cx * 2 - pos.x;
+        else if (pos.x < -control.cx) pos.x = -control.cx * 2 - pos.x;
+        if (pos.y > control.cx)
+            pos.y = control.cx * 2 - pos.y;
+        else if (pos.y < -control.cx) pos.y = -control.cx * 2 - pos.y;
+        if (pos.z > control.cx)
+            pos.z = control.cx * 2 - pos.z;
+        else if (pos.z < -control.cx) pos.z = -control.cx * 2 - pos.z;
         
-        // Sphere fold.
-        mag = dot(pos,pos);
-        if(mag < control.sph1) {
-            pos *= control.sph3;
-            dr *= control.sph3;
+        r2 = pos.x*pos.x + pos.y*pos.y + pos.z*pos.z;
+        
+        if(r2 < mR2) {
+            float temp = fR2 / mR2;
+            pos *= temp;
+            dr *= temp;
         }
-        else if(mag < control.sph2) {
-            pos /= mag;
-            dr /= mag;
+        else if(r2 < fR2) {
+            float temp = fR2 / r2;
+            pos *= temp;
+            dr *= temp;
         }
         
-        pos = pos * control.scaleFactor + c;
-        dr = dr * asf + 1.0;
+        pos = pos * control.power + c;
+        dr *= control.power;
     }
     
-    return (length(pos) - constant1) / dr - constant2;
+    return length(pos)/abs(dr);
 }
 
-//MARK: -
+//MARK: - 6
 float DE_QUATJULIA(float3 pos,device Control &control) {
     float4 c = 0.5 * float4(control.cx, control.cy, control.cz, control.cw);
     float4 nz;
@@ -266,7 +275,7 @@ float DE_QUATJULIA(float3 pos,device Control &control) {
     return 0.3 * sqrt(mz2/md2) * log(mz2);
 }
     
-//MARK: -
+//MARK: - 7
 float4x4 rotationMat(float3 xyz )
 {
     float3 si = sin(xyz);
@@ -308,7 +317,7 @@ float DE_MONSTER(float3 pos,device Control &control) {
     return d * 0.25;
 }
 
-//MARK: -
+//MARK: - 8
 float smin(float a, float b, float k ) {
     float h = clamp( 0.5+0.5*(b-a)/k, 0.0, 1.0 );
     return mix( b, a, h ) - k*h*(1.0-h);
@@ -348,7 +357,7 @@ float DE_KALI_TOWER(float3 pos,device Control &control) {
     return abs(smin(fl,fr,.7));
 }
 
-//MARK: -
+//MARK: - 9
 float2 Rot2D(float2 q, float a) {
     float2 cs = sin(a + float2 (0.5 * PI, 0));
     return float2(dot(q, float2(cs.x, -cs.y)), dot(q.yx, cs));
@@ -404,7 +413,7 @@ float DE_POLY_MENGER(float3 p,device Control &control) {
     return 0.8 * PrBoxDf (p, float3 (1.)) / pow (sclFac, nIt);
 }
 
-//MARK: -
+//MARK: - 10
 float DE_GOLD(float3 p,device Control &control) {
     p.xz = mod(p.xz + 1.0, 2.0) - 1.0;
     float4 q = float4(p, 1);
@@ -416,7 +425,7 @@ float DE_GOLD(float3 p,device Control &control) {
     return length(q.xyz)/q.w;
 }
 
-//MARK: -
+//MARK: - 11
 float smax(float a, float b, float s) { // iq smin
     float h = clamp( 0.5 + 0.5*(a-b)/s, 0.0, 1.0 );
     return mix(b, a, h) + h*(1.0-h)*s;
@@ -438,7 +447,7 @@ float DE_SPIDER(float3 p,device Control &control) {
     return smax(d,-t, 0.3);
 }
 
-//MARK: -
+//MARK: - 12
 float DE_KLEINIAN2(float3 pos,device Control &control) {
     float k, scale = 1;
 
@@ -453,7 +462,7 @@ float DE_KLEINIAN2(float3 pos,device Control &control) {
     return .7 * max(rxy - control.maxs.w, rxy * pos.z / length(pos)) / scale;
 }
 
-//MARK: -
+//MARK: - 13
 float DE_KIFS(float3 pos,device Control &control) {
     float4 z = float4(pos,1.0);
     float3 offset = float3(control.cx,1.1,0.5);
@@ -476,7 +485,7 @@ float DE_KIFS(float3 pos,device Control &control) {
     return(length(max(abs(z.xyz)-float3(1.0),0.0))-0.05)/z.w;
 }
 
-//MARK: -
+//MARK: - 14
 float DE_IFS_TETRA(float3 pos,device Control &control) {
     int n = 0;
     while(n < 25) {
@@ -495,7 +504,7 @@ float DE_IFS_TETRA(float3 pos,device Control &control) {
     return 0.55 * length(pos) * pow(control.cx, -float(n));
 }
 
-//MARK: -
+//MARK: - 15
 float DE_IFS_OCTA(float3 pos,device Control &control) {
     int n = 0;
     while(n < 18) { 
@@ -515,7 +524,7 @@ float DE_IFS_OCTA(float3 pos,device Control &control) {
     return 0.55 * length(pos) * pow(control.cx, -float(n));
 }
 
-//MARK: -
+//MARK: - 16
 float DE_IFS_DODEC(float3 pos,device Control &control) {
     int n = 0;
     while(n < 30) {
@@ -541,7 +550,7 @@ float DE_IFS_DODEC(float3 pos,device Control &control) {
     return 0.35 * length(pos) * pow(control.cx,float(-n-1));
 }
 
-//MARK: -
+//MARK: - 17
 float DE_IFS_MENGER(float3 pos,device Control &control) {
     pos = pos * 0.5 + float3(0.5);
     float3 pp = abs(pos-0.5)-0.5;
@@ -562,7 +571,7 @@ float DE_IFS_MENGER(float3 pos,device Control &control) {
     return d;
 }
 
-//MARK: -
+//MARK: - 18
 float DE_SIERPINSKI_T(float3 pos,device Control &control) {
     int i;
 
@@ -581,7 +590,7 @@ float DE_SIERPINSKI_T(float3 pos,device Control &control) {
     return (length(pos) - 2) * pow(control.cx, -float(i));
 }
 
-//MARK: -
+//MARK: - 19
 float DE_HALF_TETRA(float3 pos,device Control &control) {
     int i;
     
@@ -600,7 +609,7 @@ float DE_HALF_TETRA(float3 pos,device Control &control) {
     return (length(pos) - 2) * pow(control.cx, -float(i));
 }
 
-//MARK: -
+//MARK: - 20
 float DE_FULL_TETRA(float3 pos,device Control &control) {
     int i;
     
@@ -622,7 +631,7 @@ float DE_FULL_TETRA(float3 pos,device Control &control) {
     return (length(pos) - 2) * pow(control.cx, -float(i));
 }
 
-//MARK: -
+//MARK: - 21
 float DE_CUBIC(float3 pos,device Control &control) {
     int i;
     
@@ -639,7 +648,7 @@ float DE_CUBIC(float3 pos,device Control &control) {
     return (length(pos) - 2) * pow(control.cx, -float(i));
 }
 
-//MARK: -
+//MARK: - 22
 float DE_HALF_OCTA(float3 pos,device Control &control) {
     int i;
     
@@ -659,7 +668,7 @@ float DE_HALF_OCTA(float3 pos,device Control &control) {
     return (length(pos) - 2) * pow(control.cx, -float(i));
 }
 
-//MARK: -
+//MARK: - 23
 float DE_FULL_OCTA(float3 pos,device Control &control) {
     int i;
     
@@ -679,7 +688,7 @@ float DE_FULL_OCTA(float3 pos,device Control &control) {
     return (length(pos) - 2) * pow(control.cx, -float(i));
 }
 
-//MARK: -
+//MARK: - 24
 float DE_KALEIDO(float3 pos,device Control &control) {
     int i;
     
@@ -703,7 +712,7 @@ float DE_KALEIDO(float3 pos,device Control &control) {
     return (length(pos) - 2) * pow(control.cx, -float(i));
 }
 
-//MARK: -
+//MARK: - 25
 float4 Rotate(float4 p,device Control &control) {
     //this is a rotation on the plane defined by RotVector and w axis
     //We do not need more because the remaining 3 rotation are in our 3D space
@@ -777,7 +786,7 @@ float DE_POLYCHORA(float3 pos,device Control &control) {
     return min(dist2Vertex(z4,r,control),dist2Segments(z4,r,control));
 }
 
-//MARK: -
+//MARK: - 26
 float DE_QUADRAY(float3 pos,device Control &control) {
     float v = control.cz;
     matrix_float3x4 mc = matrix_float3x4(float4(v,-v,-v, v), float4(v,-v, v,-v), float4(v, v,-v,-v));
@@ -811,7 +820,7 @@ float DE_QUADRAY(float3 pos,device Control &control) {
     return 5 * r * log(r) / dr;
 }
 
-//MARK: -
+//MARK: - 27
 float3 powN1(float3 z, float r, thread float &dr,device Control &control) {
     // extract polar coordinates
     float theta = acos(z.z/r);
@@ -915,7 +924,7 @@ float DE_FRAGM(float3 pos,device Control &control) {
     return rd;
 };
 
-//MARK: -
+//MARK: - 28
 float4 stereographic3Sphere(float3 pos,device Control &control) {
     float n = dot(pos,pos)+1.;
     return float4(control.cx * pos,n-2.) / n;
@@ -942,7 +951,7 @@ float DE_QUATJULIA2(float3 pos,device Control &control) {
     return r * log(r) / abs(dp);
 }
 
-//MARK: -
+//MARK: - 29
 float DE_MBROT(float3 pos,device Control &control) {
     float4 p = float4(pos, control.cx);
     float4 dp = float4(1.0, 0.0,0.0,0.0);
@@ -963,7 +972,7 @@ float DE_MBROT(float3 pos,device Control &control) {
     return 0.2 * r * log(r) / length(dp);
 }
 
-//MARK: -
+//MARK: - 30
 float DE_KALIBOX(float3 pos,device Control &control) {
     float4 p = float4(pos,1), p0 = float4(control.julia,1);  // p.w is the distance estimate
     
@@ -982,7 +991,7 @@ float DE_KALIBOX(float3 pos,device Control &control) {
     return ((length(p.xyz) - control.absScalem1) / p.w - control.AbsScaleRaisedTo1mIters);
 }
 
-//MARK: -
+//MARK: - 31
 void spudsSphereFold(thread float3 &z, thread float &dz,device Control &control) {
     float r2 = dot(z,z);
     if (r2< control.cx) {
@@ -1041,7 +1050,7 @@ float DE_SPUDS(float3 pos,device Control &control) {
     return r * log(r) / dz;
 }
 
-//MARK: -
+//MARK: - 32
 void Spheric(thread float3 &z) {
     float rCyz = (z.y*z.y)/(z.z*z.z);
     float rCxyz = (z.y*z.y+z.z*z.z)/(z.x*z.x);
@@ -1163,7 +1172,7 @@ float DE_MPOLY(float3 pos,device Control &control) {
     return abs(length(pos)) / w;
 }
 
-//MARK: -
+//MARK: - 33
 float mHelixPrBoxDf(float3 p, float3 b) {
     float3 d = abs(p) - b;
     return min (max (d.x, max (d.y, d.z)), 0.) + length (max (d, 0.));
@@ -1207,7 +1216,7 @@ float DE_MHELIX(float3 pos,device Control &control) {
     return 0.8 * mHelixPrBoxDf(pos, float3(1.)) / pow(sclFac, nIt);
 }
 
-//MARK: -
+//MARK: - 34
 float DE_FLOWER(float3 pos,device Control &control) {
     float4 q = float4(pos, 1);
     float4 juliaOffset = float4(control.julia,0);
@@ -1223,7 +1232,7 @@ float DE_FLOWER(float3 pos,device Control &control) {
     return (length(q.xy)/q.w - 0.003); // cylinder primative instead of a sphere primative.
 }
 
-//MARK: -
+//MARK: - 35
 float pattern(float2 p) {
     return abs(sin(p.x) + sin(p.y));
 }
@@ -1263,7 +1272,7 @@ float DE_JUNGLE(float3 pos,device Control &control) {
     return de + boxmap(pos * control.cz) * 0.02 - 0.01;
 }
 
-//MARK: -
+//MARK: - 36
 float opS(float d1, float d2) { return (-d2>d1)? -d2:d1; }
 
 float sdBox(float3 p, float3 b) {
@@ -1320,7 +1329,7 @@ float DE_PRISONER(float3 pos,device Control &control) {
    return 0.4 * log(wr) * wr/dr;
 }
 
-//MARK: -
+//MARK: - 37
 float DE_SPIRALBOX(float3 pos,device Control &control) {
     float3 z = pos;
     float r,DF = 1.0;
@@ -1345,43 +1354,43 @@ float DE_SPIRALBOX(float3 pos,device Control &control) {
 //MARK: - distance estimate
 float DE(float3 pos,device Control &control) {
     switch(control.equation) {
-        case EQU_MANDELBULB  : return DE_MANDELBULB(pos,control);
-        case EQU_APOLLONIAN  : return DE_APOLLONIAN(pos,control);
-        case EQU_APOLLONIAN2 : return DE_APOLLONIAN2(pos,control);
-        case EQU_KLEINIAN    : return DE_KLEINIAN(pos,control);
-        case EQU_MANDELBOX   : return DE_MANDELBOX(pos,control);
-        case EQU_QUATJULIA   : return DE_QUATJULIA(pos,control);
-        case EQU_MONSTER     : return DE_MONSTER(pos,control);
-        case EQU_KALI_TOWER  : return DE_KALI_TOWER(pos,control);
-        case EQU_POLY_MENGER : return DE_POLY_MENGER(pos,control);
-        case EQU_GOLD        : return DE_GOLD(pos,control);
-        case EQU_SPIDER      : return DE_SPIDER(pos,control);
-        case EQU_KLEINIAN2   : return DE_KLEINIAN2(pos,control);
-        case EQU_KIFS        : return DE_KIFS(pos,control);
-        case EQU_IFS_TETRA   : return DE_IFS_TETRA(pos,control);
-        case EQU_IFS_OCTA    : return DE_IFS_OCTA(pos,control);
-        case EQU_IFS_DODEC   : return DE_IFS_DODEC(pos,control);
-        case EQU_IFS_MENGER  : return DE_IFS_MENGER(pos,control);
-        case EQU_SIERPINSKI  : return DE_SIERPINSKI_T(pos,control);
-        case EQU_HALF_TETRA  : return DE_HALF_TETRA(pos,control);
-        case EQU_FULL_TETRA  : return DE_FULL_TETRA(pos,control);
-        case EQU_CUBIC       : return DE_CUBIC(pos,control);
-        case EQU_HALF_OCTA   : return DE_HALF_OCTA(pos,control);
-        case EQU_FULL_OCTA   : return DE_FULL_OCTA(pos,control);
-        case EQU_KALEIDO     : return DE_KALEIDO(pos,control);
-        case EQU_POLYCHORA   : return DE_POLYCHORA(pos,control);
-        case EQU_QUADRAY     : return DE_QUADRAY(pos,control);
-        case EQU_FRAGM       : return DE_FRAGM(pos,control);
-        case EQU_QUATJULIA2  : return DE_QUATJULIA2(pos,control);
-        case EQU_MBROT       : return DE_MBROT(pos,control);
-        case EQU_KALIBOX     : return DE_KALIBOX(pos,control);
-        case EQU_SPUDS       : return DE_SPUDS(pos,control);
-        case EQU_MPOLY       : return DE_MPOLY(pos,control);
-        case EQU_MHELIX      : return DE_MHELIX(pos,control);
-        case EQU_FLOWER      : return DE_FLOWER(pos,control);
-        case EQU_JUNGLE      : return DE_JUNGLE(pos,control);
-        case EQU_PRISONER    : return DE_PRISONER(pos,control);
-        case EQU_SPIRALBOX   : return DE_SPIRALBOX(pos,control);
+        case EQU_01_MANDELBULB  : return DE_MANDELBULB(pos,control);
+        case EQU_02_APOLLONIAN  : return DE_APOLLONIAN(pos,control);
+        case EQU_03_APOLLONIAN2 : return DE_APOLLONIAN2(pos,control);
+        case EQU_04_KLEINIAN    : return DE_KLEINIAN(pos,control);
+        case EQU_05_MANDELBOX   : return DE_MANDELBOX(pos,control);
+        case EQU_06_QUATJULIA   : return DE_QUATJULIA(pos,control);
+        case EQU_07_MONSTER     : return DE_MONSTER(pos,control);
+        case EQU_08_KALI_TOWER  : return DE_KALI_TOWER(pos,control);
+        case EQU_09_POLY_MENGER : return DE_POLY_MENGER(pos,control);
+        case EQU_10_GOLD        : return DE_GOLD(pos,control);
+        case EQU_11_SPIDER      : return DE_SPIDER(pos,control);
+        case EQU_12_KLEINIAN2   : return DE_KLEINIAN2(pos,control);
+        case EQU_13_KIFS        : return DE_KIFS(pos,control);
+        case EQU_14_IFS_TETRA   : return DE_IFS_TETRA(pos,control);
+        case EQU_15_IFS_OCTA    : return DE_IFS_OCTA(pos,control);
+        case EQU_16_IFS_DODEC   : return DE_IFS_DODEC(pos,control);
+        case EQU_17_IFS_MENGER  : return DE_IFS_MENGER(pos,control);
+        case EQU_18_SIERPINSKI  : return DE_SIERPINSKI_T(pos,control);
+        case EQU_19_HALF_TETRA  : return DE_HALF_TETRA(pos,control);
+        case EQU_20_FULL_TETRA  : return DE_FULL_TETRA(pos,control);
+        case EQU_21_CUBIC       : return DE_CUBIC(pos,control);
+        case EQU_22_HALF_OCTA   : return DE_HALF_OCTA(pos,control);
+        case EQU_23_FULL_OCTA   : return DE_FULL_OCTA(pos,control);
+        case EQU_24_KALEIDO     : return DE_KALEIDO(pos,control);
+        case EQU_25_POLYCHORA   : return DE_POLYCHORA(pos,control);
+        case EQU_26_QUADRAY     : return DE_QUADRAY(pos,control);
+        case EQU_27_FRAGM       : return DE_FRAGM(pos,control);
+        case EQU_28_QUATJULIA2  : return DE_QUATJULIA2(pos,control);
+        case EQU_29_MBROT       : return DE_MBROT(pos,control);
+        case EQU_30_KALIBOX     : return DE_KALIBOX(pos,control);
+        case EQU_31_SPUDS       : return DE_SPUDS(pos,control);
+        case EQU_32_MPOLY       : return DE_MPOLY(pos,control);
+        case EQU_33_MHELIX      : return DE_MHELIX(pos,control);
+        case EQU_34_FLOWER      : return DE_FLOWER(pos,control);
+        case EQU_35_JUNGLE      : return DE_JUNGLE(pos,control);
+        case EQU_36_PRISONER    : return DE_PRISONER(pos,control);
+        case EQU_37_SPIRALBOX   : return DE_SPIRALBOX(pos,control);
     }
     
     return 0;
@@ -1421,7 +1430,7 @@ float3 calcNormal(float3 pos,device Control &control) {
 // boxplorer's method
 float3 getBlinnShading(float3 normal, float3 direction, float3 light,device Control &control) {
     float3 halfLV = normalize(light + direction);
-    float spe = pow(max( dot(normal, halfLV), 0.0 ), 32.0);
+    float spe = pow(max( dot(normal, halfLV), 0.0 ), 2);
     float dif = dot(normal, light) * 0.5 + 0.75;
     return dif + spe * control.specular;
 }
@@ -1431,6 +1440,7 @@ float3 getBlinnShading(float3 normal, float3 direction, float3 light,device Cont
 kernel void rayMarchShader
 (
  texture2d<float, access::write> outTexture [[texture(0)]],
+ texture2d<float, access::read> coloringTexture [[texture(1)]],
  device Control &control [[buffer(0)]],
  uint2 p [[thread_position_in_grid]]
  )
@@ -1447,7 +1457,27 @@ kernel void rayMarchShader
         float3 position = control.camera + dist.x * direction;
         float3 normal = calcNormal(position,control);
         
-        color = float3(1 - (normal / 10 + sqrt(dist.y / 100))) * control.bright;
+        // use texture
+        if(control.txtOnOff) {
+            float scale = control.txtCenter.z * 4;
+            float len = length(position) / dist.x;
+            float x = normal.x * len;
+            float y = normal.z * len;
+            float w = control.txtSize.x;
+            float h = control.txtSize.y;
+            float xx = w + (control.txtCenter.x * 4 + x * scale) * (w + len);
+            float yy = h + (control.txtCenter.y * 4 + y * scale) * (h + len);
+            
+            uint2 pt;
+            pt.x = uint(fmod(xx,w));
+            pt.y = uint(control.txtSize.y - fmod(yy,h)); // flip Y coord
+            color = coloringTexture.read(pt).xyz;
+        }
+        else {
+            color = float3(1 - (normal / 10 + sqrt(dist.y / 100)));
+        }
+        
+        color *= control.bright;
         color = 0.5 + (color - 0.5) * control.contrast * 2;
         
         float3 light = getBlinnShading(normal, direction, control.nlight, control);

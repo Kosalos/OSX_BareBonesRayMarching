@@ -139,20 +139,20 @@ class Widget {
         
         str.normal("<, > : Change window size,  0 : Toggle Full Screen")
         str.normal("1,2 : Change Equation (previous, next)")
-        str.normal("3 : Toggle Cross-Eyed Stereo")
+        str.normal("3 : Toggle Cross-Eyed Stereo,  P : load Picture for texturing")
         str.normal("4,5; 6,7; 8,9 : Jog in X,Y,Z (+ 'Shift' for slow, 'Option' for fast)")
 
         switch Int(vc.control.equation) {
-        case EQU_KLEINIAN :
+        case EQU_04_KLEINIAN :
             booleanEntry(vc.control.showBalls,"B: ShowBalls")
             booleanEntry(vc.control.fourGen,"F: FourGen")
             booleanEntry(vc.control.doInversion,"I: Do Inversion")
-        case EQU_MANDELBOX, EQU_KALIBOX, EQU_SPIRALBOX :
+        case EQU_05_MANDELBOX, EQU_30_KALIBOX, EQU_37_SPIRALBOX :
             juliaEntry()
-        case EQU_FRAGM :
+        case EQU_27_FRAGM :
             juliaEntry()
             booleanEntry(vc.control.AlternateVersion,"K: Alternate Version")
-        case EQU_MPOLY :
+        case EQU_32_MPOLY :
             booleanEntry(vc.control.polygonate,"Q: polygonate")
             booleanEntry(vc.control.polyhedronate,"W: polyhedronate")
             booleanEntry(vc.control.TotallyTubular,"E: TotallyTubular")
@@ -160,7 +160,7 @@ class Widget {
             booleanEntry(vc.control.HoleSphere,"T: HoleSphere")
             booleanEntry(vc.control.unSphere,"Y: unSphere")
             booleanEntry(vc.control.gravity,"U: gravity")
-        case EQU_MHELIX :
+        case EQU_33_MHELIX :
             booleanEntry(vc.control.gravity,"U: Moebius")
         default : break
         }

@@ -19,8 +19,12 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
     var juliaX:Float = 0
     var juliaY:Float = 0
     var juliaZ:Float = 0
+    var tCenterX:Float = 0
+    var tCenterY:Float = 0
+    var tScale:Float = 0
     let widget = Widget()
     var style:MoveStyle = .move
+    var coloringTexture:MTLTexture! = nil
     
     @IBOutlet var instructions: NSTextField!
     @IBOutlet var metalViewL: MetalView!
@@ -52,7 +56,9 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         
         controlBuffer = device.makeBuffer(length:MemoryLayout<Control>.stride, options:MTLResourceOptions.storageModeShared)
         
-        control.equation = Int32(EQU_MANDELBULB)
+        control.equation = Int32(EQU_01_MANDELBULB)
+        control.txtOnOff = false    // 'no texture'
+
         reset()
         setDefaultWindowSize()
         
@@ -126,20 +132,20 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         control.angle2 = 0
 
         switch Int(control.equation) {
-        case EQU_MANDELBULB :
+        case EQU_01_MANDELBULB :
             updateViewVector(float3(0.010000015, 0.41950363, 0.64503753))
             control.camera = float3(0.038563743, -1.1381346, -1.8405379)
             control.multiplier = 80
             control.power = 8
             control.fMaxSteps = 10
-        case EQU_APOLLONIAN, EQU_APOLLONIAN2 :
+        case EQU_02_APOLLONIAN, EQU_03_APOLLONIAN2 :
             control.camera = float3(0.42461035, 10.847559, 2.5749633)
             control.foam = 1.05265248
             control.foam2 = 1.06572711
             control.bend = 0.0202780124
             control.multiplier = 25
             control.fMaxSteps = 8
-        case EQU_KLEINIAN :
+        case EQU_04_KLEINIAN :
             control.camera = float3(0.5586236, 1.1723881, -1.8257363)
             control.fMaxSteps = 70
             control.fFinal_Iterations = 21
@@ -156,20 +162,22 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             control.InvCenter = float3(1.0517285, 0.7155759, 0.9883028)
             control.DeltaAngle = 5.5392437
             control.InvRadius = 2.06132293
-        case EQU_MANDELBOX :
-            control.camera = float3(0.23969203, -8.194115, -8.990158)
-            control.sph1 = 0.480000079
-            control.sph2 = 2.34000063
-            control.sph3 = 2.28999949
-            control.box1 = 2.35999846
-            control.box2 = 2.30000067
-            control.scaleFactor = 2.77700996
-            control.juliaboxMode = false
-            juliaX = 0
-            juliaY = -10
-            juliaZ = 1
-            control.fMaxSteps = 13
-        case EQU_QUATJULIA :
+        case EQU_05_MANDELBOX :
+            control.camera = float3(-1.3771019, 0.9999971, -5.037427)
+            control.cx = 1.42
+            control.cy = 2.997
+            control.cz = 1.0099998
+            control.cw = 0.02
+            control.dx = 4.3978653
+            control.fMaxSteps = 20.0
+            juliaX =  0.0
+            juliaY =  -6.0
+            juliaZ =  -8.0
+            control.bright = 1.01
+            control.contrast = 0.5
+            control.power = 2.42
+            control.juliaboxMode = true
+        case EQU_06_QUATJULIA :
             control.camera = float3(-0.010578117, -0.49170083, -2.4)
             control.cx = -1.74999952
             control.cy = -0.349999964
@@ -178,39 +186,39 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             control.fMaxSteps = 7
             control.contrast = 0.28
             control.specular = 0.9
-        case EQU_MONSTER :
+        case EQU_07_MONSTER :
             control.camera = float3(0.0012031387, -0.106357165, -1.1865364)
             control.cx = 120
             control.cy = 4
             control.cz = 1
             control.cw = 1.3
             control.fMaxSteps = 10
-        case EQU_KALI_TOWER :
+        case EQU_08_KALI_TOWER :
             control.camera = float3(-0.051097937, 5.059899, -4.0350704)
             control.cx = 8.65
             control.cy = 1
             control.cz = 2.3
             control.cw = 0.13
             control.fMaxSteps = 2
-        case EQU_POLY_MENGER :
+        case EQU_09_POLY_MENGER :
             control.camera = float3(-0.20046826, -0.51177955, -5.087464)
             control.cx = 4.7799964
             control.cy = 2.1500008
             control.cz = 2.899998
             control.cw = 3.0999982
-            control.box1 = 5;
-        case EQU_GOLD :
+            control.dx = 5;
+        case EQU_10_GOLD :
             updateViewVector(float3(0.010000015, 0.41950363, 0.64503753))
             control.camera = float3(0.038563743, -1.1381346, -1.8405379)
             control.cx = -0.09001912
             control.cy = 0.43999988
             control.cz = 1.0499994
-        case EQU_SPIDER :
+        case EQU_11_SPIDER :
             control.camera = float3(0.04676684, -0.50068825, -3.4419205)
             control.cx = 0.13099998
             control.cy = 0.21100003
             control.cz = 0.041
-        case EQU_KLEINIAN2 :
+        case EQU_12_KLEINIAN2 :
             control.camera = float3(4.1487565, 2.6955016, 1.3862593)
             control.cx = -0.7821867
             control.cy = -0.5424057
@@ -221,69 +229,69 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             control.dz = 1.5499997
             control.dw = 0.9000002
             control.power = 1
-        case EQU_KIFS :
+        case EQU_13_KIFS :
             control.camera = float3(-0.033257294, -0.58263075, -5.087464)
             control.cx = 2.7499976
             control.cy = 2.6499977
             control.cz = 4.049997
-        case EQU_IFS_TETRA :
+        case EQU_14_IFS_TETRA :
             control.camera = float3(-0.034722134, -0.45799592, -3.3590596)
             control.cx = 1.4900005
-        case EQU_IFS_OCTA :
+        case EQU_15_IFS_OCTA :
             control.camera = float3(0.00014548551, -0.20753044, -1.7193593)
             control.cx = 1.65
-        case EQU_IFS_DODEC :
+        case EQU_16_IFS_DODEC :
             control.camera = float3(-0.09438618, -0.52536994, -4.1138387)
             control.cx = 1.8
             control.cy = 1.5999994
-        case EQU_IFS_MENGER :
+        case EQU_17_IFS_MENGER :
             control.camera = float3(0.017836891, -0.40871215, -3.3820548)
             control.cx = 3.0099978
             control.cy = -0.53999937
             control.fMaxSteps = 3
-        case EQU_SIERPINSKI :
+        case EQU_18_SIERPINSKI :
             control.camera = float3(0.03816485, -0.08283869, -0.63742965)
             control.cx = 1.3240005
             control.cy = 1.5160003
             control.angle1 = 3.1415962
             control.angle2 = 1.5610005
             control.fMaxSteps = 27
-        case EQU_HALF_TETRA :
+        case EQU_19_HALF_TETRA :
             control.camera = float3(-0.023862544, -0.113349974, -0.90810966)
             control.cx = 1.2040006
             control.cy = 9.236022
             control.angle1 = -3.9415956
             control.angle2 = 0.79159856
             control.fMaxSteps = 53
-        case EQU_FULL_TETRA :
+        case EQU_20_FULL_TETRA :
             control.camera = float3(-0.018542236, -0.08817809, -0.90810966)
             control.cx = 1.1280007
             control.cy = 8.099955
             control.angle1 = -1.2150029
             control.angle2 = -0.018401254
             control.fMaxSteps = 71.0
-        case EQU_CUBIC :
+        case EQU_21_CUBIC :
             control.camera = float3(-0.0011281949, -0.21761245, -0.97539556)
             control.cx = 1.1000057
             control.cy = 1.6714587
             control.angle1 = -1.8599923
             control.angle2 = 1.1640991
             control.fMaxSteps = 73.0
-        case EQU_HALF_OCTA :
+        case EQU_22_HALF_OCTA :
             control.camera = float3(-0.015249629, -0.14036252, -0.8621065)
             control.cx = 1.1399999
             control.cy = 0.61145973
             control.angle1 = 2.8750083
             control.angle2 = 1.264099
             control.fMaxSteps = 50.0
-        case EQU_FULL_OCTA :
+        case EQU_23_FULL_OCTA :
             control.camera = float3(0.0028324036, -0.05510863, -0.47697017)
             control.cx = 1.132
             control.cy = 0.6034597
             control.angle1 = 2.8500082
             control.angle2 = 1.264099
             control.fMaxSteps = 34.0
-        case EQU_KALEIDO :
+        case EQU_24_KALEIDO :
             control.camera = float3(-0.00100744, -0.1640267, -1.7581517)
             control.cx = 1.1259973
             control.cy = 0.8359996
@@ -291,7 +299,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             control.angle1 = 1.7849922
             control.angle2 = -1.2375059
             control.fMaxSteps = 35.0
-        case EQU_POLYCHORA :
+        case EQU_25_POLYCHORA :
             control.camera = float3(-0.00100744, -0.16238609, -1.7581517)
             control.cx = 5.0
             control.cy = 1.3159994
@@ -300,14 +308,14 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             control.dx = 0.08000006
             control.dy = 0.008000016
             control.dz = -1.5999997
-        case EQU_QUADRAY :
+        case EQU_26_QUADRAY :
             control.camera = float3(0.017425783, -0.03216796, -3.7908385)
             control.cx = -0.8950321
             control.cy = -0.22100903
             control.cz = 0.10000001
             control.cw = 2
             control.fMaxSteps = 10.0
-        case EQU_FRAGM :
+        case EQU_27_FRAGM :
             control.camera = float3(-0.010637887, -0.27700076, -2.4429061)
             control.cx = 0.6
             control.cy = 0.13899112
@@ -321,7 +329,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             juliaZ =  -0.8000001
             control.bright = 0.25
             control.power = 8
-        case EQU_QUATJULIA2 :
+        case EQU_28_QUATJULIA2 :
             control.camera = float3(-0.010578117, -0.49170083, -2.4)
             control.cx = -1.7499995
             control.fMaxSteps = 7.0
@@ -329,7 +337,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             juliaX =  0.0
             juliaY =  0.0
             juliaZ =  0.0
-        case EQU_MBROT :
+        case EQU_29_MBROT :
             control.camera = float3(-0.23955467, -0.3426069, -2.4)
             control.cx = -9.685755e-08
             control.angle1 = 0.0
@@ -338,7 +346,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             juliaY =  5.399997
             juliaZ =  -2.3
             control.bright = 0.5
-        case EQU_KALIBOX :
+        case EQU_30_KALIBOX :
             control.camera = float3(0.32916373, -0.42756003, -3.6908724)
             control.cx = 1.6500008
             control.cy = 0.35499972
@@ -355,7 +363,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             juliaY =  0.0
             juliaZ =  0.0
             control.bright = 0.5
-        case EQU_SPUDS :
+        case EQU_31_SPUDS :
             control.camera = float3(0.98336715, -1.2565054, -3.960955)
             control.cx = 3.7524672
             control.cy = 1.0099992
@@ -367,7 +375,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             control.fMaxSteps = 8.0
             control.bright = 0.3199999
             control.power = 3.2999988
-        case EQU_MPOLY :
+        case EQU_32_MPOLY :
             control.camera = float3(0.0047654044, -0.4972743, -3.960955)
             control.cx = 4.712923
             control.cy = 4.1999984
@@ -378,7 +386,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             control.fMaxSteps = 8.0
             control.bright = 1.0799999
             control.HoleSphere = true
-        case EQU_MHELIX :
+        case EQU_33_MHELIX :
             control.camera = float3(0.45329404, -1.7558048, -21.308537)
             control.cx = 1.0140339
             control.cy = 2.1570902
@@ -389,7 +397,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             juliaZ =  -10.0
             control.bright = 1.12
             control.gravity = true // 'moebius'
-        case EQU_FLOWER :
+        case EQU_34_FLOWER :
             control.camera = float3(-0.16991696, -2.5964863, -12.54011)
             control.cx = 1.6740334
             control.cy = 2.1570902
@@ -398,14 +406,14 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             juliaY =  13.999996
             juliaZ =  3.0999992
             control.bright = 1.5000001
-        case EQU_JUNGLE :
+        case EQU_35_JUNGLE :
             control.camera = float3(-1.8932692, -10.888095, -12.339884)
             control.cx = 1.8540331
             control.cy = 0.16000009
             control.cz = 3.1000001
             control.cw = 2.1499999
             control.fMaxSteps = 1.0
-        case EQU_PRISONER :
+        case EQU_36_PRISONER :
             control.camera = float3(-0.002694401, -0.36424443, -3.5887358)
             control.cx = 1.0799996
             control.cy = 1.06
@@ -414,12 +422,13 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             control.bright = 1.5000001
             control.contrast = 0.15999986
             control.power = 4.8999977
-        case EQU_SPIRALBOX :
+        case EQU_37_SPIRALBOX :
             control.camera = float3(0.047575176, -0.122939646, 1.5686907)
             control.cx = 0.8810008
             juliaX =  1.9000009
             juliaY =  1.0999998
             juliaZ =  0.19999993
+            control.fMaxSteps = 9
         default : break
         }
         
@@ -436,6 +445,12 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             c.camera += ident == 0 ? offset : -offset
         }
         
+        if control.txtOnOff {
+            c.txtCenter.x = tCenterX
+            c.txtCenter.y = tCenterY
+            c.txtCenter.z = tScale
+        }
+        
         func prepareJulia() { c.julia = float3(juliaX,juliaY,juliaZ) }
 
         c.light = c.camera + float3(sin(lightAngle)*100,cos(lightAngle)*100,-100)
@@ -444,26 +459,26 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         c.Box_Iterations = Int32(control.fBox_Iterations)
 
         switch Int(control.equation) {
-        case EQU_KLEINIAN :
+        case EQU_04_KLEINIAN :
             c.Final_Iterations = Int32(control.fFinal_Iterations)
             c.InvCenter = float3(c.InvCx, c.InvCy, c.InvCz)
-        case EQU_MONSTER :
+        case EQU_07_MONSTER :
             c.mm[0][0] = 99   // mark as needing calculation in shader
-        case EQU_POLY_MENGER :
-            let dihedDodec:Float = 0.5 * atan(c.box1)
+        case EQU_09_POLY_MENGER :
+            let dihedDodec:Float = 0.5 * atan(c.dx)
             c.csD = float2(cos(dihedDodec), -sin(dihedDodec))
             c.csD2 = float2(cos(2 * dihedDodec), -sin(2 * dihedDodec))
-        case EQU_KLEINIAN2 :
+        case EQU_12_KLEINIAN2 :
             c.mins = float4(control.cx,control.cy,control.cz,control.cw);
             c.maxs = float4(control.dx,control.dy,control.dz,control.dw);
-        case EQU_IFS_DODEC :
+        case EQU_16_IFS_DODEC :
             c.n1 = normalize(float3(-1.0,control.cy-1.0,1.0/(control.cy-1.0)))
             c.n2 = normalize(float3(control.cy-1.0,1.0/(control.cy-1.0),-1.0))
             c.n3 = normalize(float3(1.0/(control.cy-1.0),-1.0,control.cy-1.0))
-        case EQU_SIERPINSKI, EQU_HALF_TETRA, EQU_FULL_TETRA,
-             EQU_CUBIC, EQU_HALF_OCTA, EQU_FULL_OCTA, EQU_KALEIDO :
+        case EQU_18_SIERPINSKI, EQU_19_HALF_TETRA, EQU_20_FULL_TETRA,
+             EQU_21_CUBIC, EQU_22_HALF_OCTA, EQU_23_FULL_OCTA, EQU_24_KALEIDO :
             c.n1 = normalize(float3(-1.0,control.cy-1.0,1.0/control.cy-1.0))
-        case EQU_POLYCHORA :
+        case EQU_25_POLYCHORA :
             let pabc:float4 = float4(0,0,0,1)
             let pbdc:float4 = 1.0/sqrt(2) * float4(1,0,0,1)
             let pcda:float4 = 1.0/sqrt(2) * float4(0,1,0,1)
@@ -476,7 +491,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             c.cRA = cos(c.dz)
             c.sRA = sin(c.dz)
             c.nd = float4(-0.5,-0.5,-0.5,0.5)
-        case EQU_FRAGM :
+        case EQU_27_FRAGM :
             prepareJulia()
 
             c.msIterations = Int32(c.fmsIterations)
@@ -492,13 +507,13 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             
             c.absScalem1 = abs(c.mbScale - 1.0)
             c.AbsScaleRaisedTo1mIters = pow(abs(c.mbScale), Float(1 - c.mbIterations))
-        case EQU_KALIBOX :
+        case EQU_30_KALIBOX :
             c.absScalem1 = abs(c.cx - 1.0)
             c.AbsScaleRaisedTo1mIters = pow(abs(c.cx), Float(1 - c.maxSteps))
             c.n1 = float3(c.dx,c.dy,c.dz)
             c.mins = float4(c.cx, c.cx, c.cx, abs(c.cx)) / c.cy
             prepareJulia()
-        case EQU_MHELIX, EQU_FLOWER, EQU_MANDELBOX, EQU_QUATJULIA2, EQU_MBROT, EQU_FLOWER, EQU_SPIRALBOX :
+        case EQU_33_MHELIX, EQU_34_FLOWER, EQU_05_MANDELBOX, EQU_28_QUATJULIA2, EQU_29_MBROT, EQU_34_FLOWER, EQU_37_SPIRALBOX :
             prepareJulia()
         default : break
         }
@@ -509,6 +524,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         let renderEncoder = commandBuffer!.makeComputeCommandEncoder()!
         renderEncoder.setComputePipelineState(pipelineState)
         renderEncoder.setTexture(drawable.texture, index: 0)
+        renderEncoder.setTexture(coloringTexture,  index: 1)
         renderEncoder.setBuffer(controlBuffer, offset: 0, index: 0)
         renderEncoder.dispatchThreads(threadsPerGrid, threadsPerThreadgroup:threadsPerGroup)
         renderEncoder.endEncoding()
@@ -583,6 +599,17 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         case "I" : toggle(&control.doInversion)
         case "J" : toggle(&control.juliaboxMode)
         case "K" : toggle(&control.AlternateVersion)
+            
+        case "P" :
+            if control.txtOnOff {
+                control.txtOnOff = false
+                updateWidgets()
+                setIsDirty()
+            }
+            else {
+                loadImageFile()
+            }
+
         case "S" : movement = float3()
         case " " : instructions.isHidden = !instructions.isHidden
         case "Z" : speed = 0.05
@@ -681,11 +708,11 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
     //MARK: -
     
     func updateWidgets() {
-        func juliaGroup() {
+        func juliaGroup(_ delta:Float = 1) {
             if control.juliaboxMode {
-                widget.addEntry("Julia X",&juliaX,-10,10, 1)
-                widget.addEntry("Julia Y",&juliaY,-10,10, 1)
-                widget.addEntry("Julia Z",&juliaZ,-10,10, 1)
+                widget.addEntry("Julia X",&juliaX,-10,10, delta)
+                widget.addEntry("Julia Y",&juliaY,-10,10, delta)
+                widget.addEntry("Julia Z",&juliaZ,-10,10, delta)
             }
         }
         
@@ -696,18 +723,24 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         widget.addEntry("Contrast",&control.contrast,0.1,0.7,0.02)
         widget.addEntry("Specular",&control.specular,0,2,0.1)
         widget.addEntry("Light Position",&lightAngle,-3,3,0.3)
+        
+        if control.txtOnOff {
+            widget.addEntry("Texture Center X",&tCenterX,0.01,1,0.02)
+            widget.addEntry("Texture Center Y",&tCenterY,0.01,1,0.02)
+            widget.addEntry("Texture Scale",&tScale,0.01,1,0.02)
+        }
 
         switch Int(control.equation) {
-        case EQU_APOLLONIAN, EQU_APOLLONIAN2 :
+        case EQU_01_MANDELBULB :
+            widget.addEntry("Iterations",&control.fMaxSteps,3,30,1)
+            widget.addEntry("Power",&control.power,1.5,12,0.02)
+        case EQU_02_APOLLONIAN, EQU_03_APOLLONIAN2 :
             widget.addEntry("Iterations",&control.fMaxSteps,2,10,1)
             widget.addEntry("Multiplier",&control.multiplier,10,300,0.2)
             widget.addEntry("Foam",&control.foam,0.1,3,0.02)
             widget.addEntry("Foam2",&control.foam2,0.1,3,0.02)
             widget.addEntry("Bend",&control.bend,0.01,0.03,0.0001)
-        case EQU_MANDELBULB :
-            widget.addEntry("Iterations",&control.fMaxSteps,3,30,1)
-            widget.addEntry("Power",&control.power,1.5,12,0.02)
-        case EQU_KLEINIAN :
+        case EQU_04_KLEINIAN :
             widget.addEntry("Final Iterations",&control.fFinal_Iterations, 1,39,1)
             widget.addEntry("Box Iterations",&control.fBox_Iterations,1,10,1)
             widget.addEntry("Box Size X",&control.box_size_x, 0.01,2,0.006)
@@ -725,48 +758,46 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             widget.addEntry("Delta Angle",&control.DeltaAngle, 0.1,10,0.004)
             widget.addEntry("Clamp Y",&control.Clamp_y, 0.001,2,0.01)
             widget.addEntry("Clamp DF",&control.Clamp_DF, 0.001,2,0.03)
-        case EQU_MANDELBOX :
-            widget.addEntry("Iterations",&control.fMaxSteps,6,20,1)
-            widget.addEntry("Scale Factor",&control.scaleFactor,2,5,0.01)
-            widget.addEntry("Box 1",&control.box1, 0,3,0.003)
-            widget.addEntry("Box 2",&control.box2, 0,3,0.003)
-            widget.addEntry("Sphere 1",&control.sph1, 0,4,0.1)
-            widget.addEntry("Sphere 2",&control.sph2, 0,4,0.1)
-            widget.addEntry("Sphere 3",&control.sph3, 0.1,8,0.1)
-            juliaGroup()
-        case EQU_QUATJULIA :
+        case EQU_05_MANDELBOX :
+            widget.addEntry("Iterations",&control.fMaxSteps,10,20,1)
+            widget.addEntry("Scale Factor",&control.power,0.6,3,0.02)
+            widget.addEntry("Box 1",&control.cx, 0,3,0.01)
+            widget.addEntry("Sphere 1",&control.cz, 0,4,0.01)
+            widget.addEntry("Sphere 2",&control.cw, 0,4,0.01)
+            juliaGroup(0.01)
+        case EQU_06_QUATJULIA :
             widget.addEntry("Iterations",&control.fMaxSteps,3,10,1)
             widget.addEntry("X",&control.cx,-5,5,0.05)
             widget.addEntry("Y",&control.cy,-5,5,0.05)
             widget.addEntry("Z",&control.cz,-5,5,0.05)
             widget.addEntry("W",&control.cw,-5,5,0.05)
-        case EQU_MONSTER :
+        case EQU_07_MONSTER :
             widget.addEntry("Iterations",&control.fMaxSteps,3,30,1)
             widget.addEntry("X",&control.cx,-500,500,0.5)
             widget.addEntry("Y",&control.cy,3.5,7,0.03)
             widget.addEntry("Z",&control.cz,0.45,2.8,0.01)
             widget.addEntry("Scale",&control.cw,1,1.6,0.003)
-        case EQU_KALI_TOWER :
+        case EQU_08_KALI_TOWER :
             widget.addEntry("Iterations",&control.fMaxSteps,2,7,1)
             widget.addEntry("X",&control.cx,0.01,10,0.05)
             widget.addEntry("Y",&control.cy,0,30,0.1)
             widget.addEntry("Twist",&control.cz,0,5,0.1)
             widget.addEntry("Waves",&control.cw,0.1,0.34,0.01)
-        case EQU_POLY_MENGER :
+        case EQU_09_POLY_MENGER :
             widget.addEntry("Menger",&control.cy,1.1,2.9,0.05)
             widget.addEntry("Stretch",&control.cz,0,10,0.05)
             widget.addEntry("Spin",&control.cw,0.1,5,0.05)
             widget.addEntry("Twist",&control.cx, 0.5,7,0.05)
-            widget.addEntry("Shape",&control.box1, 0.1,50,0.2)
-        case EQU_GOLD :
+            widget.addEntry("Shape",&control.dx, 0.1,50,0.2)
+        case EQU_10_GOLD :
             widget.addEntry("X",&control.cx,-5,5,0.01)
             widget.addEntry("Y",&control.cy,-5,5,0.01)
             widget.addEntry("Z",&control.cz,-5,5,0.01)
-        case EQU_SPIDER :
+        case EQU_11_SPIDER :
             widget.addEntry("X",&control.cx,0.001,5,0.01)
             widget.addEntry("Y",&control.cy,0.001,5,0.01)
             widget.addEntry("Z",&control.cz,0.001,5,0.01)
-        case EQU_KLEINIAN2 :
+        case EQU_12_KLEINIAN2 :
             widget.addEntry("Shape",&control.power,0.01,2,0.005)
             widget.addEntry("minX",&control.cx,-5,5,0.01)
             widget.addEntry("minY",&control.cy,-5,5,0.01)
@@ -776,73 +807,73 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             widget.addEntry("maxY",&control.dy,-5,5,0.01)
             widget.addEntry("maxZ",&control.dz,-5,5,0.01)
             widget.addEntry("maxW",&control.dw,-5,5,0.01)
-        case EQU_KIFS :
+        case EQU_13_KIFS :
             widget.addEntry("Iterations",&control.fMaxSteps,2,8,1)
             widget.addEntry("X",&control.cx,0.44,7,0.05)
             widget.addEntry("Y",&control.cy,0.9,7,0.05)
             widget.addEntry("Z",&control.cz,0.9,5.75,0.1)
-        case EQU_IFS_TETRA :
+        case EQU_14_IFS_TETRA :
             widget.addEntry("Scale",&control.cx,1.45,2.5,0.01)
             widget.addEntry("Angle1",&control.angle1,-2,2,0.02)
             widget.addEntry("Angle2",&control.angle2,-2,2,0.02)
-        case EQU_IFS_OCTA :
+        case EQU_15_IFS_OCTA :
             widget.addEntry("Scale",&control.cx,1.45,2.5,0.01)
             widget.addEntry("Angle1",&control.angle1,-2,2,0.02)
             widget.addEntry("Angle2",&control.angle2,-2,2,0.02)
-        case EQU_IFS_DODEC :
+        case EQU_16_IFS_DODEC :
             widget.addEntry("Scale",&control.cx,1.8,3.6,0.02)
             widget.addEntry("Normal",&control.cy,1.03,4,0.02)
             widget.addEntry("Angle1",&control.angle1,-2,2,0.1)
             widget.addEntry("Angle2",&control.angle2,-2,2,0.1)
-        case EQU_IFS_MENGER :
+        case EQU_17_IFS_MENGER :
             widget.addEntry("Iterations",&control.fMaxSteps,3,7,1)
             widget.addEntry("Scale",&control.cx,0.04,8.86,0.02)
             widget.addEntry("Y",&control.cy,-0.6,0.75,0.01)
             widget.addEntry("Angle",&control.angle1,-2,2,0.1)
-        case EQU_SIERPINSKI :
+        case EQU_18_SIERPINSKI :
             widget.addEntry("Iterations",&control.fMaxSteps,11,40,1)
             widget.addEntry("Scale",&control.cx,1.18,1.8,0.02)
             widget.addEntry("Y",&control.cy,0.5,3,0.02)
             widget.addEntry("Angle1",&control.angle1,-4,4,0.01)
             widget.addEntry("Angle2",&control.angle2,-4,4,0.01)
-        case EQU_HALF_TETRA :
+        case EQU_19_HALF_TETRA :
             widget.addEntry("Iterations",&control.fMaxSteps,9,50,1)
             widget.addEntry("Scale",&control.cx,1.12,1.5,0.02)
             widget.addEntry("Y",&control.cy,2,10,0.1)
             widget.addEntry("Angle1",&control.angle1,-4,4,0.01)
             widget.addEntry("Angle2",&control.angle2,-4,4,0.01)
-        case EQU_FULL_TETRA :
+        case EQU_20_FULL_TETRA :
             widget.addEntry("Iterations",&control.fMaxSteps,21,70,1)
             widget.addEntry("Scale",&control.cx,1.06,1.16,0.005)
             widget.addEntry("Y",&control.cy,4.6,20,0.1)
             widget.addEntry("Angle1",&control.angle1,-4,4,0.025)
             widget.addEntry("Angle2",&control.angle2,-4,4,0.025)
-        case EQU_CUBIC :
+        case EQU_21_CUBIC :
             widget.addEntry("Iterations",&control.fMaxSteps,13,80,1)
             widget.addEntry("Scale",&control.cx,1,2,0.01)
             widget.addEntry("Y",&control.cy,0.5,4,0.02)
             widget.addEntry("Angle1",&control.angle1,-4,4,0.025)
             widget.addEntry("Angle2",&control.angle2,-4,4,0.025)
-        case EQU_HALF_OCTA :
+        case EQU_22_HALF_OCTA :
             widget.addEntry("Iterations",&control.fMaxSteps,13,80,1)
             widget.addEntry("Scale",&control.cx,1,1.6,0.004)
             widget.addEntry("Y",&control.cy,0.4,1,0.004)
             widget.addEntry("Angle1",&control.angle1,-4,4,0.025)
             widget.addEntry("Angle2",&control.angle2,-4,4,0.025)
-        case EQU_FULL_OCTA :
+        case EQU_23_FULL_OCTA :
             widget.addEntry("Iterations",&control.fMaxSteps,13,80,1)
             widget.addEntry("Scale",&control.cx,1,1.6,0.004)
             widget.addEntry("Y",&control.cy,0.4,1,0.004)
             widget.addEntry("Angle1",&control.angle1,-4,4,0.025)
             widget.addEntry("Angle2",&control.angle2,-4,4,0.025)
-        case EQU_KALEIDO :
+        case EQU_24_KALEIDO :
             widget.addEntry("Iterations",&control.fMaxSteps,10,200,1)
             widget.addEntry("Scale",&control.cx,0.5,2,0.0005)
             widget.addEntry("Y",&control.cy,-5,5,0.004)
             widget.addEntry("Z",&control.cz,-5,5,0.004)
             widget.addEntry("Angle1",&control.angle1,-4,4,0.005)
             widget.addEntry("Angle2",&control.angle2,-4,4,0.005)
-        case EQU_POLYCHORA :
+        case EQU_25_POLYCHORA :
             widget.addEntry("Distance 1",&control.cx,-2,10,0.1)
             widget.addEntry("Distance 2",&control.cy,-2,10,0.1)
             widget.addEntry("Distance 3",&control.cz,-2,10,0.1)
@@ -850,11 +881,11 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             widget.addEntry("Ball",&control.dx,0,0.35,0.02)
             widget.addEntry("Stick",&control.dy,0,0.35,0.02)
             widget.addEntry("Spin",&control.dz,-15,15,0.05)
-        case EQU_QUADRAY :
+        case EQU_26_QUADRAY :
             widget.addEntry("Iterations",&control.fMaxSteps,1,20,1)
             widget.addEntry("X",&control.cx,-15,15,0.05)
             widget.addEntry("Y",&control.cy,-15,15,0.05)
-        case EQU_FRAGM :
+        case EQU_27_FRAGM :
             widget.addDash()
             widget.addEntry("MandelBulb Iterations",&control.fMaxSteps,0,20,1,.integer,true)
             widget.addEntry("Power",&control.power,1,12,0.1)
@@ -866,19 +897,19 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             widget.addDash()
             widget.addEntry("MandelBox Iterations",&control.fmbIterations,0,20,1,.integer,true)
             widget.addEntry("Angle",&control.angle1,-4,4,0.2)
-        case EQU_QUATJULIA2 :
+        case EQU_28_QUATJULIA2 :
             widget.addEntry("Iterations",&control.fMaxSteps,3,10,1)
             widget.addEntry("Mul",&control.cx,-5,5,0.05)
             widget.addEntry("Offset X",&juliaX,-15,15,0.1)
             widget.addEntry("Offset Y",&juliaY,-15,15,0.1)
             widget.addEntry("Offset Z",&juliaZ,-15,15,0.1)
-        case EQU_MBROT :
+        case EQU_29_MBROT :
             widget.addEntry("Iterations",&control.fMaxSteps,3,10,1)
             widget.addEntry("Offset",&control.cx,-5,5,0.05)
             widget.addEntry("Rotate X",&juliaX,-15,15,0.1)
             widget.addEntry("Rotate Y",&juliaY,-15,15,0.1)
             widget.addEntry("Rotate Z",&juliaZ,-15,15,0.1)
-        case EQU_KALIBOX :
+        case EQU_30_KALIBOX :
             widget.addEntry("Iterations",&control.fMaxSteps,3,30,1)
             widget.addEntry("Scale",&control.cx,-5,5,0.05)
             widget.addEntry("MinRad2",&control.cy,-5,5,0.05)
@@ -887,7 +918,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             widget.addEntry("Trans Z",&control.dz,-1,5,0.01)
             widget.addEntry("Angle",&control.angle1,-4,4,0.02)
             juliaGroup()
-        case EQU_SPUDS :
+        case EQU_31_SPUDS :
             widget.addEntry("Iterations",&control.fMaxSteps,3,30,1)
             widget.addEntry("Power",&control.power,1.5,12,0.1)
             widget.addEntry("MinRad",&control.cx,-5,5,0.1)
@@ -897,39 +928,39 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             widget.addEntry("ZMUL",&control.dx,-5,5,0.1)
             widget.addEntry("Scale",&control.dz,-5,5,0.1)
             widget.addEntry("Scale2",&control.dw,-5,5,0.1)
-        case EQU_MPOLY :
+        case EQU_32_MPOLY :
             if control.polygonate { widget.addEntry("# Sides",&control.cx,0,15,0.1) }
             if control.polyhedronate { widget.addEntry("# Sides2",&control.cy,0,15,0.1) }
             if control.gravity { widget.addEntry("Gravity",&control.cw,-5,5,0.02) }
             widget.addEntry("Scale",&control.cz,-5,5,0.02)
             widget.addEntry("Offset",&control.dx,-5,5,0.01)
             widget.addEntry("Angle",&control.angle1,-4,4,0.02)
-        case EQU_MHELIX :
+        case EQU_33_MHELIX :
             widget.addEntry("Iterations",&control.fMaxSteps,2,30,1)
             widget.addEntry("Scale",&control.cx,0.89,1.1,0.001)
             widget.addEntry("Angle",&control.angle1,-4,4,0.1)
             widget.addEntry("scaleX",&juliaX,-50,50, 2)
             widget.addEntry("scaleY",&juliaY,-50,50, 2)
             widget.addEntry("scaleZ",&juliaZ,-50,50, 2)
-        case EQU_FLOWER :
+        case EQU_34_FLOWER :
             widget.addEntry("Iterations",&control.fMaxSteps,2,30,1)
             widget.addEntry("Scale",&control.cx,0.5,3,0.01)
             widget.addEntry("Offset X",&juliaX,-15,15,0.1)
             widget.addEntry("Offset Y",&juliaY,-15,15,0.1)
             widget.addEntry("Offset Z",&juliaZ,-15,15,0.1)
-        case EQU_JUNGLE :
+        case EQU_35_JUNGLE :
             widget.addEntry("Iterations",&control.fMaxSteps,1,12,1)
             widget.addEntry("X",&control.cx,0.1,5,0.01)
             widget.addEntry("Y",&control.cy,0.01,2,0.005)
             widget.addEntry("Pattern",&control.cz,1,20,0.7)
             widget.addEntry("Sabs",&control.cw,2,6,0.03)
-        case EQU_PRISONER :
+        case EQU_36_PRISONER :
             widget.addEntry("Iterations",&control.fMaxSteps,1,12,1)
             widget.addEntry("Power",&control.power,1.5,12,0.1)
             widget.addEntry("Angle",&control.angle1,-4,4,0.02)
             widget.addEntry("Cage",&control.cx,0.6,2.8,0.01)
             widget.addEntry("Thickness",&control.cy,1,10,0.02)
-        case EQU_SPIRALBOX :
+        case EQU_37_SPIRALBOX :
             widget.addEntry("Iterations",&control.fMaxSteps,6,20,1)
             widget.addEntry("Fold",&control.cx,0.5,1,0.003)
             if control.juliaboxMode {
@@ -1042,6 +1073,56 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         setIsDirty()
     }
     
+    //MARK: -
+    
+    func loadTexture(from image: NSImage) -> MTLTexture {
+        let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil)!
+        
+        let textureLoader = MTKTextureLoader(device: device)
+        do {
+            let textureOut = try textureLoader.newTexture(cgImage:cgImage)
+            
+            control.txtSize.x = Float(cgImage.width)
+            control.txtSize.y = Float(cgImage.height)
+            control.txtCenter = float3(0.5)
+            return textureOut
+        }
+        catch {
+            fatalError("Can't load texture")
+        }
+    }
+    
+    func loadImageFile() {
+        control.txtOnOff = false
+        
+        let openPanel = NSOpenPanel()
+        openPanel.allowsMultipleSelection = false
+        openPanel.canChooseDirectories = false
+        openPanel.canCreateDirectories = false
+        openPanel.canChooseFiles = true
+        openPanel.title = "Select Image for Texture"
+        openPanel.allowedFileTypes = ["jpg","png"]
+        
+        openPanel.beginSheetModal(for:self.view.window!) { (response) in
+            if response.rawValue == NSApplication.ModalResponse.OK.rawValue {
+                let selectedPath = openPanel.url!.path
+                
+                if let image:NSImage = NSImage(contentsOfFile: selectedPath) {
+                    self.coloringTexture = self.loadTexture(from: image)
+                    self.control.txtOnOff = true
+                }
+            }
+            
+            openPanel.close()
+            
+            if self.control.txtOnOff { // just loaded a texture
+                self.updateWidgets()
+                self.setIsDirty()
+            }
+        }
+    }
+    
+
     func windowDidResize(_ notification: Notification) { resizeIfNecessary() }
 }
 
