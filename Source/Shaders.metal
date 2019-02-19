@@ -28,6 +28,8 @@
 // Jungle : https://www.shadertoy.com/view/Wd23RD
 // Prisoner : https://www.shadertoy.com/view/llVGDR
 // SpiralBox : https://fractalforums.org/fragmentarium/17/last-length-increase-colouring-well-sort-of/2515
+// spider : https://www.shadertoy.com/view/XtKcDm
+// Aleksandrov MandelBulb : https://fractalforums.org/fractal-institute/47/formulas-of-aleksandrov/656
 
 #include <metal_stdlib>
 #include "Shader.h"
@@ -69,6 +71,30 @@ float3 rotatePosition(float3 pos, int axis, float angle) {
     return pos;
 }
 
+//MARK: - 1
+float DE_MANDELBULB(float3 pos,device Control &control) {
+    float dr = 1;
+    float r,theta,phi,pwr,ss;
+
+    for(int i=0; i < control.maxSteps; ++i) {
+        r = length(pos);
+        if(r > 2) break;
+
+        theta = atan2(sqrt(pos.x * pos.x + pos.y * pos.y), pos.z);
+        phi = atan2(pos.y,pos.x);
+        pwr = pow(r,control.power);
+        ss = sin(theta * control.power);
+
+        pos.x += pwr * ss * cos(phi * control.power);
+        pos.y += pwr * ss * sin(phi * control.power);
+        pos.z += pwr * cos(theta * control.power);
+
+        dr = (pow(r, control.power - 1.0) * control.power * dr ) + 1.0;
+    }
+
+    return 0.5 * log(r) * r/dr;
+}
+
 //MARK: - 2
 float DE_APOLLONIAN(float3 pos,device Control &control) {
     float k,t = control.foam2 + 0.25 * cos(control.bend * PI * control.multiplier * (pos.z - pos.x));
@@ -101,32 +127,6 @@ float DE_APOLLONIAN2(float3 pos,device Control &control) {
     float d1 = sqrt( min( min( dot(pos.xy,pos.xy), dot(pos.yz,pos.yz) ), dot(pos.zx,pos.zx) ) ) - 0.02;
     float dmi = min(d1,abs(pos.y));
     return 0.5 * dmi / scale;
-}
-
-// spider: https://www.shadertoy.com/view/XtKcDm
-
-//MARK: - 1
-float DE_MANDELBULB(float3 pos,device Control &control) {
-    float dr = 1;
-    float r,theta,phi,pwr,ss;
-
-    for(int i=0; i < control.maxSteps; ++i) {
-        r = length(pos);
-        if(r > 2) break;
-
-        theta = atan2(sqrt(pos.x * pos.x + pos.y * pos.y), pos.z);
-        phi = atan2(pos.y,pos.x);
-        pwr = pow(r,control.power);
-        ss = sin(theta * control.power);
-
-        pos.x += pwr * ss * cos(phi * control.power);
-        pos.y += pwr * ss * sin(phi * control.power);
-        pos.z += pwr * cos(theta * control.power);
-
-        dr = (pow(r, control.power - 1.0) * control.power * dr ) + 1.0;
-    }
-
-    return 0.5 * log(r) * r/dr;
 }
 
 //MARK: - 4
@@ -1351,6 +1351,34 @@ float DE_SPIRALBOX(float3 pos,device Control &control) {
     return 0.5 * sqrt(0.1*r) / (abs(DF)+1.);
 }
 
+//MARK: - 38
+float DE_ALEK_BULB(float3 pos,device Control &control) {
+    float dr = 1;
+    float r,mcangle,theta,pwr;
+    
+    for(int i=0; i < control.maxSteps; ++i) {
+        r = length(pos);
+        if(r > 8) break;
+        
+        mcangle = abs(pos.y) / pos.x;
+        mcangle = atan(mcangle);
+        mcangle = (PI*0.5 - PI*abs(pos.x)* 0.5/pos.x + mcangle ) * control.power;
+        
+        theta = acos(pos.z/r) * control.power;
+
+        pwr = pow(r, control.power);
+        pos.x = pwr * cos(mcangle) * sin(theta);
+        pos.y = pwr * sin(mcangle) * sin(theta) * abs(pos.y)/pos.y;
+        pos.z = pwr * cos(theta);
+        
+        pos += control.julia;
+
+        dr = (pow(r, control.power - 1.0) * control.power * dr ) + 1.0;
+    }
+    
+    return 0.5 * log(r) * r/dr;
+}
+
 //MARK: - distance estimate
 float DE(float3 pos,device Control &control) {
     switch(control.equation) {
@@ -1391,6 +1419,7 @@ float DE(float3 pos,device Control &control) {
         case EQU_35_JUNGLE      : return DE_JUNGLE(pos,control);
         case EQU_36_PRISONER    : return DE_PRISONER(pos,control);
         case EQU_37_SPIRALBOX   : return DE_SPIRALBOX(pos,control);
+        case EQU_38_ALEK_BULB   : return DE_ALEK_BULB(pos,control);
     }
     
     return 0;

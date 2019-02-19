@@ -136,7 +136,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
               "Knighty Polychora","QuadRay","3Dickulus FragM",
               "3Dickulus Quaternion Julia","3Dickulus Quaternion Mandelbrot",
               "Kali's MandelBox","Spudsville","Menger Smooth Polyhedra",
-              "Menger Helix","Flower Hive","Jungle","Prisoner","Pupukuusikkos Spiralbox" ]
+              "Menger Helix","Flower Hive","Jungle","Prisoner","Pupukuusikkos Spiralbox",
+              "Aleksandrov MandelBulb"        ]
      
         let index = Int(control.equation)
         view.window?.title = Int(index + 1).description + ": " + titleString[index] + " : " + widget.focusString()
@@ -448,6 +449,15 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             juliaY =  1.0999998
             juliaZ =  0.19999993
             control.fMaxSteps = 9
+        case EQU_38_ALEK_BULB :
+            control.camera = float3(-0.07642456, -0.23929897, -2.1205378)
+            control.fMaxSteps = 10.0
+            juliaX =  0.6000004
+            juliaY =  0.29999986
+            juliaZ =  0.29999968
+            control.bright = 1.4000001
+            control.contrast = 0.5
+            control.power = 3.4599924
         default : break
         }
         
@@ -532,7 +542,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             c.n1 = float3(c.dx,c.dy,c.dz)
             c.mins = float4(c.cx, c.cx, c.cx, abs(c.cx)) / c.cy
             prepareJulia()
-        case EQU_33_MHELIX, EQU_34_FLOWER, EQU_05_MANDELBOX, EQU_28_QUATJULIA2, EQU_29_MBROT, EQU_34_FLOWER, EQU_37_SPIRALBOX :
+        case EQU_33_MHELIX, EQU_34_FLOWER, EQU_05_MANDELBOX, EQU_28_QUATJULIA2, EQU_29_MBROT, EQU_34_FLOWER,
+             EQU_37_SPIRALBOX, EQU_38_ALEK_BULB :
             prepareJulia()
         default : break
         }
@@ -731,11 +742,11 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
     //MARK: -
     
     func updateWidgets() {
-        func juliaGroup(_ delta:Float = 1) {
+        func juliaGroup(_ range:Float = 10, _ delta:Float = 1) {
             if control.juliaboxMode {
-                widget.addEntry("Julia X",&juliaX,-10,10, delta)
-                widget.addEntry("Julia Y",&juliaY,-10,10, delta)
-                widget.addEntry("Julia Z",&juliaZ,-10,10, delta)
+                widget.addEntry("Julia X",&juliaX,-range,range, delta)
+                widget.addEntry("Julia Y",&juliaY,-range,range, delta)
+                widget.addEntry("Julia Z",&juliaZ,-range,range, delta)
             }
         }
         
@@ -757,6 +768,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         case EQU_01_MANDELBULB :
             widget.addEntry("Iterations",&control.fMaxSteps,3,30,1)
             widget.addEntry("Power",&control.power,1.5,12,0.02)
+            juliaGroup()
+            control.juliaboxMode = true
         case EQU_02_APOLLONIAN, EQU_03_APOLLONIAN2 :
             widget.addEntry("Iterations",&control.fMaxSteps,2,10,1)
             widget.addEntry("Multiplier",&control.multiplier,10,300,0.2)
@@ -787,7 +800,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             widget.addEntry("Box 1",&control.cx, 0,3,0.01)
             widget.addEntry("Sphere 1",&control.cz, 0,4,0.01)
             widget.addEntry("Sphere 2",&control.cw, 0,4,0.01)
-            juliaGroup(0.01)
+            juliaGroup(10,0.01)
         case EQU_06_QUATJULIA :
             widget.addEntry("Iterations",&control.fMaxSteps,3,10,1)
             widget.addEntry("X",&control.cx,-5,5,0.05)
@@ -991,6 +1004,11 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
                 widget.addEntry("Julia Y",&juliaY,-2,2, 0.1)
                 widget.addEntry("Julia Z",&juliaZ,-2,2, 0.1)
             }
+        case EQU_38_ALEK_BULB :
+            control.juliaboxMode = true
+            widget.addEntry("Iterations",&control.fMaxSteps,3,30,1)
+            widget.addEntry("Power",&control.power,1.5,12,0.02)
+            juliaGroup(1.6,0.01)
         default : break
         }
         
