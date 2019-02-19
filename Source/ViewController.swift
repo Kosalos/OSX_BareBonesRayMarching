@@ -137,7 +137,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
               "3Dickulus Quaternion Julia","3Dickulus Quaternion Mandelbrot",
               "Kali's MandelBox","Spudsville","Menger Smooth Polyhedra",
               "Menger Helix","Flower Hive","Jungle","Prisoner","Pupukuusikkos Spiralbox",
-              "Aleksandrov MandelBulb","SurfBox" ]
+              "Aleksandrov MandelBulb","SurfBox","TwistBox" ]
      
         let index = Int(control.equation)
         view.window?.title = Int(index + 1).description + ": " + titleString[index] + " : " + widget.focusString()
@@ -473,6 +473,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             control.contrast = 0.5
             control.power = 2.5600004
             control.juliaboxMode = true
+        case EQU_40_TWISTBOX :
+            control.camera = float3(0.24289839, -2.1800025, -9.257425)
+            control.cx = 1.5611011
+            control.fMaxSteps = 24.0
+            juliaX =  3.2779012
+            juliaY =  -3.0104024
+            juliaZ =  -3.2913034
+            control.bright = 1.4100001
+            control.contrast = 0.3399999
+            control.power = 8.21999
         default : break
         }
         
@@ -558,7 +568,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             c.mins = float4(c.cx, c.cx, c.cx, abs(c.cx)) / c.cy
             prepareJulia()
         case EQU_33_MHELIX, EQU_34_FLOWER, EQU_05_MANDELBOX, EQU_28_QUATJULIA2, EQU_29_MBROT, EQU_34_FLOWER,
-             EQU_37_SPIRALBOX, EQU_38_ALEK_BULB :
+             EQU_37_SPIRALBOX, EQU_38_ALEK_BULB, EQU_40_TWISTBOX :
             prepareJulia()
         case EQU_39_SURFBOX :
             prepareJulia()
@@ -813,9 +823,9 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             widget.addEntry("Clamp Y",&control.Clamp_y, 0.001,2,0.01)
             widget.addEntry("Clamp DF",&control.Clamp_DF, 0.001,2,0.03)
         case EQU_05_MANDELBOX :
-            widget.addEntry("Iterations",&control.fMaxSteps,10,20,1)
-            widget.addEntry("Scale Factor",&control.power,0.6,3,0.02)
-            widget.addEntry("Box",&control.cx, 0,3,0.001)
+            widget.addEntry("Iterations",&control.fMaxSteps,3,60,1)
+            widget.addEntry("Scale Factor",&control.power,0.6,10,0.02)
+            widget.addEntry("Box",&control.cx, 0,10,0.001)
             widget.addEntry("Sphere 1",&control.cz, 0,4,0.01)
             widget.addEntry("Sphere 2",&control.cw, 0,4,0.01)
             juliaGroup(10,0.01)
@@ -1035,6 +1045,11 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             widget.addEntry("Sphere 1",&control.cz, 0,4,0.01)
             widget.addEntry("Sphere 2",&control.cw, 0,4,0.01)
             juliaGroup(10,0.01)
+        case EQU_40_TWISTBOX :
+            widget.addEntry("Iterations",&control.fMaxSteps,3,60,1)
+            widget.addEntry("Scale Factor",&control.power,0.6,10,0.02)
+            widget.addEntry("Box",&control.cx, 0,10,0.0001)
+            juliaGroup(10,0.0001)
         default : break
         }
         

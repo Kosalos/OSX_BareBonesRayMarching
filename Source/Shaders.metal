@@ -31,6 +31,7 @@
 // spider : https://www.shadertoy.com/view/XtKcDm
 // Aleksandrov MandelBulb : https://fractalforums.org/fractal-institute/47/formulas-of-aleksandrov/656
 // Surfbox : http://www.fractalforums.com/amazing-box-amazing-surf-and-variations/httpwww-shaperich-comproshred-elite-review/
+// Twistbox: http://www.fractalforums.com/amazing-box-amazing-surf-and-variations/twistbox-spiralling-1-scale-box-variant/
 
 #include <metal_stdlib>
 #include "Shader.h"
@@ -224,44 +225,121 @@ float boxFold2(float v, float fold) { // http://www.fractalforums.com/new-theori
 }
 
 float DE_MANDELBOX(float3 pos,device Control &control) {
-    // For the Juliabox, c is a constant. For the Mandelbox, c is variable.
     float3 c = control.juliaboxMode ? control.julia : pos;
-    float r2,dr = control.power;
-    
-    float fR2 = control.cz * control.cz;
-    float mR2 = control.cw * control.cw;
+    float r,DF = control.power;
     
     for(int i = 0; i < control.maxSteps; ++i) {
+//        pos = clamp(pos, -control.cx,control.cx)*2 - pos;
         if(control.doInversion) {
-            pos.x = boxFold(pos.x,control.cx);
-            pos.y = boxFold(pos.y,control.cx);
-            pos.z = boxFold(pos.z,control.cx);
+                    pos.x = boxFold(pos.x,control.cx);
+                    pos.y = boxFold(pos.y,control.cx);
+                    pos.z = boxFold(pos.z,control.cx);
         }
         else {
-            pos.x = boxFold2(pos.x,control.cx);
-            pos.y = boxFold2(pos.y,control.cx);
-            pos.z = boxFold2(pos.z,control.cx);
-        }
-
-        r2 = pos.x*pos.x + pos.y*pos.y + pos.z*pos.z;
-        
-        if(r2 < mR2) {
-            float temp = fR2 / mR2;
-            pos *= temp;
-            dr *= temp;
-        }
-        else if(r2 < fR2) {
-            float temp = fR2 / r2;
-            pos *= temp;
-            dr *= temp;
+             pos = clamp(pos, -control.cx,control.cx)*2 - pos;
         }
         
-        pos = pos * control.power + c;
-        dr *= control.power;
+        
+        r = dot(pos,pos);
+        if (r< 0.001 || r> 1000.) break;
+        pos/=-r;
+        DF/= r;
+        pos.xz*=-1.;
+        pos += c;
     }
     
-    return length(pos)/abs(dr);
+    r = length(pos);
+    return (0.5*sqrt(r))/(abs(DF)+1.);
 }
+
+//float DE_MANDELBOX(float3 pos,device Control &control) {
+//    float3 c = control.juliaboxMode ? control.julia : pos;
+//    float r,DF = control.power;
+//
+//    for(int i = 0; i < control.maxSteps; ++i) {
+//        pos = clamp(pos, -control.cx,control.cx)*2 - pos;
+//
+//        r = dot(pos,pos);
+//        if (r< 0.001 || r> 1000.) break;
+//        pos/=-r;
+//        DF/= r;
+//        pos.xz*=-1.;
+//        pos += c;
+//    }
+//
+//    r = length(pos);
+//    return (0.5*sqrt(r))/(abs(DF)+1.);
+//}
+
+//float DE_MANDELBOX(float3 pos,device Control &control) {
+//    float3 c = control.juliaboxMode ? control.julia : pos;
+//    float r,DF = control.power;
+//
+//    for(int i = 0; i < control.maxSteps; ++i) {
+//        //        pos = clamp(pos, -control.cx,control.cx)*2 - pos;
+//        if(control.doInversion) {
+//            pos.x = boxFold(pos.x,control.cx);
+//            pos.y = boxFold(pos.y,control.cx);
+//            pos.z = boxFold(pos.z,control.cx);
+//        }
+//        else {
+//            pos.x = boxFold2(pos.x,control.cx);
+//            pos.y = boxFold2(pos.y,control.cx);
+//            pos.z = boxFold2(pos.z,control.cx);
+//        }
+//
+//        r = dot(pos,pos);
+//        pos /= -r;
+//        DF /= r;
+//        pos.xz *= -1.;
+//        pos += c;
+//    }
+//
+//    r = length(pos);
+//    return 0.2 * sqrt(r)/DF;
+//
+//    return  0.1 * length(pos)/DF;
+//
+//}
+
+//    // For the Juliabox, c is a constant. For the Mandelbox, c is variable.
+//    float3 c = control.juliaboxMode ? control.julia : pos;
+//    float r2,dr = control.power;
+//
+//    float fR2 = control.cz * control.cz;
+//    float mR2 = control.cw * control.cw;
+//
+//    for(int i = 0; i < control.maxSteps; ++i) {
+//        if(control.doInversion) {
+//            pos.x = boxFold(pos.x,control.cx);
+//            pos.y = boxFold(pos.y,control.cx);
+//            pos.z = boxFold(pos.z,control.cx);
+//        }
+//        else {
+//            pos.x = boxFold2(pos.x,control.cx);
+//            pos.y = boxFold2(pos.y,control.cx);
+//            pos.z = boxFold2(pos.z,control.cx);
+//        }
+//
+//        r2 = pos.x*pos.x + pos.y*pos.y + pos.z*pos.z;
+//
+//        if(r2 < mR2) {
+//            float temp = fR2 / mR2;
+//            pos *= temp;
+//            dr *= temp;
+//        }
+//        else if(r2 < fR2) {
+//            float temp = fR2 / r2;
+//            pos *= temp;
+//            dr *= temp;
+//        }
+//
+//        pos = pos * control.power + c;
+//        dr *= control.power;
+//    }
+//
+//    return length(pos)/abs(dr);
+//}
 
 //MARK: - 6
 float DE_QUATJULIA(float3 pos,device Control &control) {
@@ -1430,6 +1508,26 @@ float DE_SURFBOX(float3 pos,device Control &control) {
     return length(pos)/abs(dr);
 }
 
+//MARK: - 40
+float DE_TWISTBOX(float3 pos,device Control &control) {
+    float3 c = control.juliaboxMode ? control.julia : pos;
+    float r,DF = control.power;
+    
+    for(int i = 0; i < control.maxSteps; ++i) {
+        pos = clamp(pos, -control.cx,control.cx)*2 - pos;
+        
+        r = dot(pos,pos);
+        if(r< 0.001 || r> 1000.) break;
+        pos/=-r;
+        DF/= r;
+        pos.xz *= -1;
+        pos += c;
+    }
+    
+    r = length(pos);
+    return 0.5 * sqrt(r)/(abs(DF)+1);
+}
+
 //MARK: - distance estimate
 float DE(float3 pos,device Control &control) {
     switch(control.equation) {
@@ -1472,6 +1570,7 @@ float DE(float3 pos,device Control &control) {
         case EQU_37_SPIRALBOX   : return DE_SPIRALBOX(pos,control);
         case EQU_38_ALEK_BULB   : return DE_ALEK_BULB(pos,control);
         case EQU_39_SURFBOX     : return DE_SURFBOX(pos,control);
+        case EQU_40_TWISTBOX    : return DE_TWISTBOX(pos,control);
     }
     
     return 0;
