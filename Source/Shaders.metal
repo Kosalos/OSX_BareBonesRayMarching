@@ -218,6 +218,11 @@ float DE_KLEINIAN(float3 pos,device Control &control) {
 //MARK: - 5
 float boxFold(float v, float fold) { return abs(v + fold) - fabs(v- fold) - v; }
 
+float boxFold2(float v, float fold) { // http://www.fractalforums.com/new-theories-and-research/mandelbox-variant-21/
+    if(v < -fold) v = -2 * fold - v;
+    return v;
+}
+
 float DE_MANDELBOX(float3 pos,device Control &control) {
     // For the Juliabox, c is a constant. For the Mandelbox, c is variable.
     float3 c = control.juliaboxMode ? control.julia : pos;
@@ -227,9 +232,16 @@ float DE_MANDELBOX(float3 pos,device Control &control) {
     float mR2 = control.cw * control.cw;
     
     for(int i = 0; i < control.maxSteps; ++i) {
-        pos.x = boxFold(pos.x,control.cx);
-        pos.y = boxFold(pos.y,control.cx);
-        pos.z = boxFold(pos.z,control.cx);
+        if(control.doInversion) {
+            pos.x = boxFold(pos.x,control.cx);
+            pos.y = boxFold(pos.y,control.cx);
+            pos.z = boxFold(pos.z,control.cx);
+        }
+        else {
+            pos.x = boxFold2(pos.x,control.cx);
+            pos.y = boxFold2(pos.y,control.cx);
+            pos.z = boxFold2(pos.z,control.cx);
+        }
 
         r2 = pos.x*pos.x + pos.y*pos.y + pos.z*pos.z;
         

@@ -152,7 +152,7 @@ class Widget {
             booleanEntry(vc.control.showBalls,"B: ShowBalls")
             booleanEntry(vc.control.fourGen,"F: FourGen")
             booleanEntry(vc.control.doInversion,"I: Do Inversion")
-        case EQU_05_MANDELBOX, EQU_30_KALIBOX, EQU_37_SPIRALBOX :
+        case EQU_30_KALIBOX, EQU_37_SPIRALBOX :
             juliaEntry()
         case EQU_27_FRAGM :
             juliaEntry()
@@ -167,6 +167,9 @@ class Widget {
             booleanEntry(vc.control.gravity,"U: gravity")
         case EQU_33_MHELIX :
             booleanEntry(vc.control.gravity,"U: Moebius")
+        case EQU_05_MANDELBOX :
+            booleanEntry(vc.control.doInversion,"I: Box Fold both sides")
+            juliaEntry()
         default : break
         }
 

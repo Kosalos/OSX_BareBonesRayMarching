@@ -189,7 +189,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             control.cz = 1.0099998
             control.cw = 0.02
             control.dx = 4.3978653
-            control.fMaxSteps = 20.0
+            control.fMaxSteps = 17.0
             juliaX =  0.0
             juliaY =  -6.0
             juliaZ =  -8.0
@@ -465,7 +465,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             control.cz = 1.2099996
             control.cw = 0.0
             control.dx = 4.3978653
-            control.fMaxSteps = 20.0
+            control.fMaxSteps = 17.0
             juliaX =  -0.6800002
             juliaY =  -4.779989
             juliaZ =  -7.2700005
