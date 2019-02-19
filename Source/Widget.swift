@@ -94,7 +94,7 @@ class Widget {
         if shiftKeyDown { alterationSpeed = 0.1 } else if optionKeyDown { alterationSpeed = 10 }
     }
     
-    func keyPress(_ event:NSEvent) {
+    func keyPress(_ event:NSEvent) -> Bool {
         //print(event.keyCode)
         
         updateAlterationSpeed(event)
@@ -104,17 +104,21 @@ class Widget {
             if data[focus].alterValue(-1) {
                 vc.setIsDirty()
                 if data[focus].showValue { updateInstructions() }
+                return true
             }
         case 124: // Right arrow
             if data[focus].alterValue(+1) {
                 vc.setIsDirty()
                 if data[focus].showValue { updateInstructions() }
+                return true
             }
         case 125: moveFocus(+1) // Down arrow
         case 126: moveFocus(-1) // Up arrow
         case 53 : NSApplication.shared.terminate(self) // Esc
         default : break
         }
+        
+        return false
     }
     
     func focusString() -> String { return data[focus].displayString() }
@@ -141,7 +145,8 @@ class Widget {
         str.normal("1,2 : Change Equation (previous, next)")
         str.normal("3 : Toggle Cross-Eyed Stereo,  P : load Picture for texturing")
         str.normal("4,5; 6,7; 8,9 : Jog in X,Y,Z (+ 'Shift' for slow, 'Option' for fast)")
-
+        str.normal("?,/ : Toggle Fast Rendering")
+        
         switch Int(vc.control.equation) {
         case EQU_04_KLEINIAN :
             booleanEntry(vc.control.showBalls,"B: ShowBalls")

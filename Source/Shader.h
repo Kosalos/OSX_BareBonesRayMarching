@@ -24,7 +24,8 @@ enum {
 struct Control {
     int xSize,ySize;
     int equation;
-
+    int skip;
+    
     bool txtOnOff;
     vector_float2 txtSize;
     vector_float3 txtCenter;

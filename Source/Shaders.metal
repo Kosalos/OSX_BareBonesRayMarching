@@ -1445,6 +1445,8 @@ kernel void rayMarchShader
  uint2 p [[thread_position_in_grid]]
  )
 {
+    if(control.skip > 1 && ((p.x % control.skip) != 0 || (p.y % control.skip) != 0)) return;
+
     float den = float(control.xSize);
     float dx =  1.5 * (float(p.x)/den - 0.5);
     float dy = -1.5 * (float(p.y)/den - 0.5);
@@ -1484,5 +1486,17 @@ kernel void rayMarchShader
         color = mix(light, color, 0.8);
     }
     
-    outTexture.write(float4(color.xzy,1),p);
+    if(control.skip == 1) {
+        outTexture.write(float4(color.xyz,1),p);
+        return;
+    }
+
+    uint2 pp;
+    for(int x=0;x<control.skip;++x) {
+        pp.x = p.x + x;
+        for(int y=0;y<control.skip;++y) {
+            pp.y = p.y + y;
+            outTexture.write(float4(color.xyz,1),pp);
+        }
+    }
 }

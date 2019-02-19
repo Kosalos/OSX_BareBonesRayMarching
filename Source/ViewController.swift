@@ -58,11 +58,22 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         
         control.equation = Int32(EQU_01_MANDELBULB)
         control.txtOnOff = false    // 'no texture'
-
+        control.skip = 1            // "fast render" defaults to 'not active'
+        
         reset()
         setDefaultWindowSize()
         
         Timer.scheduledTimer(withTimeInterval:0.033, repeats:true) { timer in self.timerHandler() }
+    }
+    
+    var fastRenderEnabled:Bool = true
+    var slowRenderCountDown:Int = 0
+    
+    func setFastRender() {
+        if fastRenderEnabled {
+            control.skip = 6
+            slowRenderCountDown = 20 // 30 = 1 second
+        }
     }
     
     func setIsDirty() {
@@ -92,6 +103,14 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             }
             
             setIsDirty()
+        }
+
+        if control.skip > 1 && slowRenderCountDown > 0 {
+            slowRenderCountDown -= 1
+            if slowRenderCountDown == 0 {
+                control.skip = 1
+                setIsDirty()
+            }
         }
     }
     
@@ -568,11 +587,13 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
     //MARK: -
     
     var isFullScreen:Bool = false
-
+    var keyIsDown:Bool = false
+    
     override func keyDown(with event: NSEvent) {
         func toggle(_ v:inout Bool) { v = !v;    updateWidgets(); setIsDirty() }
         
         super.keyDown(with: event)
+        keyIsDown = true
         widget.updateAlterationSpeed(event)
 
         switch event.charactersIgnoringModifiers!.uppercased() {
@@ -587,12 +608,13 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             adjustWindowSizeForStereo()
             updateWidgets()
             setIsDirty()
-        case "4","$" :jog(float3(-1,0,0))
-        case "5","%" :jog(float3(+1,0,0))
-        case "6","^" :jog(float3(0,-1,0))
-        case "7","&" :jog(float3(0,+1,0))
-        case "8","*" :jog(float3(0,0,-1))
-        case "9","(" :jog(float3(0,0,+1))
+        case "4","$" : jog(float3(-1,0,0))
+        case "5","%" : jog(float3(+1,0,0))
+        case "6","^" : jog(float3(0,-1,0))
+        case "7","&" : jog(float3(0,+1,0))
+        case "8","*" : jog(float3(0,0,-1))
+        case "9","(" : jog(float3(0,0,+1))
+        case "?","/" : fastRenderEnabled = !fastRenderEnabled
 
         case "B" : toggle(&control.showBalls)
         case "F" : toggle(&control.fourGen)
@@ -634,18 +656,19 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         default : break
         }
         
-        widget.keyPress(event)
+        if widget.keyPress(event) { setFastRender() }
     }
     
     override func keyUp(with event: NSEvent) {
-        super.keyDown(with: event)
         speed = 1.0
+        keyIsDown = false
     }
     
     func stopMovement() { movement = float3() }
     
     func jog(_ direction:float3) {
         control.camera += direction * alterationSpeed * 0.01
+        setFastRender()
         setIsDirty()
     }
 
