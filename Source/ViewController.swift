@@ -137,7 +137,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
               "3Dickulus Quaternion Julia","3Dickulus Quaternion Mandelbrot",
               "Kali's MandelBox","Spudsville","Menger Smooth Polyhedra",
               "Menger Helix","Flower Hive","Jungle","Prisoner","Pupukuusikkos Spiralbox",
-              "Aleksandrov MandelBulb"        ]
+              "Aleksandrov MandelBulb","SurfBox" ]
      
         let index = Int(control.equation)
         view.window?.title = Int(index + 1).description + ": " + titleString[index] + " : " + widget.focusString()
@@ -458,6 +458,21 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             control.bright = 1.4000001
             control.contrast = 0.5
             control.power = 3.4599924
+        case EQU_39_SURFBOX :
+            control.camera = float3(-0.37710285, 0.4399976, -5.937426)
+            control.cx = 1.4199952
+            control.cy = 4.1000023
+            control.cz = 1.2099996
+            control.cw = 0.0
+            control.dx = 4.3978653
+            control.fMaxSteps = 20.0
+            juliaX =  -0.6800002
+            juliaY =  -4.779989
+            juliaZ =  -7.2700005
+            control.bright = 1.01
+            control.contrast = 0.5
+            control.power = 2.5600004
+            control.juliaboxMode = true
         default : break
         }
         
@@ -545,6 +560,9 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         case EQU_33_MHELIX, EQU_34_FLOWER, EQU_05_MANDELBOX, EQU_28_QUATJULIA2, EQU_29_MBROT, EQU_34_FLOWER,
              EQU_37_SPIRALBOX, EQU_38_ALEK_BULB :
             prepareJulia()
+        case EQU_39_SURFBOX :
+            prepareJulia()
+            c.dx = c.cx * c.cy  // foldMod
         default : break
         }
         
@@ -797,7 +815,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         case EQU_05_MANDELBOX :
             widget.addEntry("Iterations",&control.fMaxSteps,10,20,1)
             widget.addEntry("Scale Factor",&control.power,0.6,3,0.02)
-            widget.addEntry("Box 1",&control.cx, 0,3,0.01)
+            widget.addEntry("Box",&control.cx, 0,3,0.001)
             widget.addEntry("Sphere 1",&control.cz, 0,4,0.01)
             widget.addEntry("Sphere 2",&control.cw, 0,4,0.01)
             juliaGroup(10,0.01)
@@ -1009,6 +1027,14 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             widget.addEntry("Iterations",&control.fMaxSteps,3,30,1)
             widget.addEntry("Power",&control.power,1.5,12,0.02)
             juliaGroup(1.6,0.01)
+        case EQU_39_SURFBOX :
+            widget.addEntry("Iterations",&control.fMaxSteps,10,20,1)
+            widget.addEntry("Scale Factor",&control.power,0.6,3,0.02)
+            widget.addEntry("Box 1",&control.cx, 0,3,0.002)
+            widget.addEntry("Box 2",&control.cy, 4,5.6,0.002)
+            widget.addEntry("Sphere 1",&control.cz, 0,4,0.01)
+            widget.addEntry("Sphere 2",&control.cw, 0,4,0.01)
+            juliaGroup(10,0.01)
         default : break
         }
         
