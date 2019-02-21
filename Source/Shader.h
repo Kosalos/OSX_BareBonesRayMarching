@@ -22,6 +22,7 @@ enum {
 };
 
 struct Control {
+    int version;
     int xSize,ySize;
     int equation;
     int skip;
@@ -76,7 +77,8 @@ struct Control {
     // mandelbox
     vector_float3 julia;
     bool juliaboxMode;
-    
+    float juliaX,juliaY,juliaZ;
+
     // quaternion julia, monster
     matrix_float4x4 mm;
     

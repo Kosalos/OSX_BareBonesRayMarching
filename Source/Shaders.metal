@@ -32,6 +32,91 @@
 // Aleksandrov MandelBulb : https://fractalforums.org/fractal-institute/47/formulas-of-aleksandrov/656
 // Surfbox : http://www.fractalforums.com/amazing-box-amazing-surf-and-variations/httpwww-shaperich-comproshred-elite-review/
 // Twistbox: http://www.fractalforums.com/amazing-box-amazing-surf-and-variations/twistbox-spiralling-1-scale-box-variant/
+//------------------------------------------------------------
+// Procedure to add a new fractal algorithm to the list
+// 1. Find the fractals' DE (Distance estimation routine).
+//    To fit the pattern of the other fractals, this routine should accept a
+//    float3 position, and output a float distance.
+// 2. Add a new entry to the fractal ID list at the top of shader.h
+//    If your new fractal is named Zorro, I would give it the ID "EQU_42_ZORRO"
+//    (or whatever # is next in line)
+// 3. Add the fractal's name to the end of the titleString[] array (viewcontroller, ~line #129)
+// 4. Add the fractal ID to the compute shader's switch statement. (this file, ~line #1617)
+//    Have it call your new DE routine (example: DE_ZORRO(pos,control) )
+// 5. Add your DE routine to Shaders.metal (this file)
+// 6. Refactor your DE routine as necessary:
+//    a. To matchup with the other routines, your input position variable should be called 'pos'
+//    b. Replace all vec2,vec3,vec4 with float2,float3,float4.
+//    c. Replace desired hard-wired parameters with 'control variables of your choosing.
+//       Note that control (defined in Shader.h) already has many variables you can use in your routine.
+//       Suggest you use cx,cy,cz,cw,dx,dy,dz,dw,ex,ey,ez,ew,angle1,angle2. (look at the other DEs )
+// 7. We need to update the reset() routine to provide default values for all your control parameters.
+//    In viewController.swift, ~line #501, add your new ID case statement,
+//    and a block of default values you can copy/paste from some other case statement in that has
+//    parameters roughly matching your list. We'll set the final default values in a few more steps.
+//    You might want to set your param defaults to match values you learned from the DE author's writeup.
+// 8. We need to update the updateWidgets() routine so that it displays the correct parameters
+//    when you fractal is active.
+//    In viewController.swift, ~line #1080, add your new ID case statement,
+//    and the widget entries that match the control parameters you used.
+//
+//    example: widget.addEntry("Box",&control.cx, 0,10,0.01)
+//    control's cx value will hold the fractal's 'Box' variable.
+//    It will range between 0 and 10, and each press of the Lt/Rt arrow keys will alter it by 0.01
+// 9. Almost done. The code should all compile now.
+//    Run the program. It defaults to showing fractal #1.
+//    Press the '1' key to step backwards in the fractal list to the last entry, your new fractal.
+//    You should see your fractal's name in the window title bar,
+//    and the widgets you defined the instruction text.
+//    But if your luck is like mine, the screen is black.
+//    We need to find the collection of parameter values that produce an image.
+//
+//    Follow these steps:
+//    1. Triple check your DE routine. Compare it to the code in the other DE routines,
+//       especially the way it determines the return value after the iteration loop terminates.
+//    2. Tap the 'H' key repeatedly until you see ANY pixels on the screen.
+//       Take a look at the randomValues() routine in viewcontroller.swift line #766,
+//       which is called every 'H' press.
+//       Alter randomValues() if necessary so that it randomizes all your control params.
+//       (angle1, angle2 can be ignored, because they always work)
+//    3. When you get some rendered pixels, press 'V' (calls parameterDisplay(), that you might want to augment)
+//       It will display a block of variable settings in the console window.
+//       Copy that whole block, and paste it into your DE's reset() case statement
+//       (viewController.swift, ~line #501).
+//    4. Now look over the list of parameter settings you just pasted.
+//       You can remove settings that don't apply to your fractal.
+//       Ensure your widget definitions encompass the values the random routine found.
+//       For example, perhaps you used "widget.addEntry("Box",&control.cx, 0,10,0.01)"
+//       which restricts cx to 0 ... 10,  yet your new default setting has cx = -3.
+//       Update your widget defintions as necessary so that when we re-run the program,
+//       you can begin to manually edit each parameter to find a good rendering.
+//    5. Every time you make progress in getting a better rendering, repeat step 3 so
+//       that your default settings capture your progress.
+//       It's easy to have something that "isn't bad, but I bet I can make it better..",
+//       and then make too many bad moves and you can't find a way back.
+//    6. You finally found the default rendering you want to present to the users,
+//       including the camera position. Do step 3 one last time to capture the dataset.
+//       Now one by one, exercise each widget, and tighten up it's min/max values to reasonable settings.
+//       Also update the 'delta' value so the widget has fine control over changes.
+//
+// The swift routine that calls the compute shader is computeTexture()  (Viewcontroller, line # 510).
+// We want to do as much variable preparation as we can on the CPU side,
+// rather than repeatedly in the shader.
+//
+// Take a look at EQU_25_POLYCHORA preparation at line #550...
+// At this time the 'c' variable is a copy of the control structure that will be passed to the shader.
+//
+// Take a look at EQU_27_FRAGM preparation at line #563...
+// It calls prepareJulia().  Many of the fractals optionally use a 'Julia set constant position'
+// prepareJulia() packs the 3 widget values into a float3 for the shader.
+//
+// Also look at EQU_27_FRAGM section of updateInstructions()  (Widget.swift, line #157..)
+// Here we call juliaEntry() so that the Julia on/off instruction is displayed.
+// also note how booleanEntry() is used to add a toggle instruction "K: Alternate Version"
+// That "K" keypress is handled in Viewcontroller's keyDown() routine, line #649.
+//
+// good luck
+//------------------------------------------------------------
 
 #include <metal_stdlib>
 #include "Shader.h"
@@ -1520,7 +1605,7 @@ float2 shortest_dist(float3 eye, float3 marchingDirection,device Control &contro
 }
 
 float3 calcNormal(float3 pos,device Control &control) {
-    float2 e = float2(1.0,-1.0) * 0.0057;
+    float2 e = float2(1.0,-1.0) * 0.000057;
     float3 ans = normalize(e.xyy * DE( pos + e.xyy, control) +
                            e.yyx * DE( pos + e.yyx, control) +
                            e.yxy * DE( pos + e.yxy, control) +
@@ -1533,7 +1618,7 @@ float3 calcNormal(float3 pos,device Control &control) {
 // boxplorer's method
 float3 getBlinnShading(float3 normal, float3 direction, float3 light,device Control &control) {
     float3 halfLV = normalize(light + direction);
-    float spe = pow(max( dot(normal, halfLV), 0.0 ), 2);
+    float spe = pow(dot(normal, halfLV), 2);
     float dif = dot(normal, light) * 0.5 + 0.75;
     return dif + spe * control.specular;
 }

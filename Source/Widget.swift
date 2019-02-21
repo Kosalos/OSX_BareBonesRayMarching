@@ -146,7 +146,8 @@ class Widget {
         str.normal("3 : Toggle Cross-Eyed Stereo,  P : load Picture for texturing")
         str.normal("4,5; 6,7; 8,9 : Jog in X,Y,Z (+ 'Shift' for slow, 'Option' for fast)")
         str.normal("?,/ : Toggle Fast Rendering")
-        
+        str.normal("home : Launch Save/Load dialog.  end : Load next saved image")
+
         switch Int(vc.control.equation) {
         case EQU_04_KLEINIAN :
             booleanEntry(vc.control.showBalls,"B: ShowBalls")
