@@ -33,6 +33,7 @@
 // Surfbox : http://www.fractalforums.com/amazing-box-amazing-surf-and-variations/httpwww-shaperich-comproshred-elite-review/
 // Twistbox: http://www.fractalforums.com/amazing-box-amazing-surf-and-variations/twistbox-spiralling-1-scale-box-variant/
 // Kali Rontgen : https://www.shadertoy.com/view/XlXcRj
+// VERTEBRAE (+ equ 6) : https://fractalforums.org/code-snippets-fragments/74/logxyzsinxyz-transforms/2430
 //------------------------------------------------------------
 // Procedure to add a new fractal algorithm to the list
 // 1. Find the fractals' DE (Distance estimation routine).
@@ -1556,6 +1557,46 @@ float DE_KALI_RONTGEN(float3 pos,device Control &control) {
     return d;
 }
 
+//MARK: - 42
+float DE_VERTEBRAE(float3 pos,device Control &control) {
+    #define scalelogx  control.dx
+    #define scalelogy  control.dy
+    #define scalelogz  control.dz
+    #define scalesinx  control.dw
+    #define scalesiny  control.ex
+    #define scalesinz  control.ey
+    #define offsetsinx control.ez
+    #define offsetsiny control.ew
+    #define offsetsinz control.fx
+    #define slopesinx  control.fy
+    #define slopesiny  control.fz
+    #define slopesinz  control.fw
+    float4 c = 0.5 * float4(control.cx, control.cy, control.cz, control.cw);
+    float4 nz;
+    float md2 = 1.0;
+    float4 z = float4(pos,0);
+    float mz2 = dot(z,z);
+    
+    for(int i=0;i < control.maxSteps; ++i) {
+        md2 *= 4.0 * mz2;
+        nz.x = z.x * z.x - dot(z.yzw,z.yzw);
+        nz.yzw = 2.0 * z.x * z.yzw;
+        z = nz+c;
+        
+        z.x = scalelogx*log(z.x + sqrt(z.x*z.x + 1.));
+        z.y = scalelogy*log(z.y + sqrt(z.y*z.y + 1.));
+        z.z = scalelogz*log(z.z + sqrt(z.z*z.z + 1.));
+        z.x = scalesinx*sin(z.x + offsetsinx)+(z.x*slopesinx);
+        z.y = scalesiny*sin(z.y + offsetsiny)+(z.y*slopesiny);
+        z.z = scalesinz*sin(z.z + offsetsinz)+(z.z*slopesinz);
+        
+        mz2 = dot(z,z);
+        if(mz2 > 12.0) break;
+    }
+    
+    return 0.3 * sqrt(mz2/md2) * log(mz2);
+}
+
 //MARK: - distance estimate
 float DE(float3 pos,device Control &control) {
     switch(control.equation) {
@@ -1600,6 +1641,7 @@ float DE(float3 pos,device Control &control) {
         case EQU_39_SURFBOX     : return DE_SURFBOX(pos,control);
         case EQU_40_TWISTBOX    : return DE_TWISTBOX(pos,control);
         case EQU_41_KALI_RONTGEN: return DE_KALI_RONTGEN(pos,control);
+        case EQU_42_VERTEBRAE   : return DE_VERTEBRAE(pos,control);
     }
     
     return 0;

@@ -24,7 +24,7 @@ class SaveLoadCell: NSTableCellView {
 
 //MARK:-
 
-let versionNumber:Int32 = 0x55ab
+let versionNumber:Int32 = 0x55ac
 let numEntries:Int = 50
 var loadNextIndex:Int = -1   // first use will bump this to zero
 

@@ -134,7 +134,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
               "3Dickulus Quaternion Julia","3Dickulus Quaternion Mandelbrot",
               "Kali's MandelBox","Spudsville","Menger Smooth Polyhedra",
               "Menger Helix","Flower Hive","Jungle","Prisoner","Pupukuusikkos Spiralbox",
-              "Aleksandrov MandelBulb","SurfBox","TwistBox","Kali Rontgen" ]
+              "Aleksandrov MandelBulb","SurfBox","TwistBox","Kali Rontgen","Vertebrae" ]
         
         let index = Int(control.equation)
         view.window?.title = Int(index + 1).description + ": " + titleString[index] + " : " + widget.focusString()
@@ -492,6 +492,28 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             control.cy = 1.3439986
             control.cz = 0.56685466
             control.fMaxSteps = 7.0
+        case EQU_42_VERTEBRAE :
+            control.camera = float3(0.5029001, -1.3100017, -9.947422)
+            control.cx = 5.599995
+            control.cy = 8.699999
+            control.cz = -3.6499987
+            control.cw = 0.089999855
+            control.dx = 1.0324188
+            control.dy = 9.1799965
+            control.dz = -0.68002427
+            control.dw = 1.439993
+            control.ex = -0.6299968
+            control.ey = 2.0999985
+            control.ez = -4.026443
+            control.ew = -4.6699996
+            control.fx = -9.259983
+            control.fy = 0.8925451
+            control.fz = -0.0112106
+            control.fw = 2.666039
+            control.fMaxSteps = 2.0
+            control.bright = 0.41
+            control.contrast = 0.28000006
+            control.specular = 2.0
         default : break
         }
         
@@ -748,18 +770,27 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         print("control.dy =",control.dy)
         print("control.dz =",control.dz)
         print("control.dw =",control.dw)
+        print("control.ex =",control.ex)
+        print("control.ey =",control.ey)
+        print("control.ez =",control.ez)
+        print("control.ew =",control.ew)
+        print("control.fx =",control.fx)
+        print("control.fy =",control.fy)
+        print("control.fz =",control.fz)
+        print("control.fw =",control.fw)
 
-        print("control.angle1 =",control.angle1)
-        print("control.angle2 =",control.angle2)
         print("control.fMaxSteps =",control.fMaxSteps)
         
+        print("control.angle1 =",control.angle1)
+        print("control.angle2 =",control.angle2)
         print("control.juliaX = ",control.juliaX)
         print("control.juliaY = ",control.juliaY)
         print("control.juliaZ = ",control.juliaZ)
-        
+        print("control.power =",control.power)
+
         print("control.bright =",control.bright)
         print("control.contrast =",control.contrast)
-        print("control.power =",control.power)
+        print("control.specular =",control.specular)
     }
 
     func changeEquation(_ dir:Int) {
@@ -792,6 +823,10 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         control.ey = fRandom3()
         control.ez = fRandom3()
         control.ew = fRandom3()
+        control.fx = fRandom3()
+        control.fy = fRandom3()
+        control.fz = fRandom3()
+        control.fw = fRandom3()
     }
     
     //MARK: -
@@ -1083,6 +1118,24 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             widget.addEntry("Y",&control.cy, -10,10,0.01)
             widget.addEntry("Z",&control.cz, -10,10,0.01)
             widget.addEntry("Angle",&control.angle1,-4,4,0.02)
+        case EQU_42_VERTEBRAE :
+            widget.addEntry("Iterations",&control.fMaxSteps,2,10,1)
+            widget.addEntry("X",&control.cx,       -10,10,0.05)
+            widget.addEntry("Y",&control.cy,       -10,10,0.05)
+            widget.addEntry("Z",&control.cz,       -10,10,0.05)
+            widget.addEntry("W",&control.cw,       -10,10,0.05)
+            widget.addEntry("ScaleX",&control.dx,  -10,10,0.05)
+            widget.addEntry("Sine X",&control.dw,  -10,10,0.05)
+            widget.addEntry("Offset X",&control.ez,-10,10,0.05)
+            widget.addEntry("Slope X",&control.fy, -10,10,0.05)
+            widget.addEntry("ScaleY",&control.dy,  -10,10,0.05)
+            widget.addEntry("Sine Y",&control.ex,  -10,10,0.05)
+            widget.addEntry("Offset Y",&control.ew,-10,10,0.05)
+            widget.addEntry("Slope Y",&control.fz, -10,10,0.05)
+            widget.addEntry("ScaleZ",&control.dz,  -10,10,0.05)
+            widget.addEntry("Sine Z",&control.ey,  -10,10,0.05)
+            widget.addEntry("Offset Z",&control.fx,-10,10,0.05)
+            widget.addEntry("Slope Z",&control.fw, -10,10,0.05)
         default : break
         }
         
