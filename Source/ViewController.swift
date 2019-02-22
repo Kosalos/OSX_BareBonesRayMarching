@@ -134,7 +134,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
               "3Dickulus Quaternion Julia","3Dickulus Quaternion Mandelbrot",
               "Kali's MandelBox","Spudsville","Menger Smooth Polyhedra",
               "Menger Helix","Flower Hive","Jungle","Prisoner","Pupukuusikkos Spiralbox",
-              "Aleksandrov MandelBulb","SurfBox","TwistBox","Kali Rontgen","Vertebrae" ]
+              "Aleksandrov MandelBulb","SurfBox","TwistBox","Kali Rontgen","Vertebrae",
+              "DarkBeam Surfbox" ]
         
         let index = Int(control.equation)
         view.window?.title = Int(index + 1).description + ": " + titleString[index] + " : " + widget.focusString()
@@ -514,6 +515,22 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             control.bright = 0.41
             control.contrast = 0.28000006
             control.specular = 2.0
+        case EQU_43_DARKSURF :
+            control.camera = float3(-0.4870995, -1.9200011, -1.7574148)
+            control.cx = 7.1999893
+            control.cy = 0.34999707
+            control.cz = -4.549979
+            control.dx = -10.0
+            control.dy = 0.549999
+            control.dz = 0.88503367
+            control.ex = 0.99998015
+            control.ey = 1.8999794
+            control.ez = 3.3499994
+            control.fMaxSteps = 10.0
+            control.angle1 = -1.5399991
+            control.bright = 1.0
+            control.contrast = 0.5
+            control.specular = 0.0
         default : break
         }
         
@@ -604,6 +621,9 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         case EQU_39_SURFBOX :
             prepareJulia()
             c.dx = c.cx * c.cy  // foldMod
+        case EQU_43_DARKSURF :
+            c.n1 = float3(c.dx,c.dy,c.dz)
+            c.n2 = float3(c.ex,c.ey,c.ez)
         default : break
         }
         
@@ -1119,7 +1139,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             widget.addEntry("Z",&control.cz, -10,10,0.01)
             widget.addEntry("Angle",&control.angle1,-4,4,0.02)
         case EQU_42_VERTEBRAE :
-            widget.addEntry("Iterations",&control.fMaxSteps,2,10,1)
+            widget.addEntry("Iterations",&control.fMaxSteps,2,50,1)
             widget.addEntry("X",&control.cx,       -10,10,0.05)
             widget.addEntry("Y",&control.cy,       -10,10,0.05)
             widget.addEntry("Z",&control.cz,       -10,10,0.05)
@@ -1136,6 +1156,18 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             widget.addEntry("Sine Z",&control.ey,  -10,10,0.05)
             widget.addEntry("Offset Z",&control.fx,-10,10,0.05)
             widget.addEntry("Slope Z",&control.fw, -10,10,0.05)
+        case EQU_43_DARKSURF :
+            widget.addEntry("Iterations",&control.fMaxSteps,2,10,1)
+            widget.addEntry("scale",&control.cx,    -10,10,0.002)
+            widget.addEntry("MinRad",&control.cy,   -10,10,0.002)
+            widget.addEntry("Scale",&control.cz,    -10,10,0.002)
+            widget.addEntry("Fold X",&control.dx,   -10,10,0.002)
+            widget.addEntry("Fold Y",&control.dy,   -10,10,0.002)
+            widget.addEntry("Fold Z",&control.dz,   -10,10,0.002)
+            widget.addEntry("FoldMod X",&control.ex,-10,10,0.002)
+            widget.addEntry("FoldMod Y",&control.ey,-10,10,0.002)
+            widget.addEntry("FoldMod Z",&control.ez,-10,10,0.002)
+            widget.addEntry("Angle",&control.angle1,-4,4,0.002)
         default : break
         }
         

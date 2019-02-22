@@ -34,6 +34,7 @@
 // Twistbox: http://www.fractalforums.com/amazing-box-amazing-surf-and-variations/twistbox-spiralling-1-scale-box-variant/
 // Kali Rontgen : https://www.shadertoy.com/view/XlXcRj
 // VERTEBRAE (+ equ 6) : https://fractalforums.org/code-snippets-fragments/74/logxyzsinxyz-transforms/2430
+// DarkBeamSurf : https://fractalforums.org/code-snippets-fragments/74/darkbeams-surfbox/2366
 //------------------------------------------------------------
 // Procedure to add a new fractal algorithm to the list
 // 1. Find the fractals' DE (Distance estimation routine).
@@ -1597,6 +1598,55 @@ float DE_VERTEBRAE(float3 pos,device Control &control) {
     return 0.3 * sqrt(mz2/md2) * log(mz2);
 }
 
+//MARK: - 43
+float DE_DARKSURF(float3 pos,device Control &control) {
+#define scale_43 control.cx
+#define MinRad2_43 control.cy
+#define Scale_43 control.cz
+#define fold_43 control.n1
+#define foldMod_43 control.n2
+    float absScalem1 = abs(Scale_43 - 1.0);
+    float AbsScaleRaisedTo1mIters = pow(abs(Scale_43), float(1-control.maxSteps));
+    
+    float4 p = float4(pos,1), p0 = p;  // p.w is the distance estimate
+    
+    for(int i=0;i < control.maxSteps; ++i) {
+        p.xyz = rotatePosition(p.xyz,0,control.angle1);
+        p.xyz = rotatePosition(p.xyz,1,control.angle1);
+
+        //dark-beam's surfboxfold ported by mclarekin-----------------------------------
+        float3 sg = p.xyz; // or 0,0,0
+        sg.x = sign(p.x);
+        sg.y = sign(p.y);
+        sg.z = sign(p.z);
+        
+        float3 folder = p.xyz; // or 0,0,0
+        float3 Tglad = abs(p.xyz + fold_43) - abs(p.xyz - fold_43) - p.xyz;
+        
+        folder.x = sg.x * (p.x - Tglad.x);
+        folder.y = sg.y * (p.y - Tglad.y);
+        folder.z = sg.z * (p.z - Tglad.z);
+        
+        folder = abs(folder);
+        
+        folder.x = min(folder.x, foldMod_43.x);
+        folder.y = min(folder.y, foldMod_43.y);
+        folder.z = min(folder.z, foldMod_43.z);
+        
+        p.x -= sg.x * folder.x;
+        p.y -= sg.y * folder.y;
+        p.z -= sg.z * folder.z;
+        //----------------------------------------------------------
+        
+        float r2 = dot(p.xyz, p.xyz);
+        p *= clamp(max(MinRad2_43/r2, MinRad2_43), 0.0, 1.0);
+        p = p * scale_43 + p0;
+        if ( r2>1000.0) break;
+        
+    }
+    return ((length(p.xyz) - absScalem1) / p.w - AbsScaleRaisedTo1mIters);
+}
+
 //MARK: - distance estimate
 float DE(float3 pos,device Control &control) {
     switch(control.equation) {
@@ -1642,6 +1692,7 @@ float DE(float3 pos,device Control &control) {
         case EQU_40_TWISTBOX    : return DE_TWISTBOX(pos,control);
         case EQU_41_KALI_RONTGEN: return DE_KALI_RONTGEN(pos,control);
         case EQU_42_VERTEBRAE   : return DE_VERTEBRAE(pos,control);
+        case EQU_43_DARKSURF    : return DE_DARKSURF(pos,control);
     }
     
     return 0;
