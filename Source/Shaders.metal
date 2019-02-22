@@ -32,6 +32,7 @@
 // Aleksandrov MandelBulb : https://fractalforums.org/fractal-institute/47/formulas-of-aleksandrov/656
 // Surfbox : http://www.fractalforums.com/amazing-box-amazing-surf-and-variations/httpwww-shaperich-comproshred-elite-review/
 // Twistbox: http://www.fractalforums.com/amazing-box-amazing-surf-and-variations/twistbox-spiralling-1-scale-box-variant/
+// Kali Rontgen : https://www.shadertoy.com/view/XlXcRj
 //------------------------------------------------------------
 // Procedure to add a new fractal algorithm to the list
 // 1. Find the fractals' DE (Distance estimation routine).
@@ -46,7 +47,7 @@
 // 5. Add your DE routine to Shaders.metal (this file)
 // 6. Refactor your DE routine as necessary:
 //    a. To matchup with the other routines, your input position variable should be called 'pos'
-//    b. Replace all vec2,vec3,vec4 with float2,float3,float4.
+//    b. Replace all vec2,float3,vec4 with float2,float3,float4.
 //    c. Replace desired hard-wired parameters with 'control variables of your choosing.
 //       Note that control (defined in Shader.h) already has many variables you can use in your routine.
 //       Suggest you use cx,cy,cz,cw,dx,dy,dz,dw,ex,ey,ez,ew,angle1,angle2. (look at the other DEs )
@@ -1536,6 +1537,25 @@ float DE_TWISTBOX(float3 pos,device Control &control) {
     return 0.5 * sqrt(r)/(abs(DF)+1);
 }
 
+//MARK: - 41
+float DE_KALI_RONTGEN(float3 pos,device Control &control) {
+    float d = 10000.;
+    float4 p = float4(pos, 1.);
+    float3 param = float3(control.cx,control.cy,control.cz);
+    
+    for(int i = 0; i < control.maxSteps; ++i) {
+        p = abs(p) / dot(p.xyz, p.xyz);
+        
+        d = min(d, (length(p.xy - float2(0,.01))-.03) / p.w);
+        if(d > 4) break;
+        
+        p.xyz -= param;
+        p.xyz = rotatePosition(p.xyz,1,control.angle1);
+    }
+
+    return d;
+}
+
 //MARK: - distance estimate
 float DE(float3 pos,device Control &control) {
     switch(control.equation) {
@@ -1579,6 +1599,7 @@ float DE(float3 pos,device Control &control) {
         case EQU_38_ALEK_BULB   : return DE_ALEK_BULB(pos,control);
         case EQU_39_SURFBOX     : return DE_SURFBOX(pos,control);
         case EQU_40_TWISTBOX    : return DE_TWISTBOX(pos,control);
+        case EQU_41_KALI_RONTGEN: return DE_KALI_RONTGEN(pos,control);
     }
     
     return 0;
@@ -1605,7 +1626,7 @@ float2 shortest_dist(float3 eye, float3 marchingDirection,device Control &contro
 }
 
 float3 calcNormal(float3 pos,device Control &control) {
-    float2 e = float2(1.0,-1.0) * 0.000057;
+    float2 e = float2(1.0,-1.0) * 0.057;
     float3 ans = normalize(e.xyy * DE( pos + e.xyy, control) +
                            e.yyx * DE( pos + e.yyx, control) +
                            e.yxy * DE( pos + e.yxy, control) +
@@ -1664,7 +1685,7 @@ kernel void rayMarchShader
             color = coloringTexture.read(pt).xyz;
         }
         else {
-            color = float3(1 - (normal / 10 + sqrt(dist.y / 100)));
+            color = float3(1 - (normal / 10 + sqrt(dist.y / 80)));
         }
         
         color *= control.bright;

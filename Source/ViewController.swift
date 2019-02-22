@@ -68,7 +68,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
     
     func setFastRender() {
         if fastRenderEnabled {
-            control.skip = 6
+            control.skip = max(control.xSize / 360, 6)
             slowRenderCountDown = 20 // 30 = 1 second
         }
     }
@@ -134,7 +134,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
               "3Dickulus Quaternion Julia","3Dickulus Quaternion Mandelbrot",
               "Kali's MandelBox","Spudsville","Menger Smooth Polyhedra",
               "Menger Helix","Flower Hive","Jungle","Prisoner","Pupukuusikkos Spiralbox",
-              "Aleksandrov MandelBulb","SurfBox","TwistBox" ]
+              "Aleksandrov MandelBulb","SurfBox","TwistBox","Kali Rontgen" ]
         
         let index = Int(control.equation)
         view.window?.title = Int(index + 1).description + ": " + titleString[index] + " : " + widget.focusString()
@@ -486,6 +486,12 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             control.bright = 1.4100001
             control.contrast = 0.3399999
             control.power = 8.21999
+        case EQU_41_KALI_RONTGEN :
+            control.camera = float3(-0.16709971, -0.020002633, -0.9474212)
+            control.cx = 0.88783956
+            control.cy = 1.3439986
+            control.cz = 0.56685466
+            control.fMaxSteps = 7.0
         default : break
         }
         
@@ -1071,6 +1077,12 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             widget.addEntry("Scale Factor",&control.power,0.6,10,0.02)
             widget.addEntry("Box",&control.cx, 0,10,0.0001)
             juliaGroup(10,0.0001)
+        case EQU_41_KALI_RONTGEN :
+            widget.addEntry("Iterations",&control.fMaxSteps,1,30,1)
+            widget.addEntry("X",&control.cx, -10,10,0.01)
+            widget.addEntry("Y",&control.cy, -10,10,0.01)
+            widget.addEntry("Z",&control.cz, -10,10,0.01)
+            widget.addEntry("Angle",&control.angle1,-4,4,0.02)
         default : break
         }
         
