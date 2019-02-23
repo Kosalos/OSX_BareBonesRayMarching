@@ -1657,8 +1657,8 @@ float DE_DARKSURF(float3 pos,device Control &control) {
 
 //MARK: - 44
 void BuffaloIteration(thread float3 &z, float r, thread float &r_dz,device Control &control) {
-    #define Power control.cy
-    r_dz = r_dz * Power * r;
+    #define power control.cy
+    r_dz = r_dz * 2 * r;
     
     if (control.preabsx) z.x = abs(z.x);
     if (control.preabsy) z.y = abs(z.y);
@@ -1669,8 +1669,8 @@ void BuffaloIteration(thread float3 &z, float r, thread float &r_dz,device Contr
     float z2 = z.z * z.z;
     float temp = 1.0 - (z2 / (x2 + y2));
     float newx = (x2 - y2) * temp;
-    float newy = 2.0 * z.x * z.y * temp;
-    float newz = -2.0 * z.z * sqrt(x2 + y2);
+    float newy = power * z.x * z.y * temp;
+    float newz = -power * z.z * sqrt(x2 + y2);
     
     z.x = control.absx ? abs(newx) : newx;
     z.y = control.absy ? abs(newy) : newy;
@@ -1704,7 +1704,7 @@ float DE_BUFFALO(float3 pos,device Control &control) {
     float3 z = pos;
     if(control.UseDeltaDE) {
         // Author: Krzysztof Marczak (buddhi1980@gmail.com) from  MandelbulberV2
-        float deltavalue = max(length(z) * 0.000001, DEScale * 0.1);
+        float deltavalue = max(length(z) * 0.000001, DEScale);
         float3 deltaX = float3 (deltavalue, 0.0, 0.0);
         float3 deltaY = float3 (0.0, deltavalue, 0.0);
         float3 deltaZ = float3 (0.0, 0.0, deltavalue);

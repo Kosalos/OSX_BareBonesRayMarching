@@ -1219,9 +1219,12 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             widget.addEntry("Angle",&control.angle1,-4,4,0.002)
         case EQU_44_BUFFALO :
             widget.addEntry("Iterations",&control.fMaxSteps,2,60,1)
-            widget.addEntry("Scale",&control.cx,  -10,10,0.002)
             widget.addEntry("Power",&control.cy,  0.1,30,0.01)
             widget.addEntry("Angle",&control.angle1,-4,4,0.01)
+            
+            if control.UseDeltaDE {
+                widget.addEntry("DE Scale",&control.cx, 0,2,0.01)
+            }
             juliaGroup(10,0.01)
         default : break
         }
