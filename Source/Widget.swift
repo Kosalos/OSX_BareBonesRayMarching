@@ -114,7 +114,7 @@ class Widget {
             }
         case 125: moveFocus(+1) // Down arrow
         case 126: moveFocus(-1) // Up arrow
-        case 53 : NSApplication.shared.terminate(self) // Esc
+        //case 53 : NSApplication.shared.terminate(self) // Esc
         default : break
         }
         
@@ -127,37 +127,22 @@ class Widget {
         let str = NSMutableAttributedString()
         
         func booleanEntry(_ onoff:Bool, _ legend:String) { str.normal(legend + (onoff ? " = true" : " = false")) }
-        func juliaEntry() { booleanEntry(vc.control.juliaboxMode,"J: Julia Mode") }
-
-        switch vc.style {
-        case .move :
-            str.normal("M : Mouse controls Movement")
-            str.normal("      Left Mouse Button + Drag : Pan (+ 'Z' for finetune)")
-            str.normal("      Right Mouse Button + Drag : Move forward,back")
-            str.normal("S : Stop all movement")
-        case .rotate :
-            str.normal("M : Mouse controls Rotation")
-            str.normal("      Left Mouse Button + Drag to Rotate (+ 'Z' for finetune)")
-            str.normal("S : Stop all Movement")
+        func juliaEntry() {
+            booleanEntry(vc.control.juliaboxMode,"J: Julia Mode")
+            str.normal("")
         }
-        
-        str.normal("<, > : Change window size,  0 : Toggle Full Screen")
-        str.normal("1,2 : Change Equation (previous, next)")
-        str.normal("3 : Toggle Cross-Eyed Stereo,  P : load Picture for texturing")
-        str.normal("4,5; 6,7; 8,9 : Jog in X,Y,Z (+ 'Shift' for slow, 'Option' for fast)")
-        str.normal("?,/ : Toggle Fast Rendering")
-        str.normal("home : Launch Save/Load dialog.  end : Load next saved image")
 
         switch Int(vc.control.equation) {
         case EQU_04_KLEINIAN :
             booleanEntry(vc.control.showBalls,"B: ShowBalls")
             booleanEntry(vc.control.fourGen,"F: FourGen")
             booleanEntry(vc.control.doInversion,"I: Do Inversion")
+            str.normal("")
         case EQU_30_KALIBOX, EQU_37_SPIRALBOX :
             juliaEntry()
         case EQU_27_FRAGM :
-            juliaEntry()
             booleanEntry(vc.control.AlternateVersion,"K: Alternate Version")
+            juliaEntry()
         case EQU_32_MPOLY :
             booleanEntry(vc.control.polygonate,"Q: polygonate")
             booleanEntry(vc.control.polyhedronate,"W: polyhedronate")
@@ -168,18 +153,22 @@ class Widget {
             booleanEntry(vc.control.gravity,"U: gravity")
         case EQU_33_MHELIX :
             booleanEntry(vc.control.gravity,"U: Moebius")
+            str.normal("")
         case EQU_05_MANDELBOX :
             booleanEntry(vc.control.doInversion,"I: Box Fold both sides")
+            juliaEntry()
+        case EQU_44_BUFFALO :
+            booleanEntry(vc.control.preabsx,"Q: Pre Abs X")
+            booleanEntry(vc.control.preabsy,"W: Pre Abs Y")
+            booleanEntry(vc.control.preabsz,"E: Pre Abs Z")
+            booleanEntry(vc.control.absx,"R: Abs X")
+            booleanEntry(vc.control.absy,"T: Abs Y")
+            booleanEntry(vc.control.absz,"Y: Abs Z")
+            booleanEntry(vc.control.UseDeltaDE,"U: Delta DE")
             juliaEntry()
         default : break
         }
 
-        str.normal("")
-        str.normal("Left/Right Arrows alter value (+ 'Shift' for slow, 'Option' for fast)")
-        str.normal("Up/Down Arrows move focus")
-        str.normal("Spacebar: Toggle instructions Display")
-        str.normal("")
-        
         for i in 0 ..< data.count {
             switch data[i].kind {
             case .integer, .float :

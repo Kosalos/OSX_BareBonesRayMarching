@@ -35,6 +35,7 @@
 // Kali Rontgen : https://www.shadertoy.com/view/XlXcRj
 // VERTEBRAE (+ equ 6) : https://fractalforums.org/code-snippets-fragments/74/logxyzsinxyz-transforms/2430
 // DarkBeamSurf : https://fractalforums.org/code-snippets-fragments/74/darkbeams-surfbox/2366
+// Buffalo : https://fractalforums.org/fragmentarium/17/buffalo-bulb-deltade/2313
 //------------------------------------------------------------
 // Procedure to add a new fractal algorithm to the list
 // 1. Find the fractals' DE (Distance estimation routine).
@@ -118,6 +119,13 @@
 // also note how booleanEntry() is used to add a toggle instruction "K: Alternate Version"
 // That "K" keypress is handled in Viewcontroller's keyDown() routine, line #649.
 //
+// I don't know enough math to correctly add the ability to 'drive around' the fractal, so
+// for now there is limited panning. Hopefully someone can provide the needed code!
+// Anyhow, some fractals, such as the MandelBulb, are best viewed from the side.
+// Press 'X' to toggle to "changingViewVector" mode.  Now the 4,5; 6,7; 8,9; keys alter
+// the view vector rather than the camera.  Combine spinning the viewVector with moving the camera
+// until the fractal is finally positioned to the best view.
+// Then added the updateViewVector() settings to your reset() dataset.
 // good luck
 //------------------------------------------------------------
 
@@ -1647,6 +1655,100 @@ float DE_DARKSURF(float3 pos,device Control &control) {
     return ((length(p.xyz) - absScalem1) / p.w - AbsScaleRaisedTo1mIters);
 }
 
+//MARK: - 44
+void BuffaloIteration(thread float3 &z, float r, thread float &r_dz,device Control &control) {
+    #define Power control.cy
+    r_dz = r_dz * Power * r;
+    
+    if (control.preabsx) z.x = abs(z.x);
+    if (control.preabsy) z.y = abs(z.y);
+    if (control.preabsz) z.z = abs(z.z);
+    
+    float x2 = z.x * z.x;
+    float y2 = z.y * z.y;
+    float z2 = z.z * z.z;
+    float temp = 1.0 - (z2 / (x2 + y2));
+    float newx = (x2 - y2) * temp;
+    float newy = 2.0 * z.x * z.y * temp;
+    float newz = -2.0 * z.z * sqrt(x2 + y2);
+    
+    z.x = control.absx ? abs(newx) : newx;
+    z.y = control.absy ? abs(newy) : newy;
+    z.z = control.absz ? abs(newz) : newz;
+}
+
+#define Bailout 4.0
+
+// Compute the distance from `pos` to the bulb.
+float3 DE1(float3 pos,device Control &control) {
+    float3 z=pos;
+    float r = length(z);
+    float dr=1.0;
+    int i=0;
+    
+    while(r<Bailout && (i<control.maxSteps)) {
+        BuffaloIteration(z,r,dr,control);
+        z+=(control.juliaboxMode ? control.julia : pos);
+        r=length(z);
+        
+        z = rotatePosition(z,1,control.angle1);
+        z = rotatePosition(z,2,control.angle1);
+        i++;
+    }
+    
+    return z;
+}
+
+float DE_BUFFALO(float3 pos,device Control &control) {
+#define DEScale control.cx
+    float3 z = pos;
+    if(control.UseDeltaDE) {
+        // Author: Krzysztof Marczak (buddhi1980@gmail.com) from  MandelbulberV2
+        float deltavalue = max(length(z) * 0.000001, DEScale * 0.1);
+        float3 deltaX = float3 (deltavalue, 0.0, 0.0);
+        float3 deltaY = float3 (0.0, deltavalue, 0.0);
+        float3 deltaZ = float3 (0.0, 0.0, deltavalue);
+        
+        float3 zCenter = DE1(z,control);
+        float r = length(zCenter);
+        
+        float3 d;
+        float3 zx1 = DE1(z + deltaX,control);
+        float3 zx2 = DE1(z - deltaX,control);
+        d.x = min(abs(length(zx1) - r), abs(length(zx2) - r)) / deltavalue;
+        
+        float3 zy1 = DE1(z + deltaY,control);
+        float3 zy2 = DE1(z - deltaY,control);
+        d.y = min(abs(length(zy1) - r), abs(length(zy2) - r)) / deltavalue;
+        
+        float3 zz1 = DE1(z + deltaZ,control);
+        float3 zz2 = DE1(z - deltaZ,control);
+        d.z = min(abs(length(zz1) - r), abs(length(zz2) - r)) / deltavalue;
+        
+        float dr = length(d);
+        
+        return 0.5 * r * log(r)/dr;  //logarythmic DeltaDE
+        //return 0.5 * r/dr; //linear DeltaDE
+    }
+    
+    float r = length(z);
+    float dr=1.0;
+    int i=0;
+    
+    while(r<Bailout && (i<control.maxSteps)) {
+        BuffaloIteration(z,r,dr,control);
+        z+=(control.juliaboxMode ? control.julia : pos);
+        r=length(z);
+
+        z = rotatePosition(z,1,control.angle1);
+        z = rotatePosition(z,2,control.angle1);
+
+        i++;
+    }
+    
+    return 0.5*log(r)*r/dr;
+}
+
 //MARK: - distance estimate
 float DE(float3 pos,device Control &control) {
     switch(control.equation) {
@@ -1693,6 +1795,7 @@ float DE(float3 pos,device Control &control) {
         case EQU_41_KALI_RONTGEN: return DE_KALI_RONTGEN(pos,control);
         case EQU_42_VERTEBRAE   : return DE_VERTEBRAE(pos,control);
         case EQU_43_DARKSURF    : return DE_DARKSURF(pos,control);
+        case EQU_44_BUFFALO     : return DE_BUFFALO(pos,control);
     }
     
     return 0;

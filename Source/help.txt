@@ -1,0 +1,45 @@
+Bare Bones Raymarching
+
+Press 'page up' to display this dialog.
+
+Lt/Rt Arrows : Alter value
+               (+ 'Shift' for slow, 'Option' for fast)
+Up/Dn Arrows : Move widget focus
+Spacebar     : Toggle instructions Display
+
+Keyboard commands:
+
+1,2 : Change Equation (previous, next)
+3   : Toggle Cross-Eyed Stereo
+4,5 :
+6,7 :
+8,9 : Jog in X,Y,Z (+ 'Shift' for slow, 'Option' for fast)
+0   : Toggle Full Screen
+
+<,> : Change window size
+
+?,/ : Toggle Fast Rendering
+      (rendering is fast/blurry while keys are held down)
+
+P   : Load Picture for texturing
+      launches picture selection dialog.
+      When active additional widgets alter which
+      portions of the picture are rendered.
+      Press 'P' again to stop texturing effect.
+
+home : Launch Save/Load dialog.
+end  : Load next saved image.
+       Once you have multiple images saved this cycles them.
+--------------------------------
+M    : Toggles between Movement and Rotation via mouse drags.
+  Movement:
+    Left Mouse Button + Drag : Pan (+ 'Z' for finetune)
+    Right Mouse Button + Drag : Move forward,back
+  Rotate :
+    Left Mouse Button + Drag to Rotate (+ 'Z' for finetune)
+
+S : Stop all movement
+--------------------------------
+Developers :
+  Read about the 'V','H' and 'X' key commands
+  described at the top of Shaders.metal.

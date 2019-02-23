@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		1D40CB4D21F1015F009C73A3 /* Widget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D40CB4C21F1015F009C73A3 /* Widget.swift */; };
 		1D465008221E88DA00D14A94 /* SaveLoadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D465007221E88DA00D14A94 /* SaveLoadViewController.swift */; };
+		1D46500A2221B0BB00D14A94 /* HelpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D4650092221B0BB00D14A94 /* HelpViewController.swift */; };
+		1D46500C2221B0C400D14A94 /* help.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1D46500B2221B0C400D14A94 /* help.txt */; };
 		1DAF37B721EAA112000DC9E5 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DAF37B521EAA112000DC9E5 /* ViewController.swift */; };
 		CFD49CC62115B92300B4C5EB /* MetalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD49CC52115B92300B4C5EB /* MetalView.swift */; };
 		CFD49CCA2115C6DC00B4C5EB /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = CFD49CC92115C6DC00B4C5EB /* Shaders.metal */; };
@@ -20,6 +22,8 @@
 /* Begin PBXFileReference section */
 		1D40CB4C21F1015F009C73A3 /* Widget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Widget.swift; sourceTree = "<group>"; };
 		1D465007221E88DA00D14A94 /* SaveLoadViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SaveLoadViewController.swift; sourceTree = "<group>"; };
+		1D4650092221B0BB00D14A94 /* HelpViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelpViewController.swift; sourceTree = "<group>"; };
+		1D46500B2221B0C400D14A94 /* help.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = help.txt; sourceTree = "<group>"; };
 		1DAF37B521EAA112000DC9E5 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		1DAF37B921EAD662000DC9E5 /* Shader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Shader.h; sourceTree = "<group>"; };
 		CFD49CC52115B92300B4C5EB /* MetalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalView.swift; sourceTree = "<group>"; };
@@ -68,9 +72,11 @@
 				1DAF37B921EAD662000DC9E5 /* Shader.h */,
 				CFD49CC52115B92300B4C5EB /* MetalView.swift */,
 				1D465007221E88DA00D14A94 /* SaveLoadViewController.swift */,
+				1D4650092221B0BB00D14A94 /* HelpViewController.swift */,
 				CFEA3DEA211463D800C7DBD3 /* AppDelegate.swift */,
 				CFEA3DEE211463D900C7DBD3 /* Assets.xcassets */,
 				CFEA3DF0211463D900C7DBD3 /* Main.storyboard */,
+				1D46500B2221B0C400D14A94 /* help.txt */,
 				CFEA3DF3211463D900C7DBD3 /* Info.plist */,
 				CFEA3DF4211463D900C7DBD3 /* Entitlements.entitlements */,
 			);
@@ -137,6 +143,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CFEA3DEF211463D900C7DBD3 /* Assets.xcassets in Resources */,
+				1D46500C2221B0C400D14A94 /* help.txt in Resources */,
 				CFEA3DF2211463D900C7DBD3 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -148,6 +155,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1D46500A2221B0BB00D14A94 /* HelpViewController.swift in Sources */,
 				CFD49CCA2115C6DC00B4C5EB /* Shaders.metal in Sources */,
 				CFD49CC62115B92300B4C5EB /* MetalView.swift in Sources */,
 				1D40CB4D21F1015F009C73A3 /* Widget.swift in Sources */,

@@ -14,6 +14,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
     var commandQueue: MTLCommandQueue?
     var pipelineState: MTLComputePipelineState! = nil
     var isStereo:Bool = false
+    var isChangingViewVector:Bool = false
     var parallax:Float = 0.003
     var lightAngle:Float = 0
     var tCenterX:Float = 0
@@ -61,6 +62,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         setDefaultWindowSize()
         
         Timer.scheduledTimer(withTimeInterval:0.033, repeats:true) { timer in self.timerHandler() }
+        presentPopover("HelpVC")
     }
     
     var fastRenderEnabled:Bool = true
@@ -135,7 +137,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
               "Kali's MandelBox","Spudsville","Menger Smooth Polyhedra",
               "Menger Helix","Flower Hive","Jungle","Prisoner","Pupukuusikkos Spiralbox",
               "Aleksandrov MandelBulb","SurfBox","TwistBox","Kali Rontgen","Vertebrae",
-              "DarkBeam Surfbox" ]
+              "DarkBeam Surfbox","Buffalo Bulb" ]
         
         let index = Int(control.equation)
         view.window?.title = Int(index + 1).description + ": " + titleString[index] + " : " + widget.focusString()
@@ -531,6 +533,27 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             control.bright = 1.0
             control.contrast = 0.5
             control.specular = 0.0
+        case EQU_44_BUFFALO :
+            control.preabsx = true
+            control.preabsy = true
+            control.preabsz = false
+            control.absx = true
+            control.absy = false
+            control.absz = true
+            control.UseDeltaDE = false
+            control.juliaboxMode = true
+            control.camera = float3(0.008563751, -2.8381326, -0.2005394)
+            control.cx = -1.2459466
+            control.cy = 2.6300106
+            control.fMaxSteps = 4.0
+            control.angle1 = 0.009998376
+            control.juliaX =  0.6382017
+            control.juliaY =  -0.4336
+            control.juliaZ =  -0.9396994
+            control.bright = 1.2100002
+            control.contrast = 0.17999999
+            control.specular = 1.1999998
+            updateViewVector( float3(-0.0045253364, 0.73382026, 0.091496624) )
         default : break
         }
         
@@ -616,7 +639,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             c.mins = float4(c.cx, c.cx, c.cx, abs(c.cx)) / c.cy
             prepareJulia()
         case EQU_33_MHELIX, EQU_34_FLOWER, EQU_05_MANDELBOX, EQU_28_QUATJULIA2, EQU_29_MBROT, EQU_34_FLOWER,
-             EQU_37_SPIRALBOX, EQU_38_ALEK_BULB, EQU_40_TWISTBOX :
+             EQU_37_SPIRALBOX, EQU_38_ALEK_BULB, EQU_40_TWISTBOX, EQU_44_BUFFALO :
             prepareJulia()
         case EQU_39_SURFBOX :
             prepareJulia()
@@ -696,6 +719,9 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         case 115 : // home
             presentPopover("SaveLoadVC")
             return
+        case 116 : // page up
+            presentPopover("HelpVC")
+            return
         case 119 : // end
             let s = SaveLoadViewController()
             s.loadNext()
@@ -729,7 +755,6 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         case "I" : toggle(&control.doInversion)
         case "J" : toggle(&control.juliaboxMode)
         case "K" : toggle(&control.AlternateVersion)
-            
         case "P" :
             if control.txtOnOff {
                 control.txtOnOff = false
@@ -742,6 +767,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
 
         case "S" : movement = float3()
         case " " : instructions.isHidden = !instructions.isHidden
+        case "X" : isChangingViewVector = !isChangingViewVector
         case "Z" : speed = 0.05
             
         case "H" : randomValues(); setIsDirty()
@@ -749,16 +775,28 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         case "M" :
             style = style == .move ? .rotate : .move
             stopMovement()
-            widget.updateInstructions()
-            
-        case "Q" : toggle(&control.polygonate)
-        case "W" : toggle(&control.polyhedronate)
-        case "E" : toggle(&control.TotallyTubular)
-        case "R" : toggle(&control.Sphere)
-        case "T" : toggle(&control.HoleSphere)
-        case "Y" : toggle(&control.unSphere)
-        case "U" : toggle(&control.gravity)
-            
+        case "Q" :
+            toggle(&control.polygonate)
+            toggle(&control.preabsx)
+        case "W" :
+            toggle(&control.polyhedronate)
+            toggle(&control.preabsy)
+        case "E" :
+            toggle(&control.TotallyTubular)
+            toggle(&control.preabsz)
+        case "R" :
+            toggle(&control.Sphere)
+            toggle(&control.absx)
+        case "T" :
+            toggle(&control.HoleSphere)
+            toggle(&control.absy)
+        case "Y" :
+            toggle(&control.unSphere)
+            toggle(&control.absz)
+        case "U" :
+            toggle(&control.gravity)
+            toggle(&control.UseDeltaDE)
+
         case ",","<" : changeWindowSize(-1)
         case ".",">" : changeWindowSize(+1)
         default : break
@@ -775,7 +813,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
     func stopMovement() { movement = float3() }
     
     func jog(_ direction:float3) {
-        control.camera += direction * alterationSpeed * 0.01
+        let amount:float3 = direction * alterationSpeed * 0.01
+        
+        if isChangingViewVector {
+            let s = toSpherical(control.viewVector) + amount
+            updateViewVector(toRectangular(s))
+        }
+        else {
+            control.camera += amount
+        }
+        
         setFastRender()
         setIsDirty()
     }
@@ -811,6 +858,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         print("control.bright =",control.bright)
         print("control.contrast =",control.contrast)
         print("control.specular =",control.specular)
+        
+        print("updateViewVector(",control.viewVector.debugDescription,")")
     }
 
     func changeEquation(_ dir:Int) {
@@ -1139,7 +1188,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             widget.addEntry("Z",&control.cz, -10,10,0.01)
             widget.addEntry("Angle",&control.angle1,-4,4,0.02)
         case EQU_42_VERTEBRAE :
-            widget.addEntry("Iterations",&control.fMaxSteps,2,50,1)
+            widget.addEntry("Iterations",&control.fMaxSteps,1,50,1)
             widget.addEntry("X",&control.cx,       -10,10,0.05)
             widget.addEntry("Y",&control.cy,       -10,10,0.05)
             widget.addEntry("Z",&control.cz,       -10,10,0.05)
@@ -1168,6 +1217,12 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             widget.addEntry("FoldMod Y",&control.ey,-10,10,0.002)
             widget.addEntry("FoldMod Z",&control.ez,-10,10,0.002)
             widget.addEntry("Angle",&control.angle1,-4,4,0.002)
+        case EQU_44_BUFFALO :
+            widget.addEntry("Iterations",&control.fMaxSteps,2,60,1)
+            widget.addEntry("Scale",&control.cx,  -10,10,0.002)
+            widget.addEntry("Power",&control.cy,  0.1,30,0.01)
+            widget.addEntry("Angle",&control.angle1,-4,4,0.01)
+            juliaGroup(10,0.01)
         default : break
         }
         

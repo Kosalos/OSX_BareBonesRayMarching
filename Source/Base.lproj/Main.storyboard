@@ -174,7 +174,7 @@
                                                     </textFieldCell>
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
-                                                        <tableCellView identifier="SLCell" id="xEJ-TS-j0i" userLabel="SLCell" customClass="SaveLoadCell" customModule="OSX_MishMash" customModuleProvider="target">
+                                                        <tableCellView identifier="SLCell" id="xEJ-TS-j0i" userLabel="SLCell" customClass="SaveLoadCell" customModule="OSX_BareBonesRayMarching" customModuleProvider="target">
                                                             <rect key="frame" x="0.0" y="0.0" width="325" height="30"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
@@ -230,6 +230,46 @@
                 <customObject id="hk0-b7-dEG" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-3529" y="69"/>
+        </scene>
+        <!--HelpVC-->
+        <scene sceneID="T4p-rg-bZP">
+            <objects>
+                <viewController storyboardIdentifier="HelpVC" id="sV0-5i-UiF" userLabel="HelpVC" customClass="HelpViewController" customModule="OSX_BurningChicken" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" appearanceType="aqua" id="17m-bx-P4L">
+                        <rect key="frame" x="0.0" y="0.0" width="410" height="551"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <subviews>
+                            <scrollView borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" id="0Y0-tw-K88">
+                                <rect key="frame" x="20" y="20" width="370" height="511"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="3Wn-US-Zn3">
+                                    <rect key="frame" x="0.0" y="0.0" width="355" height="511"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <textView importsGraphics="NO" richText="NO" verticallyResizable="YES" findStyle="bar" spellingCorrection="YES" smartInsertDelete="YES" id="Lyj-kM-q1d">
+                                            <rect key="frame" x="0.0" y="0.0" width="355" height="511"/>
+                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            <size key="minSize" width="355" height="511"/>
+                                            <size key="maxSize" width="566" height="10000000"/>
+                                            <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                        </textView>
+                                    </subviews>
+                                </clipView>
+                                <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="cVa-8Y-UkL">
+                                    <rect key="frame" x="355" y="0.0" width="15" height="511"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </scroller>
+                            </scrollView>
+                        </subviews>
+                    </view>
+                    <connections>
+                        <outlet property="scrollView" destination="0Y0-tw-K88" id="bYS-3g-qak"/>
+                    </connections>
+                </viewController>
+                <customObject id="sfn-lW-W4t" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-3117" y="28.5"/>
         </scene>
     </scenes>
 </document>
