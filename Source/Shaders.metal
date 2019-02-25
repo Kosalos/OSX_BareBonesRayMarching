@@ -36,6 +36,7 @@
 // VERTEBRAE (+ equ 6) : https://fractalforums.org/code-snippets-fragments/74/logxyzsinxyz-transforms/2430
 // DarkBeamSurf : https://fractalforums.org/code-snippets-fragments/74/darkbeams-surfbox/2366
 // Buffalo : https://fractalforums.org/fragmentarium/17/buffalo-bulb-deltade/2313
+// Ancient Temple : https://www.shadertoy.com/view/4lX3Rj
 //------------------------------------------------------------
 // Procedure to add a new fractal algorithm to the list
 // 1. Find the fractals' DE (Distance estimation routine).
@@ -1749,6 +1750,35 @@ float DE_BUFFALO(float3 pos,device Control &control) {
     return 0.5*log(r)*r/dr;
 }
 
+//MARK: - 45
+float DE_TEMPLE(float3 pos,device Control &control) {
+#define Scale45   control.cx
+#define tt        control.cy
+#define ceiling45 control.cz
+#define floor45   control.cw
+    float3 p=pos;
+    p.xz=abs(.5-mod(pos.xz,1.))+.01;
+    float DEfactor=1.;
+
+    for (int i=0; i<control.maxSteps; i++) {
+        p = abs(p)-float3(0.,control.cy,0.);
+        float r2 = dot(p, p);
+        float sc=Scale45/clamp(r2,0.4,1.);
+        p*=sc;
+        DEfactor*=sc;
+        p = p - float3(0.5,1.,0.5);
+        
+        p = rotatePosition(p,0,control.angle1);
+        p = rotatePosition(p,1,control.angle2);
+    }
+    float rr=length(pos+float3(0.,-3.03,1.85-tt))-.017;
+    float fl=pos.y - ceiling45;
+    float d=min(fl,length(p)/DEfactor-.0005);
+    d=min(d,-pos.y + floor45);
+    d=min(d,rr);
+    return d;
+}
+
 //MARK: - distance estimate
 float DE(float3 pos,device Control &control) {
     switch(control.equation) {
@@ -1796,6 +1826,7 @@ float DE(float3 pos,device Control &control) {
         case EQU_42_VERTEBRAE   : return DE_VERTEBRAE(pos,control);
         case EQU_43_DARKSURF    : return DE_DARKSURF(pos,control);
         case EQU_44_BUFFALO     : return DE_BUFFALO(pos,control);
+        case EQU_45_TEMPLE      : return DE_TEMPLE(pos,control);
     }
     
     return 0;

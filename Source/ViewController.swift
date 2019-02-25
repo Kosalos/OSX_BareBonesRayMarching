@@ -137,7 +137,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
               "Kali's MandelBox","Spudsville","Menger Smooth Polyhedra",
               "Menger Helix","Flower Hive","Jungle","Prisoner","Pupukuusikkos Spiralbox",
               "Aleksandrov MandelBulb","SurfBox","TwistBox","Kali Rontgen","Vertebrae",
-              "DarkBeam Surfbox","Buffalo Bulb" ]
+              "DarkBeam Surfbox","Buffalo Bulb","Ancient Temple" ]
         
         let index = Int(control.equation)
         view.window?.title = Int(index + 1).description + ": " + titleString[index] + " : " + widget.focusString()
@@ -554,6 +554,18 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             control.contrast = 0.17999999
             control.specular = 1.1999998
             updateViewVector( float3(-0.0045253364, 0.73382026, 0.091496624) )
+        case EQU_45_TEMPLE :
+            control.camera = float3(1.4945942, -0.5183774, -9.087353)
+            control.cx = 1.7872801
+            control.cy = 0.7800057
+            control.cz = -1.5599587
+            control.cw = -0.07999502
+            control.fMaxSteps = 20.0
+            control.angle1 = -2.7399983
+            control.angle2 = 3.1600013
+            control.bright = 1.1100001
+            control.contrast = 0.5
+            control.specular = 0.3
         default : break
         }
         
@@ -1226,6 +1238,14 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
                 widget.addEntry("DE Scale",&control.cx, 0,2,0.01)
             }
             juliaGroup(10,0.01)
+        case EQU_45_TEMPLE :
+            widget.addEntry("Iterations",&control.fMaxSteps,1,16,1)
+            widget.addEntry("X",&control.cx,        -10,10,0.01)
+            widget.addEntry("Y",&control.cy,        -10,10,0.01)
+            widget.addEntry("Floor",&control.cz,    -2,1,0.01)
+            widget.addEntry("Ceiling",&control.cw,  -2,1,0.01)
+            widget.addEntry("A1",&control.angle1,   -10,10,0.01)
+            widget.addEntry("A2",&control.angle2,   -10,10,0.01)
         default : break
         }
         
