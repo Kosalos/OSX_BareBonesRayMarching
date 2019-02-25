@@ -37,17 +37,18 @@
 // DarkBeamSurf : https://fractalforums.org/code-snippets-fragments/74/darkbeams-surfbox/2366
 // Buffalo : https://fractalforums.org/fragmentarium/17/buffalo-bulb-deltade/2313
 // Ancient Temple : https://www.shadertoy.com/view/4lX3Rj
+// Kali 3 : https://www.shadertoy.com/view/Xs2GDK
 //------------------------------------------------------------
 // Procedure to add a new fractal algorithm to the list
 // 1. Find the fractals' DE (Distance estimation routine).
 //    To fit the pattern of the other fractals, this routine should accept a
 //    float3 position, and output a float distance.
 // 2. Add a new entry to the fractal ID list at the top of shader.h
-//    If your new fractal is named Zorro, I would give it the ID "EQU_42_ZORRO"
+//    If your new fractal is named pos.o, I would give it the ID "EQU_42_pos.O"
 //    (or whatever # is next in line)
 // 3. Add the fractal's name to the end of the titleString[] array (viewcontroller, ~line #129)
 // 4. Add the fractal ID to the compute shader's switch statement. (this file, ~line #1617)
-//    Have it call your new DE routine (example: DE_ZORRO(pos,control) )
+//    Have it call your new DE routine (example: DE_pos.O(pos,control) )
 // 5. Add your DE routine to Shaders.metal (this file)
 // 6. Refactor your DE routine as necessary:
 //    a. To matchup with the other routines, your input position variable should be called 'pos'
@@ -1763,7 +1764,7 @@ float DE_TEMPLE(float3 pos,device Control &control) {
     for (int i=0; i<control.maxSteps; i++) {
         p = abs(p)-float3(0.,control.cy,0.);
         float r2 = dot(p, p);
-        float sc=Scale45/clamp(r2,0.4,1.);
+        float sc=Scale45/clamp(r2 * control.dy,control.dx,1.);
         p*=sc;
         DEfactor*=sc;
         p = p - float3(0.5,1.,0.5);
@@ -1777,6 +1778,31 @@ float DE_TEMPLE(float3 pos,device Control &control) {
     d=min(d,-pos.y + floor45);
     d=min(d,rr);
     return d;
+}
+
+//MARK: - 46
+float DE_KALI3(float3 pos,device Control &control) {
+#define C46 control.julia
+#define g46 control.cx
+    float dr = 1.0;
+    float r2;
+    
+    for (int i=0; i<control.maxSteps; i++) {
+        r2 = dot(pos,pos);
+        if(r2>100.)continue;
+        
+        pos = abs(pos) / r2 * g46 - C46;
+        
+        dr = dr / r2 * g46;
+        
+    }
+    
+    //return .1*(abs(pos.x)+abs(pos.y))*length(pos)/dr;
+    
+    return .1*(length(pos.xz)*abs(pos.y)+length(pos.xy)*abs(pos.z)+length(pos.yz)*abs(pos.x))/dr;
+    //return .15*(length(pos.xz))*length(pos.xy)/dr;
+    //return .125*sqrt(r2)*log(r2)/dr;
+    //return .1*length(p)/dr;
 }
 
 //MARK: - distance estimate
@@ -1827,6 +1853,7 @@ float DE(float3 pos,device Control &control) {
         case EQU_43_DARKSURF    : return DE_DARKSURF(pos,control);
         case EQU_44_BUFFALO     : return DE_BUFFALO(pos,control);
         case EQU_45_TEMPLE      : return DE_TEMPLE(pos,control);
+        case EQU_46_KALI3       : return DE_KALI3(pos,control);
     }
     
     return 0;
