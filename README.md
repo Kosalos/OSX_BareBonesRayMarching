@@ -12,31 +12,19 @@ Just changes to the GUI to access the equation parameters, and the \
 Distance Estimation routine for the RayMarching algorithm in the shader.
 
 Includes equations for the following 3D fractals : \
-MandelBulb \
-Apollonian \
-Apollonian2 \
-Kleinian \
-Mandelbox \
-Quaternion Julia \
-Monster \
-Kali Tower \
-Polyhedron Menger \
-Gold \
-Spider \
-Kleinian2 \
-KIFS \
-Collection of many IFS fractals \
-Knighty Polychora \
-QuadRay \
-3Dickulus FragM \
-3Dickulus Quaternion Julia \
-3Dickulus Quaternion Mandelbrot \
-Kali's MandelBox \
-Spudsville \
-Menger Smooth Polyhedra \
-Menger Helix \
-Flower Hive \
-Prisoner
+ MandelBulb , Apollonian , Apollonian2 , Jos Leys Kleinian  \
+ MandelBox , Quaternion Julia , Monster , Kali Tower , Polyhedral Menger  \
+ Gold , Spider , Knighty's Kleinian , EvilRyu's KIFS \
+ IFS Tetrahedron , IFS Octahedron , IFS Dodecahedron , IFS Menger  \
+ Sierpinski Tetrahedron , Half Tetrahedron , Full Tetrahedron , Cubic  \
+ Half Octahedron , Full Octahedron , Kaleidoscopic  \
+ Knighty Polychora , QuadRay , 3Dickulus FragM  \
+ 3Dickulus Quaternion Julia , 3Dickulus Quaternion Mandelbrot  \
+ Kali's MandelBox , Spudsville , Menger Smooth Polyhedra  \
+ Menger Helix , Flower Hive , Jungle , Prisoner , Pupukuusikkos Spiralbox  \
+ Aleksandrov MandelBulb , SurfBox , TwistBox , Kali Rontgen , Vertebrae  \
+ DarkBeam Surfbox , Buffalo Bulb , Ancient Temple , Kali 3D  \
+ Klienian Sponge 
 
 ![Screenshot](screenshot4.png)
 

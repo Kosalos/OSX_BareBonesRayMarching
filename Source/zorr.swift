@@ -70,14 +70,19 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
     
     func setFastRender() {
         if fastRenderEnabled {
-            control.skip = max(control.xSize / 360, 6)
+            control.skip = max(control.xSize / 250, 6)
+            if isStereo { control.skip *= 2 }
             slowRenderCountDown = 20 // 30 = 1 second
         }
     }
     
     func setIsDirty() {
+        isBusyCount = 1
         metalViewL.viewIsDirty = true
-        if isStereo { metalViewR.viewIsDirty = true }
+        if isStereo {
+            metalViewR.viewIsDirty = true
+            isBusyCount = 2
+        }
     }
     
     //MARK: -
@@ -137,7 +142,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
               "Kali's MandelBox","Spudsville","Menger Smooth Polyhedra",
               "Menger Helix","Flower Hive","Jungle","Prisoner","Pupukuusikkos Spiralbox",
               "Aleksandrov MandelBulb","SurfBox","TwistBox","Kali Rontgen","Vertebrae",
-              "DarkBeam Surfbox","Buffalo Bulb","Ancient Temple","Kali 3D" ]
+              "DarkBeam Surfbox","Buffalo Bulb","Ancient Temple","Kali 3D",
+              "Klienian Sponge"]
         
         let index = Int(control.equation)
         view.window?.title = Int(index + 1).description + ": " + titleString[index] + " : " + widget.focusString()
@@ -579,6 +585,21 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             control.bright = 1.6100001
             control.contrast = 0.1
             control.specular = 2.0
+        case EQU_47_SPONGE :
+            control.camera = float3(0.7610872, -0.7994865, -3.8773263)
+            control.cx = -0.8064072
+            control.cy = -0.74000216
+            control.cz = -1.0899884
+            control.cw = 1.2787694
+            control.dx = 0.26409245
+            control.dy = -0.76119435
+            control.dz = 0.2899983
+            control.dw = 0.27301705
+            control.ex = 6
+            control.fMaxSteps = 3.0
+            control.bright = 2.31
+            control.contrast = 0.17999999
+            control.specular = 0.3
         default : break // zorro
         }
         
@@ -587,6 +608,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
     }
     
     //MARK: -
+    
+    var isBusyCount:Int = 0
     
     func computeTexture(_ drawable:CAMetalDrawable, _ ident:Int) {
         var c = control
@@ -618,7 +641,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             let dihedDodec:Float = 0.5 * atan(c.dx)
             c.csD = float2(cos(dihedDodec), -sin(dihedDodec))
             c.csD2 = float2(cos(2 * dihedDodec), -sin(2 * dihedDodec))
-        case EQU_12_KLEINIAN2 :
+        case EQU_12_KLEINIAN2, EQU_47_SPONGE :
             c.mins = float4(control.cx,control.cy,control.cz,control.cw);
             c.maxs = float4(control.dx,control.dy,control.dz,control.dw);
         case EQU_16_IFS_DODEC :
@@ -688,6 +711,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         commandBuffer?.present(drawable)
         commandBuffer?.commit()
         commandBuffer?.waitUntilCompleted()
+        
+        isBusyCount -= 1
     }
     
     //MARK: -
@@ -737,6 +762,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         func toggle(_ v:inout Bool) { v = !v;    updateWidgets(); setIsDirty() }
         
         super.keyDown(with: event)
+        if isBusyCount > 0 { return }
+
         keyIsDown = true
         widget.updateAlterationSpeed(event)
 
@@ -1265,6 +1292,17 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             widget.addEntry("Iterations",&control.fMaxSteps,3,60,1)
             widget.addEntry("Box",&control.cx, -10,10,0.001)
             juliaGroup(10,0.001)
+        case EQU_47_SPONGE :
+            widget.addEntry("Iterations",&control.fMaxSteps,1,16,1)
+            widget.addEntry("minX",&control.cx,-5,5,0.01)
+            widget.addEntry("minY",&control.cy,-5,5,0.01)
+            widget.addEntry("minZ",&control.cz,-5,5,0.01)
+            widget.addEntry("minW",&control.cw,-5,5,0.01)
+            widget.addEntry("maxX",&control.dx,-5,5,0.01)
+            widget.addEntry("maxY",&control.dy,-5,5,0.01)
+            widget.addEntry("maxZ",&control.dz,-5,5,0.01)
+            widget.addEntry("maxW",&control.dw,-5,5,0.01)
+            widget.addEntry("Scale",&control.ex,1,20,1)
         default : break  // zorro
         }
         

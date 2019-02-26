@@ -38,6 +38,7 @@
 // Buffalo : https://fractalforums.org/fragmentarium/17/buffalo-bulb-deltade/2313
 // Ancient Temple : https://www.shadertoy.com/view/4lX3Rj
 // Kali 3 : https://www.shadertoy.com/view/Xs2GDK
+// Sponge : https://www.shadertoy.com/view/3dlXWn
 //------------------------------------------------------------
 // Procedure to add a new fractal algorithm to the list
 // 1. Find the fractals' DE (Distance estimation routine).
@@ -1805,6 +1806,42 @@ float DE_KALI3(float3 pos,device Control &control) {
     //return .1*length(p)/dr;
 }
 
+//MARK: - 47
+float sdSponge(float3 z,device Control &control) {
+    z *= -3;
+    //folding
+    for (int i=0; i < 4; i++) {
+        z = abs(z);
+        z.xy = (z.x < z.y) ? z.yx : z.xy;
+        z.xz = (z.x < z.z) ? z.zx : z.xz;
+        z.zy = (z.y < z.z) ? z.yz : z.zy;
+        z = z * 3.0 - 2.0;
+        z.z += (z.z < -1.0) ? 2.0 : 0.0;
+    }
+    //distance to cube
+    z = abs(z) - float3(1.0);
+    float dis = min(max(z.x, max(z.y, z.z)), 0.0) + length(max(z, 0.0));
+    //scale cube size to iterations
+    return dis * 0.2 * pow(3.0, -3.0);
+}
+
+float DE_SPONGE(float3 pos,device Control &control) {
+#define param_min control.mins
+#define param_max control.maxs
+    float k, r2;
+    float scale = 1.0;
+    for (int i=0; i < control.maxSteps; i++) {
+        pos = 2.0 * clamp(pos, param_min.xyz, param_max.xyz) - pos;
+        r2 = dot(pos, pos);
+        k = max(param_min.w / r2, 1.0);
+        pos *= k;
+        scale *= k;
+    }
+    pos /= scale;
+    pos *= param_max.w * control.ex;
+    return float(0.1 * sdSponge(pos,control) / (param_max.w * control.ex));
+}
+    
 //MARK: - distance estimate
 float DE(float3 pos,device Control &control) {
     switch(control.equation) {
@@ -1854,6 +1891,7 @@ float DE(float3 pos,device Control &control) {
         case EQU_44_BUFFALO     : return DE_BUFFALO(pos,control);
         case EQU_45_TEMPLE      : return DE_TEMPLE(pos,control);
         case EQU_46_KALI3       : return DE_KALI3(pos,control);
+        case EQU_47_SPONGE      : return DE_SPONGE(pos,control);
     }
     
     return 0;
