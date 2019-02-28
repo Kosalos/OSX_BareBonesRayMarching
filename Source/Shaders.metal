@@ -40,6 +40,7 @@
 // Kali 3 : https://www.shadertoy.com/view/Xs2GDK
 // Sponge : https://www.shadertoy.com/view/3dlXWn
 // Floral Hybrid: https://www.shadertoy.com/view/MsS3zc
+// Torus Knot : https://www.shadertoy.com/view/3dXXDN
 //------------------------------------------------------------
 // Procedure to add a new fractal algorithm to the list
 // 1. Find the fractals' DE (Distance estimation routine).
@@ -1884,6 +1885,59 @@ float DE_FLORAL(float3 pos,device Control &control) {
     return .85*length(pos)/scale;
 }
 
+//MARK: - 49
+float deTorus(float3 p, float2 t) {
+    float2 q = float2(length(p.xz)-t.x,p.y);
+    return length(q)-t.y;
+}
+
+float lengthN(float2 p, float n) {
+    p = pow(abs(p), float2(n));
+    return pow(p.x+p.y, 1.0/n);
+}
+
+float3 torusKnot(float t,device Control &control) {
+    t *= control.cx;
+    float angle = t * control.cy;
+    float3 p = 0.3 * float3(cos(angle),sin(angle),0);
+    p.x += control.cz;
+    
+    p = rotatePosition(p,1,t*2);
+    return p;
+}
+
+float deTorusKnot(float3 p,device Control &control) {
+    float ITR = control.maxSteps;
+    float pitch = 1.0;
+    float t = 0.5;
+    float de = 1e10;
+    for(int j=0; j<2; j++) {
+        float t0 = t-pitch*0.5;
+        pitch /= ITR;
+        for(float i=0.0; i<=ITR; i++) {
+            t0 += pitch;
+            float de0 = distance(p,torusKnot(t0,control));
+            if (de0 < de) {
+                de = de0;
+                t = t0;
+            }
+        }
+    }
+    
+    float3 u = normalize(torusKnot(t,control));
+    float3 v = normalize(torusKnot(t+0.01,control)-torusKnot(t-0.01,control));
+    float3 w = normalize(cross(u,v));
+    u = cross(v,w);
+    p -= torusKnot(t,control);
+    p = float3(dot(p,w), dot(p,u), dot(p,v));
+    
+    return lengthN(float2(length(p.yz), p.x), 3.0)-0.18 ;
+}
+
+float DE_KNOT(float3 pos,device Control &control) {
+    return min(deTorusKnot(pos,control),deTorus(pos,float2(1.5,0.12)));
+}
+
 //MARK: - distance estimate
 float DE(float3 pos,device Control &control) {
     switch(control.equation) {
@@ -1935,6 +1989,7 @@ float DE(float3 pos,device Control &control) {
         case EQU_46_KALI3       : return DE_KALI3(pos,control);
         case EQU_47_SPONGE      : return DE_SPONGE(pos,control);
         case EQU_48_FLORAL      : return DE_FLORAL(pos,control);
+        case EQU_49_KNOT        : return DE_KNOT(pos,control);
     }
     
     return 0;

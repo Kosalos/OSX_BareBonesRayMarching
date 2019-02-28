@@ -146,7 +146,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
               "Menger Helix","Flower Hive","Jungle","Prisoner","Pupukuusikkos Spiralbox",
               "Aleksandrov MandelBulb","SurfBox","TwistBox","Kali Rontgen","Vertebrae",
               "DarkBeam Surfbox","Buffalo Bulb","Ancient Temple","Kali 3D",
-              "Klienian Sponge","Floral Hybrid" ]
+              "Klienian Sponge","Floral Hybrid","Torus Knot" ]
         
         let index = Int(control.equation)
         view.window?.title = Int(index + 1).description + ": " + titleString[index] + " : " + widget.focusString()
@@ -626,6 +626,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             control.bright = 2.0100002
             control.contrast = 0.1
             control.specular = 1.9
+        case EQU_49_KNOT :
+            control.camera = float3(0.22108716, -4.869475, -3.187327)
+            control.cx = 6.28
+            control.cy = 7.0
+            control.cz = 1.5
+            control.fMaxSteps = 30.0
+            control.bright = 1.0100001
+            control.contrast = 0.36000004
+            control.specular = 1.2000002
+            updateViewVector( float3(-0.05346525, 1.0684087, 0.78181773) )
         default : break // zorro
         }
         
@@ -1345,6 +1355,11 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             widget.addEntry("Offset X",&control.fx, -20,20,0.005)
             widget.addEntry("Offset Y",&control.fy, -20,20,0.005)
             widget.addEntry("Offset Z",&control.fz, -20,20,0.005)
+        case EQU_49_KNOT :
+            widget.addEntry("Iterations",&control.fMaxSteps,2,50,1)
+            widget.addEntry("Length",&control.cx, 0.1,10,0.05)
+            widget.addEntry("Twist",&control.cy,  -20,20,0.05)
+            widget.addEntry("Size",&control.cz,   -20,20,0.05)
         default : break  // zorro
         }
         
