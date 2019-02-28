@@ -77,11 +77,14 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
     }
     
     func setIsDirty() {
-        isBusyCount = 1
+        //print(busyCount)
+        if busyCount > 0 { return }
+        busyCount += 1
+        
         metalViewL.viewIsDirty = true
         if isStereo {
             metalViewR.viewIsDirty = true
-            isBusyCount = 2
+            busyCount += 1
         }
     }
     
@@ -93,7 +96,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
     var movement = float3()
     
     @objc func timerHandler() {
-        if movement != float3() {
+        if busyCount == 0 && movement != float3() {
             switch style {
             case .move :
                 let delta = movement * 0.001
@@ -143,7 +146,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
               "Menger Helix","Flower Hive","Jungle","Prisoner","Pupukuusikkos Spiralbox",
               "Aleksandrov MandelBulb","SurfBox","TwistBox","Kali Rontgen","Vertebrae",
               "DarkBeam Surfbox","Buffalo Bulb","Ancient Temple","Kali 3D",
-              "Klienian Sponge"]
+              "Klienian Sponge","Floral Hybrid" ]
         
         let index = Int(control.equation)
         view.window?.title = Int(index + 1).description + ": " + titleString[index] + " : " + widget.focusString()
@@ -596,10 +599,33 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             control.dz = 0.2899983
             control.dw = 0.27301705
             control.ex = 6
+            control.ey = -6
             control.fMaxSteps = 3.0
             control.bright = 2.31
             control.contrast = 0.17999999
             control.specular = 0.3
+        case EQU_48_FLORAL :
+            control.camera = float3(-24.393913, -13.7295, -34.877304)
+            control.cx = 3.1049967
+            control.cy = -5.800398
+            control.cz = 2.8034544
+            control.cw = -1.7025113
+            control.dx = -10.5
+            control.dy = -7.4109964
+            control.dz = -3.487999
+            control.dw = 3.0838223
+            control.ex = -2.7218008
+            control.ey = 1.2499981
+            control.ez = 2.9939957
+            control.ew = -2.3987765
+            control.fx = 1.1306266
+            control.fy = 7.76505
+            control.fz = 0.8100605
+            control.fw = 1.3926225
+            control.fMaxSteps = 2.0
+            control.bright = 2.0100002
+            control.contrast = 0.1
+            control.specular = 1.9
         default : break // zorro
         }
         
@@ -609,7 +635,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
     
     //MARK: -
     
-    var isBusyCount:Int = 0
+    var busyCount:Int = 0
     
     func computeTexture(_ drawable:CAMetalDrawable, _ ident:Int) {
         var c = control
@@ -692,9 +718,10 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         case EQU_39_SURFBOX :
             prepareJulia()
             c.dx = c.cx * c.cy  // foldMod
-        case EQU_43_DARKSURF :
+        case EQU_43_DARKSURF, EQU_48_FLORAL :
             c.n1 = float3(c.dx,c.dy,c.dz)
             c.n2 = float3(c.ex,c.ey,c.ez)
+            c.n3 = float3(c.fx,c.fy,c.fz)
         default : break
         }
         
@@ -712,7 +739,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         commandBuffer?.commit()
         commandBuffer?.waitUntilCompleted()
         
-        isBusyCount -= 1
+        if busyCount > 0 { busyCount -= 1 }  // called twice on coldstart
+        //print("shader ended  ", busyCount,"  ident: ", ident)
     }
     
     //MARK: -
@@ -762,7 +790,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         func toggle(_ v:inout Bool) { v = !v;    updateWidgets(); setIsDirty() }
         
         super.keyDown(with: event)
-        if isBusyCount > 0 { return }
+        if busyCount > 0 { return }
 
         keyIsDown = true
         widget.updateAlterationSpeed(event)
@@ -1303,6 +1331,20 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             widget.addEntry("maxZ",&control.dz,-5,5,0.01)
             widget.addEntry("maxW",&control.dw,-5,5,0.01)
             widget.addEntry("Scale",&control.ex,1,20,1)
+            widget.addEntry("Shape",&control.ey,-10,10,0.1)
+        case EQU_48_FLORAL :
+            widget.addEntry("Iterations",&control.fMaxSteps,2,20,1)
+            widget.addEntry("X",&control.cx,        -20,20,0.005)
+            widget.addEntry("Y",&control.cy,        -20,20,0.005)
+            widget.addEntry("CSize X",&control.dx,  -20,20,0.005)
+            widget.addEntry("CSize Y",&control.dy,  -20,20,0.005)
+            widget.addEntry("CSize Z",&control.dz,  -20,20,0.005)
+            widget.addEntry("C1    X",&control.ex,  -20,20,0.005)
+            widget.addEntry("C1    Y",&control.ey,  -20,20,0.005)
+            widget.addEntry("C1    Z",&control.ez,  -20,20,0.005)
+            widget.addEntry("Offset X",&control.fx, -20,20,0.005)
+            widget.addEntry("Offset Y",&control.fy, -20,20,0.005)
+            widget.addEntry("Offset Z",&control.fz, -20,20,0.005)
         default : break  // zorro
         }
         

@@ -11,7 +11,7 @@
 		1D465008221E88DA00D14A94 /* SaveLoadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D465007221E88DA00D14A94 /* SaveLoadViewController.swift */; };
 		1D46500A2221B0BB00D14A94 /* HelpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D4650092221B0BB00D14A94 /* HelpViewController.swift */; };
 		1D46500C2221B0C400D14A94 /* help.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1D46500B2221B0C400D14A94 /* help.txt */; };
-		1DAF37B721EAA112000DC9E5 /* zorr.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DAF37B521EAA112000DC9E5 /* zorr.swift */; };
+		1DAF37B721EAA112000DC9E5 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DAF37B521EAA112000DC9E5 /* ViewController.swift */; };
 		CFD49CC62115B92300B4C5EB /* MetalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD49CC52115B92300B4C5EB /* MetalView.swift */; };
 		CFD49CCA2115C6DC00B4C5EB /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = CFD49CC92115C6DC00B4C5EB /* Shaders.metal */; };
 		CFEA3DEB211463D800C7DBD3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFEA3DEA211463D800C7DBD3 /* AppDelegate.swift */; };
@@ -24,7 +24,7 @@
 		1D465007221E88DA00D14A94 /* SaveLoadViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SaveLoadViewController.swift; sourceTree = "<group>"; };
 		1D4650092221B0BB00D14A94 /* HelpViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelpViewController.swift; sourceTree = "<group>"; };
 		1D46500B2221B0C400D14A94 /* help.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = help.txt; sourceTree = "<group>"; };
-		1DAF37B521EAA112000DC9E5 /* zorr.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = zorr.swift; sourceTree = "<group>"; };
+		1DAF37B521EAA112000DC9E5 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		1DAF37B921EAD662000DC9E5 /* Shader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Shader.h; sourceTree = "<group>"; };
 		CFD49CC52115B92300B4C5EB /* MetalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalView.swift; sourceTree = "<group>"; };
 		CFD49CC92115C6DC00B4C5EB /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
@@ -66,7 +66,7 @@
 		CFEA3DE9211463D800C7DBD3 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				1DAF37B521EAA112000DC9E5 /* zorr.swift */,
+				1DAF37B521EAA112000DC9E5 /* ViewController.swift */,
 				1D40CB4C21F1015F009C73A3 /* Widget.swift */,
 				CFD49CC92115C6DC00B4C5EB /* Shaders.metal */,
 				1DAF37B921EAD662000DC9E5 /* Shader.h */,
@@ -159,7 +159,7 @@
 				CFD49CCA2115C6DC00B4C5EB /* Shaders.metal in Sources */,
 				CFD49CC62115B92300B4C5EB /* MetalView.swift in Sources */,
 				1D40CB4D21F1015F009C73A3 /* Widget.swift in Sources */,
-				1DAF37B721EAA112000DC9E5 /* zorr.swift in Sources */,
+				1DAF37B721EAA112000DC9E5 /* ViewController.swift in Sources */,
 				CFEA3DEB211463D800C7DBD3 /* AppDelegate.swift in Sources */,
 				1D465008221E88DA00D14A94 /* SaveLoadViewController.swift in Sources */,
 			);

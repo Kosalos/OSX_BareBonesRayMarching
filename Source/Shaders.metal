@@ -39,6 +39,7 @@
 // Ancient Temple : https://www.shadertoy.com/view/4lX3Rj
 // Kali 3 : https://www.shadertoy.com/view/Xs2GDK
 // Sponge : https://www.shadertoy.com/view/3dlXWn
+// Floral Hybrid: https://www.shadertoy.com/view/MsS3zc
 //------------------------------------------------------------
 // Procedure to add a new fractal algorithm to the list
 // 1. Find the fractals' DE (Distance estimation routine).
@@ -1800,15 +1801,15 @@ float DE_KALI3(float3 pos,device Control &control) {
     
     //return .1*(abs(pos.x)+abs(pos.y))*length(pos)/dr;
     
-    return .1*(length(pos.xz)*abs(pos.y)+length(pos.xy)*abs(pos.z)+length(pos.yz)*abs(pos.x))/dr;
-    //return .15*(length(pos.xz))*length(pos.xy)/dr;
+    //return .1*(length(pos.xz)*abs(pos.y)+length(pos.xy)*abs(pos.z)+length(pos.yz)*abs(pos.x))/dr;
+    return .15*(length(pos.xz))*length(pos.xy)/dr;
     //return .125*sqrt(r2)*log(r2)/dr;
-    //return .1*length(p)/dr;
+    //return .1*length(pos)/dr;
 }
 
 //MARK: - 47
 float sdSponge(float3 z,device Control &control) {
-    z *= -3;
+    z *= control.ey; //3;
     //folding
     for (int i=0; i < 4; i++) {
         z = abs(z);
@@ -1842,6 +1843,47 @@ float DE_SPONGE(float3 pos,device Control &control) {
     return float(0.1 * sdSponge(pos,control) / (param_max.w * control.ex));
 }
     
+//MARK: - 48
+float3 tsqr(thread float3 p) {
+    if(p.x==0. && p.y==0.) return float3(-p.z*p.z,0.,0.);
+    float a = 1.-p.z*p.z/dot(p.xy,p.xy);
+    return float3((p.x*p.x-p.y*p.y)*a ,2.*p.x*p.y*a,2.*p.z*length(p.xy));
+}
+
+float3 talt(thread float3 z) { return float3(z.xy,-z.z); }
+
+float DE_FLORAL(float3 pos,device Control &control) {
+#define ss48     control.cx
+#define g48      control.cy
+#define CSize48  control.n1
+#define C148     control.n2
+#define offset48 control.n3
+    float scale = 1.0;
+    
+    for (int i=0; i < control.maxSteps; i++) {
+        
+        //BoxFold
+        pos = clamp(pos,-CSize48, CSize48) * 2.0 - pos;
+        pos.xyz = C148 - abs(abs(pos.zyx + CSize48)-C148) - CSize48;
+        
+        //Trap
+        float r2 = dot(pos,pos);
+        if(r2 > 100) break;
+
+        //SphereFold and scaling
+        float k = max(ss48/r2,.1) * g48;
+        
+        pos   *= k;
+        scale *= k;
+        
+        //Triplex squaring and translation
+        pos = tsqr(pos) - offset48;  //talt(tsqr(p))-.6;//
+        scale *= 2.*(length(pos));      //??? was intended to be before previous line
+    }
+
+    return .85*length(pos)/scale;
+}
+
 //MARK: - distance estimate
 float DE(float3 pos,device Control &control) {
     switch(control.equation) {
@@ -1892,6 +1934,7 @@ float DE(float3 pos,device Control &control) {
         case EQU_45_TEMPLE      : return DE_TEMPLE(pos,control);
         case EQU_46_KALI3       : return DE_KALI3(pos,control);
         case EQU_47_SPONGE      : return DE_SPONGE(pos,control);
+        case EQU_48_FLORAL      : return DE_FLORAL(pos,control);
     }
     
     return 0;

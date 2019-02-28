@@ -91,6 +91,7 @@ class Widget {
         let optionKeyDown:Bool = rv & (1 << 19) != 0
 
         alterationSpeed = 1
+        if shiftKeyDown && optionKeyDown { alterationSpeed = 50 } else
         if shiftKeyDown { alterationSpeed = 0.1 } else if optionKeyDown { alterationSpeed = 10 }
     }
     
