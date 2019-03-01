@@ -1,4 +1,5 @@
 import Cocoa
+import Foundation
 import MetalKit
 
 var vc:ViewController! = nil
@@ -76,17 +77,9 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         }
     }
     
-    func setIsDirty() {
-        //print(busyCount)
-        if busyCount > 0 { return }
-        busyCount += 1
-        
-        metalViewL.viewIsDirty = true
-        if isStereo {
-            metalViewR.viewIsDirty = true
-            busyCount += 1
-        }
-    }
+    var requestRefresh:Bool = false
+    
+    func setIsDirty() { requestRefresh = true }
     
     //MARK: -
     
@@ -119,6 +112,20 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
                 setIsDirty()
             }
         }
+        
+        if requestRefresh {
+            requestRefresh = false
+            
+            //print(busyCount)
+            if busyCount > 0 { return }
+            busyCount += 1
+            
+            metalViewL.viewIsDirty = true
+            if isStereo {
+                metalViewR.viewIsDirty = true
+                busyCount += 1
+            }
+        }
     }
     
     //MARK: -
@@ -146,7 +153,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
               "Menger Helix","Flower Hive","Jungle","Prisoner","Pupukuusikkos Spiralbox",
               "Aleksandrov MandelBulb","SurfBox","TwistBox","Kali Rontgen","Vertebrae",
               "DarkBeam Surfbox","Buffalo Bulb","Ancient Temple","Kali 3D",
-              "Klienian Sponge","Floral Hybrid","Torus Knot" ]
+              "Klienian Sponge","Floral Hybrid","Torus Knot","Donuts" ]
         
         let index = Int(control.equation)
         view.window?.title = Int(index + 1).description + ": " + titleString[index] + " : " + widget.focusString()
@@ -636,6 +643,17 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             control.contrast = 0.36000004
             control.specular = 1.2000002
             updateViewVector( float3(-0.05346525, 1.0684087, 0.78181773) )
+        case EQU_50_DONUTS :
+            control.camera = float3(-0.2254057, -7.728364, -19.269318)
+            control.cx = 7.9931593
+            control.cy = 0.35945648
+            control.cz = 2.8700645
+            control.cw = -2.713223
+            control.fMaxSteps = 4.0
+            control.bright = 1.0100001
+            control.contrast = 0.36000004
+            control.specular = 1.2000002
+            updateViewVector( float3(-2.0272768e-08, 0.46378687, 0.89157283) )
         default : break // zorro
         }
         
@@ -648,6 +666,12 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
     var busyCount:Int = 0
     
     func computeTexture(_ drawable:CAMetalDrawable, _ ident:Int) {
+
+        // why am I getting beachball delays if I cause key roll-over?
+        // intermittent, driving me crazy.
+        // Maybe this will help..
+        Thread.sleep(forTimeInterval: 0.1)
+
         var c = control
         if isStereo {
             let offset:float3 = c.sideVector * parallax
@@ -1360,6 +1384,13 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             widget.addEntry("Length",&control.cx, 0.1,10,0.05)
             widget.addEntry("Twist",&control.cy,  -20,20,0.05)
             widget.addEntry("Size",&control.cz,   -20,20,0.05)
+        case EQU_50_DONUTS :
+            widget.addEntry("Iterations",&control.fMaxSteps,1,5,1)
+            widget.addEntry("X",&control.cx, 0.01,20,0.05)
+            widget.addEntry("Y",&control.cy, 0.01,20,0.05)
+            widget.addEntry("Z",&control.cz, 0.01,20,0.05)
+            widget.addEntry("Spread",&control.dx, 0.01,2,0.01)
+            widget.addEntry("Mult",&control.dy, 0.01,2,0.01)
         default : break  // zorro
         }
         

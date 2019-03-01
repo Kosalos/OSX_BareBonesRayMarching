@@ -41,6 +41,7 @@
 // Sponge : https://www.shadertoy.com/view/3dlXWn
 // Floral Hybrid: https://www.shadertoy.com/view/MsS3zc
 // Torus Knot : https://www.shadertoy.com/view/3dXXDN
+// Donuts : https://www.shadertoy.com/view/lttcWn
 //------------------------------------------------------------
 // Procedure to add a new fractal algorithm to the list
 // 1. Find the fractals' DE (Distance estimation routine).
@@ -1938,6 +1939,41 @@ float DE_KNOT(float3 pos,device Control &control) {
     return min(deTorusKnot(pos,control),deTorus(pos,float2(1.5,0.12)));
 }
 
+//MARK: - 50
+float DE_DONUTS(float3 pos,device Control &control) {
+#define MAJOR_RADIUS control.cx
+#define MINOR_RADIUS control.cy
+#define SCALE        control.cz
+    float3 n = -float3(control.dx,0,control.dy);
+    float dis = 1e20;
+    float newdis,s = 1.;
+    float2 q;
+    
+    for (int i=0; i < control.maxSteps; i++) {
+        q = float2(length(pos.xz) - MAJOR_RADIUS,pos.y);
+
+        newdis = (length(q)-MINOR_RADIUS)*s;
+        if(newdis<dis) dis = newdis;
+        
+        //folding
+        pos.xz = abs(pos.xz);//fold to positive quadrant
+        if(pos.x < pos.z) pos.xz = pos.zx;//fold 45 degrees
+        pos -= 2. * min(0.,dot(pos, n)) * n;//fold 22.5 degrees
+        
+        //rotation
+        pos.yz = float2(-pos.z,pos.y);
+        
+        //offset
+        pos.x -= MAJOR_RADIUS;
+        
+        //scaling
+        pos *= SCALE;
+        s /= SCALE;
+    }
+    
+    return dis;
+}
+
 //MARK: - distance estimate
 float DE(float3 pos,device Control &control) {
     switch(control.equation) {
@@ -1990,6 +2026,7 @@ float DE(float3 pos,device Control &control) {
         case EQU_47_SPONGE      : return DE_SPONGE(pos,control);
         case EQU_48_FLORAL      : return DE_FLORAL(pos,control);
         case EQU_49_KNOT        : return DE_KNOT(pos,control);
+        case EQU_50_DONUTS      : return DE_DONUTS(pos,control);
     }
     
     return 0;
