@@ -2,8 +2,12 @@ Bare Bones Raymarching
 
 Press 'page up' to display this dialog.
 
-Lt/Rt Arrows : Alter value
-               (+ 'Shift' for slow, 'Option' for fast)
+Note for arrow keys and jog keys :
+Hold 'Shift' key for slow changes
+Hold 'Option' key for fast changes
+Hold both 'Shift' and 'Option' for very fast changes
+
+Lt/Rt Arrows : Alter value of focused widget
 Up/Dn Arrows : Move widget focus
 Spacebar     : Toggle instructions Display
 
@@ -14,7 +18,6 @@ Keyboard commands:
 4,5 :
 6,7 :
 8,9 : Jog in X,Y,Z (+ 'Shift' = slow, 'Option' = fast,
-      'Shift + Option' = very fast)
 0   : Toggle Full Screen
 
 <,> : Change window size

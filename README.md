@@ -5,13 +5,13 @@ It takes surprisingly few lines of code to draw a ray marching fractal with Swif
 Here's an example..
 
 Was originally trying to make this the smallest/simplest app I could, but couldn't resist adding \
-more and more fractal equations. \
+more and more fractal equations. Finally stopped after 50 fractals.
 
 This is still a simple app; everything about it stays the same for all the fractals. \
 Just changes to the GUI to access the equation parameters, and the \
 Distance Estimation routine for the RayMarching algorithm in the shader.
 
-Includes equations for the following 3D fractals : \
+Includes equations for fifty 3D fractals : \
  MandelBulb , Apollonian , Apollonian2 , Jos Leys Kleinian  \
  MandelBox , Quaternion Julia , Monster , Kali Tower , Polyhedral Menger  \
  Gold , Spider , Knighty's Kleinian , EvilRyu's KIFS \
@@ -24,7 +24,7 @@ Includes equations for the following 3D fractals : \
  Menger Helix , Flower Hive , Jungle , Prisoner , Pupukuusikkos Spiralbox  \
  Aleksandrov MandelBulb , SurfBox , TwistBox , Kali Rontgen , Vertebrae  \
  DarkBeam Surfbox , Buffalo Bulb , Ancient Temple , Kali 3D  \
- Klienian Sponge 
+ Klienian Sponge, Floral Hybrid, Torus Knot, Donuts 
 
 ![Screenshot](screenshot4.png)
 

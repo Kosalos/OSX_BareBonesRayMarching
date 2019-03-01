@@ -89,7 +89,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
     var movement = float3()
     
     @objc func timerHandler() {
-        if busyCount == 0 && movement != float3() {
+        if movement != float3() {
             switch style {
             case .move :
                 let delta = movement * 0.001
@@ -116,14 +116,9 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         if requestRefresh {
             requestRefresh = false
             
-            //print(busyCount)
-            if busyCount > 0 { return }
-            busyCount += 1
-            
             metalViewL.viewIsDirty = true
             if isStereo {
                 metalViewR.viewIsDirty = true
-                busyCount += 1
             }
         }
     }
@@ -663,14 +658,10 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
     
     //MARK: -
     
-    var busyCount:Int = 0
-    
     func computeTexture(_ drawable:CAMetalDrawable, _ ident:Int) {
 
-        // why am I getting beachball delays if I cause key roll-over?
-        // intermittent, driving me crazy.
-        // Maybe this will help..
-        Thread.sleep(forTimeInterval: 0.1)
+        // this appears to stop beachball delays if I cause key roll-over?
+        Thread.sleep(forTimeInterval: 0.01)
 
         var c = control
         if isStereo {
@@ -772,9 +763,6 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         commandBuffer?.present(drawable)
         commandBuffer?.commit()
         commandBuffer?.waitUntilCompleted()
-        
-        if busyCount > 0 { busyCount -= 1 }  // called twice on coldstart
-        //print("shader ended  ", busyCount,"  ident: ", ident)
     }
     
     //MARK: -
@@ -824,7 +812,6 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         func toggle(_ v:inout Bool) { v = !v;    updateWidgets(); setIsDirty() }
         
         super.keyDown(with: event)
-        if busyCount > 0 { return }
 
         keyIsDown = true
         widget.updateAlterationSpeed(event)
