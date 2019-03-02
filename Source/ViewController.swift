@@ -77,9 +77,12 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         }
     }
     
-    var requestRefresh:Bool = false
-    
-    func setIsDirty() { requestRefresh = true }
+    func setIsDirty() {
+        metalViewL.viewIsDirty = true
+        if isStereo {
+            metalViewR.viewIsDirty = true
+        }
+    }
     
     //MARK: -
     
@@ -110,15 +113,6 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             if slowRenderCountDown == 0 {
                 control.skip = 1
                 setIsDirty()
-            }
-        }
-        
-        if requestRefresh {
-            requestRefresh = false
-            
-            metalViewL.viewIsDirty = true
-            if isStereo {
-                metalViewR.viewIsDirty = true
             }
         }
     }
@@ -658,10 +652,12 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
     
     //MARK: -
     
+    var timeInterval:Double = 0.1
+    
     func computeTexture(_ drawable:CAMetalDrawable, _ ident:Int) {
 
         // this appears to stop beachball delays if I cause key roll-over?
-        Thread.sleep(forTimeInterval: 0.01)
+        Thread.sleep(forTimeInterval: timeInterval)
 
         var c = control
         if isStereo {
@@ -752,6 +748,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         
         controlBuffer.contents().copyMemory(from:&c, byteCount:MemoryLayout<Control>.stride)
         
+        let start = NSDate()
+        
         let commandBuffer = commandQueue?.makeCommandBuffer()!
         let renderEncoder = commandBuffer!.makeComputeCommandEncoder()!
         renderEncoder.setComputePipelineState(pipelineState)
@@ -763,6 +761,10 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         commandBuffer?.present(drawable)
         commandBuffer?.commit()
         commandBuffer?.waitUntilCompleted()
+        
+        if control.skip > 1 {   // 'fast' renders will have ~50% utilization
+            timeInterval = NSDate().timeIntervalSince(start as Date)
+        }
     }
     
     //MARK: -
