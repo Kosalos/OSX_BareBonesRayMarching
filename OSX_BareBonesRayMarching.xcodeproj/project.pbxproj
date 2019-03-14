@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1D0DDCD7222F148500D916F6 /* Win3DViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D0DDCD6222F148500D916F6 /* Win3DViewController.swift */; };
+		1D0DDCD9222F14E000D916F6 /* View3D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D0DDCD8222F14E000D916F6 /* View3D.swift */; };
+		1D0DDCDB222F14F300D916F6 /* help2.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1D0DDCDA222F14F300D916F6 /* help2.txt */; };
+		1D0DDCDD222F173600D916F6 /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D0DDCDC222F173600D916F6 /* Renderer.swift */; };
+		1D0DDCDF222F181C00D916F6 /* ArcBall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D0DDCDE222F181B00D916F6 /* ArcBall.swift */; };
 		1D40CB4D21F1015F009C73A3 /* Widget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D40CB4C21F1015F009C73A3 /* Widget.swift */; };
 		1D465008221E88DA00D14A94 /* SaveLoadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D465007221E88DA00D14A94 /* SaveLoadViewController.swift */; };
 		1D46500A2221B0BB00D14A94 /* HelpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D4650092221B0BB00D14A94 /* HelpViewController.swift */; };
@@ -20,6 +25,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1D0DDCD6222F148500D916F6 /* Win3DViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Win3DViewController.swift; sourceTree = "<group>"; };
+		1D0DDCD8222F14E000D916F6 /* View3D.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = View3D.swift; sourceTree = "<group>"; };
+		1D0DDCDA222F14F300D916F6 /* help2.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = help2.txt; sourceTree = "<group>"; };
+		1D0DDCDC222F173600D916F6 /* Renderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
+		1D0DDCDE222F181B00D916F6 /* ArcBall.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArcBall.swift; sourceTree = "<group>"; };
 		1D40CB4C21F1015F009C73A3 /* Widget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Widget.swift; sourceTree = "<group>"; };
 		1D465007221E88DA00D14A94 /* SaveLoadViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SaveLoadViewController.swift; sourceTree = "<group>"; };
 		1D4650092221B0BB00D14A94 /* HelpViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelpViewController.swift; sourceTree = "<group>"; };
@@ -67,16 +77,21 @@
 			isa = PBXGroup;
 			children = (
 				1DAF37B521EAA112000DC9E5 /* ViewController.swift */,
+				1D0DDCD6222F148500D916F6 /* Win3DViewController.swift */,
 				1D40CB4C21F1015F009C73A3 /* Widget.swift */,
 				CFD49CC92115C6DC00B4C5EB /* Shaders.metal */,
 				1DAF37B921EAD662000DC9E5 /* Shader.h */,
+				1D0DDCDC222F173600D916F6 /* Renderer.swift */,
+				1D0DDCD8222F14E000D916F6 /* View3D.swift */,
 				CFD49CC52115B92300B4C5EB /* MetalView.swift */,
 				1D465007221E88DA00D14A94 /* SaveLoadViewController.swift */,
 				1D4650092221B0BB00D14A94 /* HelpViewController.swift */,
 				CFEA3DEA211463D800C7DBD3 /* AppDelegate.swift */,
+				1D0DDCDE222F181B00D916F6 /* ArcBall.swift */,
 				CFEA3DEE211463D900C7DBD3 /* Assets.xcassets */,
 				CFEA3DF0211463D900C7DBD3 /* Main.storyboard */,
 				1D46500B2221B0C400D14A94 /* help.txt */,
+				1D0DDCDA222F14F300D916F6 /* help2.txt */,
 				CFEA3DF3211463D900C7DBD3 /* Info.plist */,
 				CFEA3DF4211463D900C7DBD3 /* Entitlements.entitlements */,
 			);
@@ -144,6 +159,7 @@
 			files = (
 				CFEA3DEF211463D900C7DBD3 /* Assets.xcassets in Resources */,
 				1D46500C2221B0C400D14A94 /* help.txt in Resources */,
+				1D0DDCDB222F14F300D916F6 /* help2.txt in Resources */,
 				CFEA3DF2211463D900C7DBD3 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -155,12 +171,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1D0DDCDF222F181C00D916F6 /* ArcBall.swift in Sources */,
+				1D0DDCD7222F148500D916F6 /* Win3DViewController.swift in Sources */,
+				1D0DDCD9222F14E000D916F6 /* View3D.swift in Sources */,
 				1D46500A2221B0BB00D14A94 /* HelpViewController.swift in Sources */,
 				CFD49CCA2115C6DC00B4C5EB /* Shaders.metal in Sources */,
 				CFD49CC62115B92300B4C5EB /* MetalView.swift in Sources */,
 				1D40CB4D21F1015F009C73A3 /* Widget.swift in Sources */,
 				1DAF37B721EAA112000DC9E5 /* ViewController.swift in Sources */,
 				CFEA3DEB211463D800C7DBD3 /* AppDelegate.swift in Sources */,
+				1D0DDCDD222F173600D916F6 /* Renderer.swift in Sources */,
 				1D465008221E88DA00D14A94 /* SaveLoadViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -310,6 +330,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Harry.OSX-BareBonesRayMarching";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ENFORCE_EXCLUSIVE_ACCESS = none;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.2;
 			};

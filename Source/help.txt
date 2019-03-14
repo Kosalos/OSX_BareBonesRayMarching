@@ -11,7 +11,7 @@ Lt/Rt Arrows : Alter value of focused widget
 Up/Dn Arrows : Move widget focus
 Spacebar     : Toggle instructions Display
 
-Keyboard commands:
+Keyboard commands ----------------------------
 
 1,2 : Change Equation (previous, next)
 3   : Toggle Cross-Eyed Stereo
@@ -20,7 +20,7 @@ Keyboard commands:
 8,9 : Jog in X,Y,Z (+ 'Shift' = slow, 'Option' = fast,
 0   : Toggle Full Screen
 
-<,> : Change window size
+<,> : Adjust window size smaller/larger
 
 ?,/ : Toggle Fast Rendering
       (rendering is fast/blurry while keys are held down)
@@ -30,20 +30,21 @@ P   : Load Picture for texturing
       When active additional widgets alter which
       portions of the picture are rendered.
       Press 'P' again to stop texturing effect.
+\   : Toggle window focus between 2D and 3D windows
 
-home : Launch Save/Load dialog.
-end  : Load next saved image.
-       Once you have multiple images saved this cycles them.
---------------------------------
-M    : Toggles between Movement and Rotation via mouse drags.
-  Movement:
-    Left Mouse Button + Drag : Pan (+ 'Z' for finetune)
-    Right Mouse Button + Drag : Move forward,back
-  Rotate :
-    Left Mouse Button + Drag to Rotate (+ 'Z' for finetune)
+home      : Launch Save/Load dialog.
+end       : Load next saved image.
+      Once you have multiple images saved this cycles them.
+page up   : Show this dialog
+page down : Toggle display of companion 3D window
 
-S : Stop all movement
---------------------------------
+Mouse commands -------------------------------
+
+When 3D window is active :
+Click/Drag with left mouse button to define the 3D Window
+Region of Intereset
+
+----------------------------------------------
 Developers :
   Read about the 'V','H' and 'X' key commands
   described at the top of Shaders.metal.

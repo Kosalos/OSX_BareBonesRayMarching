@@ -3,32 +3,36 @@ import Foundation
 import MetalKit
 
 var vc:ViewController! = nil
+var win3D:NSWindowController! = nil
+var controlBuffer:MTLBuffer! = nil
+var coloringTexture:MTLTexture! = nil
 
-enum MoveStyle { case move,rotate }
+var device: MTLDevice! = nil
 
-class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
+class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, WidgetDelegate {
     var control = Control()
-    var threadsPerGroup = MTLSize()
-    var threadsPerGrid = MTLSize()
-    var device: MTLDevice! = nil
-    var controlBuffer: MTLBuffer! = nil
+    var widget:Widget! = nil
     var commandQueue: MTLCommandQueue?
-    var pipelineState: MTLComputePipelineState! = nil
+    var pipeline:[MTLComputePipelineState] = []
+    var threadsPerGroup:[MTLSize] = []
+    var threadsPerGrid:[MTLSize] = []
     var isStereo:Bool = false
+    var isFullScreen:Bool = false
     var isChangingViewVector:Bool = false
     var parallax:Float = 0.003
     var lightAngle:Float = 0
     var tCenterX:Float = 0
     var tCenterY:Float = 0
     var tScale:Float = 0
-    let widget = Widget()
-    var style:MoveStyle = .move
-    var coloringTexture:MTLTexture! = nil
     
     @IBOutlet var instructions: NSTextField!
     @IBOutlet var metalViewL: MetalView!
     @IBOutlet var metalViewR: MetalView!
     
+    let PIPELINE_FRACTAL = 0
+    let PIPELINE_NORMAL  = 1
+    let shaderNames = [ "rayMarchShader","normalShader" ]    
+
     //MARK: -
     
     override func viewDidLoad() {
@@ -38,21 +42,35 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
     
     override func viewDidAppear() {
         super.viewWillAppear()
-        
+        widget = Widget(0,self)
+
         metalViewL.ident = 0
         metalViewR.ident = 1
-        metalViewL.window?.delegate = self
-        (metalViewL).delegate2 = self
-        metalViewR.window?.delegate = self
-        (metalViewR).delegate2 = self
+        metalViewL.window?.delegate = self;  (metalViewL).delegate2 = self
+        metalViewR.window?.delegate = self;  (metalViewR).delegate2 = self
         
         device = MTLCreateSystemDefaultDevice()
         commandQueue = device.makeCommandQueue()
+        view3D.initializeBuffers()
         
-        let library = device.makeDefaultLibrary()!
-        let rayMarchShader = library.makeFunction(name: "rayMarchShader")!
-        pipelineState = try! device!.makeComputePipelineState(function: rayMarchShader)
+        //------------------------------
+        let defaultLibrary:MTLLibrary! = device.makeDefaultLibrary()
         
+        func loadShader(_ name:String) -> MTLComputePipelineState {
+            do {
+                guard let fn = defaultLibrary.makeFunction(name: name)  else { print("shader not found: " + name); exit(0) }
+                return try device.makeComputePipelineState(function: fn)
+            }
+            catch { print("pipeline failure for : " + name); exit(0) }
+        }
+        
+        for i in 0 ..< shaderNames.count {
+            pipeline.append(loadShader(shaderNames[i]))
+            threadsPerGroup.append(MTLSize()) // determined in updateThreadGroupsAccordingToWindowSize()
+            threadsPerGrid.append(MTLSize())
+        }
+        //------------------------------
+
         controlBuffer = device.makeBuffer(length:MemoryLayout<Control>.stride, options:MTLResourceOptions.storageModeShared)
         
         control.equation = Int32(EQU_01_MANDELBULB)
@@ -60,7 +78,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         control.skip = 1            // "fast render" defaults to 'not active'
         
         reset()
-        setDefaultWindowSize()
+        ensureWindowSizeIsNotTooSmall()
         
         Timer.scheduledTimer(withTimeInterval:0.033, repeats:true) { timer in self.timerHandler() }
         presentPopover("HelpVC")
@@ -69,7 +87,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
     var fastRenderEnabled:Bool = true
     var slowRenderCountDown:Int = 0
     
-    func setFastRender() {
+    /// direct shader to sparsely calculate, and copy results to neighboring pixels, for faster fractal rendering
+    func setShaderToFastRender() {
         if fastRenderEnabled {
             control.skip = max(control.xSize / 250, 6)
             if isStereo { control.skip *= 2 }
@@ -77,10 +96,35 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         }
     }
     
-    func setIsDirty() {
+    /// direct 2D fractals views to re-calculate image on next draw call
+    func flagViewsToRecalcFractal() {
         metalViewL.viewIsDirty = true
         if isStereo {
             metalViewR.viewIsDirty = true
+        }
+    }
+    
+    /// ensure companion 3D window is also closed
+    func windowWillClose(_ aNotification: Notification) {
+        if let w = win3D { w.close() }
+    }
+    
+    // 3D window just closed. reset window handle, reset "3D window active flag", repaint 2D to remove ROI box
+    func win3DClosed() {
+        win3D = nil
+        control.win3DFlag = 0
+        flagViewsToRecalcFractal() // to erase bounding box
+    }
+    
+    //MARK: -
+    
+    @objc func timerHandler() {
+        if control.skip > 1 && slowRenderCountDown > 0 {
+            slowRenderCountDown -= 1
+            if slowRenderCountDown == 0 {
+                control.skip = 1
+                flagViewsToRecalcFractal()
+            }
         }
     }
     
@@ -89,37 +133,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
     func toRectangular(_ sph:float3) -> float3 { let ss = sph.x * sin(sph.z); return float3( ss * cos(sph.y), ss * sin(sph.y), sph.x * cos(sph.z)) }
     func toSpherical(_ rec:float3) -> float3 { return float3(length(rec), atan2(rec.y,rec.x), atan2(sqrt(rec.x*rec.x+rec.y*rec.y), rec.z)) }
 
-    var movement = float3()
-    
-    @objc func timerHandler() {
-        if movement != float3() {
-            switch style {
-            case .move :
-                let delta = movement * 0.001
-                control.camera -= delta
-            case .rotate :
-                let amt = float3(0,movement.x / 300,0)
-                var s = toSpherical(control.camera) - amt
-                control.camera = toRectangular(s)
-                s = toSpherical(control.viewVector) - amt
-                updateViewVector(toRectangular(s))
-            }
-            
-            setIsDirty()
-        }
-
-        if control.skip > 1 && slowRenderCountDown > 0 {
-            slowRenderCountDown -= 1
-            if slowRenderCountDown == 0 {
-                control.skip = 1
-                setIsDirty()
-            }
-        }
-    }
-    
-    //MARK: -
-    
-    func updateViewVector(_ v:float3) {
+    func updateShaderDirectionVector(_ v:float3) {
         control.viewVector = v
         control.topVector = toSpherical(control.viewVector)
         control.topVector.z += 1.5708
@@ -128,6 +142,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         control.sideVector = normalize(control.sideVector) * length(control.topVector)
     }
     
+    /// window title displays fractal name and number, and name of focused widget
     func updateWindowTitle() {
         let titleString:[String] =
             [ "MandelBulb","Apollonian","Apollonian2","Jos Leys Kleinian",
@@ -148,14 +163,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         view.window?.title = Int(index + 1).description + ": " + titleString[index] + " : " + widget.focusString()
     }
     
+    /// reset widget focus index, update window title, recalc fractal.  Called after Load and LoadNext
     func controlJustLoaded() {
         widget.focus = 0
         updateWindowTitle()
-        setIsDirty()
+        flagViewsToRecalcFractal()
     }
 
+    /// load initial parameter values and view vectors for the current fractal (control.equation holds index)
     func reset() {
-        updateViewVector(float3(0,0.1,1))
+        updateShaderDirectionVector(float3(0,0.1,1))
         control.bright = 1
         control.contrast = 0.5
         control.specular = 0
@@ -164,7 +181,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
 
         switch Int(control.equation) {
         case EQU_01_MANDELBULB :
-            updateViewVector(float3(0.010000015, 0.41950363, 0.64503753))
+            updateShaderDirectionVector(float3(0.010000015, 0.41950363, 0.64503753))
             control.camera = float3(0.038563743, -1.1381346, -1.8405379)
             control.multiplier = 80
             control.power = 8
@@ -239,7 +256,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             control.cw = 3.0999982
             control.dx = 5;
         case EQU_10_GOLD :
-            updateViewVector(float3(0.010000015, 0.41950363, 0.64503753))
+            updateShaderDirectionVector(float3(0.010000015, 0.41950363, 0.64503753))
             control.camera = float3(0.038563743, -1.1381346, -1.8405379)
             control.cx = -0.09001912
             control.cy = 0.43999988
@@ -558,7 +575,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             control.bright = 1.2100002
             control.contrast = 0.17999999
             control.specular = 1.1999998
-            updateViewVector( float3(-0.0045253364, 0.73382026, 0.091496624) )
+            updateShaderDirectionVector( float3(-0.0045253364, 0.73382026, 0.091496624) )
         case EQU_45_TEMPLE :
             control.camera = float3(1.4945942, -0.47837746, -8.777346)
             control.cx = 1.9772799
@@ -631,7 +648,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             control.bright = 1.0100001
             control.contrast = 0.36000004
             control.specular = 1.2000002
-            updateViewVector( float3(-0.05346525, 1.0684087, 0.78181773) )
+            updateShaderDirectionVector( float3(-0.05346525, 1.0684087, 0.78181773) )
         case EQU_50_DONUTS :
             control.camera = float3(-0.2254057, -7.728364, -19.269318)
             control.cx = 7.9931593
@@ -642,11 +659,11 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             control.bright = 1.0100001
             control.contrast = 0.36000004
             control.specular = 1.2000002
-            updateViewVector( float3(-2.0272768e-08, 0.46378687, 0.89157283) )
+            updateShaderDirectionVector( float3(-2.0272768e-08, 0.46378687, 0.89157283) )
         default : break // zorro
         }
         
-        updateWidgets()
+        defineWidgetsForCurrentEquation()
         updateWindowTitle()
     }
     
@@ -654,6 +671,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
     
     var timeInterval:Double = 0.1
     
+    /// call shader to update 2D fractal window(s), and 3D vertex data
     func computeTexture(_ drawable:CAMetalDrawable, _ ident:Int) {
 
         // this appears to stop beachball delays if I cause key roll-over?
@@ -671,6 +689,13 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             c.txtCenter.z = tScale
         }
         
+        c.win3DDirty = 0     // assume 3D window is inactive
+        if vc3D != nil && ident == 0 { // 3D window is active, & we are drawing left fractal window
+            c.win3DDirty = 1
+            c.xSize3D = c.xmax3D - c.xmin3D
+            c.ySize3D = c.ymax3D - c.ymin3D
+        }
+
         func prepareJulia() { c.julia = float3(control.juliaX,control.juliaY,control.juliaZ) }
 
         c.light = c.camera + float3(sin(lightAngle)*100,cos(lightAngle)*100,-100)
@@ -752,11 +777,12 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         
         let commandBuffer = commandQueue?.makeCommandBuffer()!
         let renderEncoder = commandBuffer!.makeComputeCommandEncoder()!
-        renderEncoder.setComputePipelineState(pipelineState)
+        renderEncoder.setComputePipelineState(pipeline[PIPELINE_FRACTAL])
         renderEncoder.setTexture(drawable.texture, index: 0)
         renderEncoder.setTexture(coloringTexture,  index: 1)
         renderEncoder.setBuffer(controlBuffer, offset: 0, index: 0)
-        renderEncoder.dispatchThreads(threadsPerGrid, threadsPerThreadgroup:threadsPerGroup)
+        renderEncoder.setBuffer(vBuffer,       offset: 0, index: 1)
+        renderEncoder.dispatchThreads(threadsPerGrid[PIPELINE_FRACTAL], threadsPerThreadgroup:threadsPerGroup[PIPELINE_FRACTAL])
         renderEncoder.endEncoding()
         commandBuffer?.present(drawable)
         commandBuffer?.commit()
@@ -765,40 +791,53 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         if control.skip > 1 {   // 'fast' renders will have ~50% utilization
             timeInterval = NSDate().timeIntervalSince(start as Date)
         }
+        
+        // -------------------------------------
+        if vc3D != nil {  // 3D window is active. calc vertex normals for newly updated vertices
+            let commandBuffer = commandQueue?.makeCommandBuffer()!
+            let commandEncoder = commandBuffer!.makeComputeCommandEncoder()!
+            commandEncoder.setComputePipelineState(pipeline[PIPELINE_NORMAL])
+            
+            commandEncoder.setBuffer(vBuffer, offset: 0, index: 0)
+            commandEncoder.dispatchThreads(threadsPerGrid[PIPELINE_NORMAL], threadsPerThreadgroup:threadsPerGroup[PIPELINE_NORMAL])
+            commandEncoder.endEncoding()
+            commandBuffer?.commit()
+            commandBuffer?.waitUntilCompleted()
+        }
     }
     
     //MARK: -
     
-    var leftpt = NSPoint()
-    var rightpt = NSPoint()
-    var speed:Float = 1
-    
-    override func mouseDown(with event: NSEvent) {
-        leftpt = event.locationInWindow
-        
-        movement.x = 0
-        movement.y = 0
+    var pt1 = NSPoint()
+    var pt2 = NSPoint()
+
+    override func mouseDown     (with event: NSEvent) { pt1 = event.locationInWindow }
+    override func mouseDragged  (with event: NSEvent) { pt2 = event.locationInWindow }
+
+    // if 3D window is active: users has dragged a 3D region of interest (ROI) with left mouse button
+    override func mouseUp(with event: NSEvent) {
+        if vc3D != nil {
+            control.xmin3D = uint(min(pt1.x,pt2.x) * 2)
+            control.xmax3D = uint(max(pt1.x,pt2.x) * 2)
+            control.ymax3D = uint(control.ySize - Int32(min(pt1.y,pt2.y) * 2))
+            control.ymin3D = uint(control.ySize - Int32(max(pt1.y,pt2.y) * 2))
+            
+            func ensureSizeAndBounds(_ v1:inout uint, _ v2:inout uint, _ sz:Int32) {
+                if v2 - v1 < SIZE3D {
+                    v2 = v1 + uint(SIZE3D)
+                    if v2 >= sz {
+                        v1 = uint(sz - Int32(SIZE3D + 1))
+                        v2 = v1 + uint(SIZE3D)
+                    }
+                }
+            }
+            
+            ensureSizeAndBounds(&control.xmin3D,&control.xmax3D,control.xSize)
+            ensureSizeAndBounds(&control.ymin3D,&control.ymax3D,control.ySize)
+            flagViewsToRecalcFractal()
+        }
     }
-    
-    override func mouseDragged(with event: NSEvent) {
-        var npt = event.locationInWindow
-        npt.x -= leftpt.x
-        npt.y -= leftpt.y
-        movement.x = -Float(npt.x) * speed
-        movement.y = Float(npt.y) * speed
-    }
-    
-    override func rightMouseDown(with event: NSEvent) {
-        rightpt = event.locationInWindow
-        movement.z = 0
-    }
-    
-    override func rightMouseDragged(with event: NSEvent) {
-        var npt = event.locationInWindow
-        npt.y -= rightpt.y
-        movement.z = Float(npt.y) * speed
-    }
-    
+
     //MARK: -
     
     func presentPopover(_ name:String) {
@@ -807,15 +846,10 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         self.present(vc, asPopoverRelativeTo: view.bounds, of: view, preferredEdge: .minX, behavior: .transient)
     }
 
-    var isFullScreen:Bool = false
-    var keyIsDown:Bool = false
-    
     override func keyDown(with event: NSEvent) {
-        func toggle(_ v:inout Bool) { v = !v;    updateWidgets(); setIsDirty() }
+        func toggle(_ v:inout Bool) { v = !v;    defineWidgetsForCurrentEquation(); flagViewsToRecalcFractal() }
         
         super.keyDown(with: event)
-
-        keyIsDown = true
         widget.updateAlterationSpeed(event)
 
         switch event.keyCode {
@@ -823,6 +857,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             presentPopover("SaveLoadVC")
             return
         case 116 : // page up
+            helpIndex = 0
             presentPopover("HelpVC")
             return
         case 119 : // end
@@ -830,27 +865,35 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             s.loadNext()
             controlJustLoaded()
             return
+        case 121 : // page down
+            toggleDisplayOfCompanion3DView()
+            return
         default : break
         }
 
         switch event.charactersIgnoringModifiers!.uppercased() {
+        case "\\" : // set focus to 3D window
+            if vc3D != nil {
+                vc3D.view.window?.makeMain()
+                vc3D.view.window?.makeKey()
+            }
         case "0" :
             view.window?.toggleFullScreen(self)
             isFullScreen = !isFullScreen
-            resizeIfNecessary()
-        case "1" : changeEquation(-1)
-        case "2" : changeEquation(+1)
+            updateLayoutOfChildViews()
+        case "1" : changeEquationIndex(-1)
+        case "2" : changeEquationIndex(+1)
         case "3" :
             isStereo = !isStereo
             adjustWindowSizeForStereo()
-            updateWidgets()
-            setIsDirty()
-        case "4","$" : jog(float3(-1,0,0))
-        case "5","%" : jog(float3(+1,0,0))
-        case "6","^" : jog(float3(0,-1,0))
-        case "7","&" : jog(float3(0,+1,0))
-        case "8","*" : jog(float3(0,0,-1))
-        case "9","(" : jog(float3(0,0,+1))
+            defineWidgetsForCurrentEquation()
+            flagViewsToRecalcFractal()
+        case "4","$" : jogCameraPosition(float3(-1,0,0))
+        case "5","%" : jogCameraPosition(float3(+1,0,0))
+        case "6","^" : jogCameraPosition(float3(0,-1,0))
+        case "7","&" : jogCameraPosition(float3(0,+1,0))
+        case "8","*" : jogCameraPosition(float3(0,0,-1))
+        case "9","(" : jogCameraPosition(float3(0,0,+1))
         case "?","/" : fastRenderEnabled = !fastRenderEnabled
 
         case "B" : toggle(&control.showBalls)
@@ -861,23 +904,17 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         case "P" :
             if control.txtOnOff {
                 control.txtOnOff = false
-                updateWidgets()
-                setIsDirty()
+                defineWidgetsForCurrentEquation()
+                flagViewsToRecalcFractal()
             }
             else {
                 loadImageFile()
             }
 
-        case "S" : movement = float3()
         case " " : instructions.isHidden = !instructions.isHidden
         case "X" : isChangingViewVector = !isChangingViewVector
-        case "Z" : speed = 0.05
-            
-        case "H" : randomValues(); setIsDirty()
-        case "V" : parameterDisplay()
-        case "M" :
-            style = style == .move ? .rotate : .move
-            stopMovement()
+        case "H" : setControlParametersToRandomValues(); flagViewsToRecalcFractal()
+        case "V" : displayControlParametersInConsoleWindow()
         case "Q" :
             toggle(&control.polygonate)
             toggle(&control.preabsx)
@@ -900,37 +937,55 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             toggle(&control.gravity)
             toggle(&control.UseDeltaDE)
 
-        case ",","<" : changeWindowSize(-1)
-        case ".",">" : changeWindowSize(+1)
+        case ",","<" : adjustWindowSize(-1)
+        case ".",">" : adjustWindowSize(+1)
         default : break
         }
         
-        if widget.keyPress(event) { setFastRender() }
+        if widget.keyPress(event) { setShaderToFastRender() }
     }
     
-    override func keyUp(with event: NSEvent) {
-        speed = 1.0
-        keyIsDown = false
-    }
-    
-    func stopMovement() { movement = float3() }
-    
-    func jog(_ direction:float3) {
+    /// update 2D fractal camera position
+    func jogCameraPosition(_ direction:float3) {
         let amount:float3 = direction * alterationSpeed * 0.01
         
         if isChangingViewVector {
             let s = toSpherical(control.viewVector) + amount
-            updateViewVector(toRectangular(s))
+            updateShaderDirectionVector(toRectangular(s))
         }
         else {
             control.camera += amount
         }
         
-        setFastRender()
-        setIsDirty()
+        setShaderToFastRender()
+        flagViewsToRecalcFractal()
     }
 
-    func parameterDisplay() {
+    /// toggle display of companion 3D window
+    func toggleDisplayOfCompanion3DView() {
+        control.win3DFlag = control.win3DFlag > 0 ? 0 : 1
+        
+        if control.win3DFlag > 0 {
+            if win3D == nil {
+                let mainStoryboard = NSStoryboard.init(name: NSStoryboard.Name("Main"), bundle: nil)
+                win3D = mainStoryboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier("Win3D")) as? NSWindowController
+            }
+            
+            control.xmin3D = uint(control.xSize * 3 / 8) // default 3D window region of interest
+            control.xmax3D = uint(control.xSize * 5 / 8)
+            control.ymin3D = uint(control.ySize * 3 / 8)
+            control.ymax3D = uint(control.ySize * 5 / 8)
+            win3D.showWindow(self)
+        }
+        else {
+            win3D.close()
+        }
+        
+        flagViewsToRecalcFractal() // redraw 2D so that ROI rectangle is drawn (or erased)
+    }
+    
+    /// press 'V' to display control parameter values in console window
+    func displayControlParametersInConsoleWindow() {
         print("control.camera =",control.camera.debugDescription)
         print("control.cx =",control.cx)
         print("control.cy =",control.cy)
@@ -962,20 +1017,11 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         print("control.contrast =",control.contrast)
         print("control.specular =",control.specular)
         
-        print("updateViewVector(",control.viewVector.debugDescription,")")
+        print("updateShaderDirectionVector(",control.viewVector.debugDescription,")")
     }
 
-    func changeEquation(_ dir:Int) {
-        control.equation += Int32(dir)
-        if control.equation >= EQU_MAX { control.equation = 0 } else
-        if control.equation < 0 { control.equation = Int32(EQU_MAX - 1) }
-        stopMovement()
-        reset()
-        updateWidgets()
-        setIsDirty()
-    }
-    
-    func randomValues() {  // 'H'
+    /// press 'H" to set control parameters to random values
+    func setControlParametersToRandomValues() {
         func fRandom() -> Float { return Float.random(in: -1 ..< 0) }
         func fRandom2() -> Float { return Float.random(in: 0 ..< 1) }
         func fRandom3() -> Float { return Float.random(in: -5 ..< 5) }
@@ -1003,7 +1049,18 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
     
     //MARK: -
     
-    func updateWidgets() {
+    /// alter equation selection, reset it's parameters, display it's widgets, calculate fractal
+    func changeEquationIndex(_ dir:Int) {
+        control.equation += Int32(dir)
+        if control.equation >= EQU_MAX { control.equation = 0 } else
+            if control.equation < 0 { control.equation = Int32(EQU_MAX - 1) }
+        reset()
+        defineWidgetsForCurrentEquation()
+        flagViewsToRecalcFractal()
+    }
+    
+    /// define widget entries for current equation
+    func defineWidgetsForCurrentEquation() {
         func juliaGroup(_ range:Float = 10, _ delta:Float = 1) {
             if control.juliaboxMode {
                 widget.addEntry("Julia X",&control.juliaX,-range,range, delta)
@@ -1184,16 +1241,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             widget.addEntry("X",&control.cx,-15,15,0.05)
             widget.addEntry("Y",&control.cy,-15,15,0.05)
         case EQU_27_FRAGM :
-            widget.addDash()
-            widget.addEntry("MandelBulb Iterations",&control.fMaxSteps,0,20,1,.integer,true)
+            widget.addDash("MandelBulb")
+            widget.addEntry("Iterations",&control.fMaxSteps,0,20,1,.integer,true)
             widget.addEntry("Power",&control.power,1,12,0.1)
             juliaGroup(10,0.005)
-            widget.addDash()
-            widget.addEntry("Sphere Menger Iterations",&control.fmsIterations,0,20,1,.integer,true)
+            widget.addDash("Sphere Menger")
+            widget.addEntry("Iterations",&control.fmsIterations,0,20,1,.integer,true)
             widget.addEntry("Shape",&control.cx,-0.6,2.5,0.003)
             widget.addEntry("Angle",&control.angle2,-4,4,0.006)
-            widget.addDash()
-            widget.addEntry("MandelBox Iterations",&control.fmbIterations,0,20,1,.integer,true)
+            widget.addDash("MandelBox")
+            widget.addEntry("Iterations",&control.fmbIterations,0,20,1,.integer,true)
             widget.addEntry("Angle",&control.angle1,-4,4,0.002)
         case EQU_28_QUATJULIA2 :
             widget.addEntry("Iterations",&control.fMaxSteps,3,10,1)
@@ -1383,32 +1440,93 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         default : break  // zorro
         }
         
-        widget.updateInstructions()
+        displayWidgets()
         updateWindowTitle()
     }
     
+    func displayWidgets() {
+        let str = NSMutableAttributedString()
+        
+        func booleanEntry(_ onoff:Bool, _ legend:String) { str.normal(legend + (onoff ? " = true" : " = false")) }
+        func juliaEntry() {
+            booleanEntry(control.juliaboxMode,"J: Julia Mode")
+            str.normal("")
+        }
+        
+        switch Int(control.equation) {
+        case EQU_04_KLEINIAN :
+            booleanEntry(control.showBalls,"B: ShowBalls")
+            booleanEntry(control.fourGen,"F: FourGen")
+            booleanEntry(control.doInversion,"I: Do Inversion")
+            str.normal("")
+        case EQU_30_KALIBOX, EQU_37_SPIRALBOX :
+            juliaEntry()
+        case EQU_27_FRAGM :
+            booleanEntry(control.AlternateVersion,"K: Alternate Version")
+            juliaEntry()
+        case EQU_32_MPOLY :
+            booleanEntry(control.polygonate,"Q: polygonate")
+            booleanEntry(control.polyhedronate,"W: polyhedronate")
+            booleanEntry(control.TotallyTubular,"E: TotallyTubular")
+            booleanEntry(control.Sphere,"R: Sphere")
+            booleanEntry(control.HoleSphere,"T: HoleSphere")
+            booleanEntry(control.unSphere,"Y: unSphere")
+            booleanEntry(control.gravity,"U: gravity")
+        case EQU_33_MHELIX :
+            booleanEntry(control.gravity,"U: Moebius")
+            str.normal("")
+        case EQU_05_MANDELBOX :
+            booleanEntry(control.doInversion,"I: Box Fold both sides")
+            juliaEntry()
+        case EQU_44_BUFFALO :
+            booleanEntry(control.preabsx,"Q: Pre Abs X")
+            booleanEntry(control.preabsy,"W: Pre Abs Y")
+            booleanEntry(control.preabsz,"E: Pre Abs Z")
+            booleanEntry(control.absx,"R: Abs X")
+            booleanEntry(control.absy,"T: Abs Y")
+            booleanEntry(control.absz,"Y: Abs Z")
+            booleanEntry(control.UseDeltaDE,"U: Delta DE")
+            juliaEntry()
+        default : break
+        }
+        
+        widget.addinstructionEntries(str)
+        
+        instructions.attributedStringValue = str
+    }
     
     //MARK: -
     
-    func calcThreadGroups() {
-        let w = pipelineState.threadExecutionWidth
-        let h = pipelineState.maxTotalThreadsPerThreadgroup / w
-        threadsPerGroup = MTLSizeMake(w, h, 1)
+    /// detemine shader threading settings for 2D and 3D windows (varies according to window size)
+    func updateThreadGroupsAccordingToWindowSize() {
+        var w = pipeline[PIPELINE_FRACTAL].threadExecutionWidth
+        var h = pipeline[PIPELINE_FRACTAL].maxTotalThreadsPerThreadgroup / w
+        threadsPerGroup[PIPELINE_FRACTAL] = MTLSizeMake(w, h, 1)
 
         let wxs = Int(metalViewL.bounds.width) * 2     // why * 2 ??
         let wys = Int(metalViewL.bounds.height) * 2
         control.xSize = Int32(wxs)
         control.ySize = Int32(wys)
-        threadsPerGrid = MTLSizeMake(wxs,wys,1)
+        threadsPerGrid[PIPELINE_FRACTAL] = MTLSizeMake(wxs,wys,1)
+        
+        //------------------------
+        w = pipeline[PIPELINE_NORMAL].threadExecutionWidth
+        h = pipeline[PIPELINE_NORMAL].maxTotalThreadsPerThreadgroup / w
+        threadsPerGroup[PIPELINE_NORMAL] = MTLSizeMake(w, h, 1)
+        
+        let sz:Int = Int(SIZE3D)
+        threadsPerGrid[PIPELINE_NORMAL] = MTLSizeMake(sz,sz,1)
     }
     
-    func setDefaultWindowSize() {
+    /// ensure initial 2D window size is large enough to display all widget entries
+    func ensureWindowSizeIsNotTooSmall() {
         var r:CGRect = (view.window?.frame)!
         if r.size.width < 700 { r.size.width = 700 }
         if r.size.height < 700 { r.size.height = 700 }
         view.window?.setFrame(r, display:true)
     }
     
+    /// toggling stereo viewing automatically adjusts window size to accomodate (unless we are already full screen)
     func adjustWindowSizeForStereo() {
         if !isFullScreen {
             var r:CGRect = (view.window?.frame)!
@@ -1416,11 +1534,12 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             view.window?.setFrame(r, display:true)
         }
         else {
-            resizeIfNecessary()
+            updateLayoutOfChildViews()
         }
     }
     
-    func changeWindowSize(_ dir:Int) {
+    /// key commands direct 2D window to grow/shrink
+    func adjustWindowSize(_ dir:Int) {
         if !isFullScreen {
             var r:CGRect = (view.window?.frame)!
             let ratio:CGFloat = 1.0 + CGFloat(dir) * 0.1
@@ -1428,11 +1547,12 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             r.size.height *= ratio
             view.window?.setFrame(r, display:true)
             
-            resizeIfNecessary()
+            updateLayoutOfChildViews()
         }
     }
     
-    func resizeIfNecessary() {
+    /// 2D window has resized. adjust child views to fit.
+    func updateLayoutOfChildViews() {
         var r:CGRect = view.frame
         
         if isFullScreen {
@@ -1481,12 +1601,15 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         instructions.backgroundColor = .black
         instructions.bringToFront()
         
-        calcThreadGroups()
-        setIsDirty()
+        updateThreadGroupsAccordingToWindowSize()
+        flagViewsToRecalcFractal()
     }
     
+    func windowDidResize(_ notification: Notification) { updateLayoutOfChildViews() }
+
     //MARK: -
     
+    /// store just loaded .png picture to texture
     func loadTexture(from image: NSImage) -> MTLTexture {
         let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil)!
         
@@ -1504,6 +1627,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
         }
     }
     
+    /// launch file open dialog for picking .png picture for texturing
     func loadImageFile() {
         control.txtOnOff = false
         
@@ -1520,7 +1644,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
                 let selectedPath = openPanel.url!.path
                 
                 if let image:NSImage = NSImage(contentsOfFile: selectedPath) {
-                    self.coloringTexture = self.loadTexture(from: image)
+                    coloringTexture = self.loadTexture(from: image)
                     self.control.txtOnOff = true
                 }
             }
@@ -1528,19 +1652,17 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate {
             openPanel.close()
             
             if self.control.txtOnOff { // just loaded a texture
-                self.updateWidgets()
-                self.setIsDirty()
+                self.defineWidgetsForCurrentEquation()
+                self.flagViewsToRecalcFractal()
             }
         }
     }
-    
-
-    func windowDidResize(_ notification: Notification) { resizeIfNecessary() }
 }
 
 // ===============================================
 
 class BaseNSView: NSView {
+    override var isFlipped: Bool { return true }
     override var acceptsFirstResponder: Bool { return true }
 }
 

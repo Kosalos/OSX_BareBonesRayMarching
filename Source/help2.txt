@@ -1,0 +1,44 @@
+Bare Bones Raymarching 3D Window
+
+Press 'page up' to display this dialog.
+
+Note for arrow keys and jog keys :
+Hold 'Shift' key for slow changes
+Hold 'Option' key for fast changes
+Hold both 'Shift' and 'Option' for very fast changes
+
+Lt/Rt Arrows : Alter value of focused widget
+Up/Dn Arrows : Move widget focus
+Spacebar     : Toggle instructions Display
+
+Widgets --------------------------------------
+Height  : Adjust height of mesh nodes
+Ceiling : Nodes higher than this setting are set to 'Floor' value
+Floor   : Nodes affected by ceiling setting are set to this value
+
+Light Controls :
+Spread  : How far the travelling light source illuinates
+(lower settings = wider)
+Ambient : intensity of ambient lighting
+Speed   : speed of the travelling light
+Radius  : radius of the circular path for the travelling light
+Height  : height of the travelling light
+
+Keyboard commands ----------------------------
+
+3   : Toggle Cross-Eyed Stereo
+\   : Toggle window focus between 2D and 3D windows
+
+page up   : Show this dialog
+page down : Close 3D window
+
+Mouse commands -------------------------------
+
+Drag left Mouse button to pan the drawing
+
+Drag left Mouse button + Option key to control orientation
+and rotation of drawing.
+
+Left Mouse click stops rotation
+
+Mouse scroll wheel controls drawing distance

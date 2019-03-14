@@ -113,4 +113,49 @@ struct Control {
     
     // Buffalo
     bool preabsx,preabsy,preabsz,absx,absy,absz,UseDeltaDE;
+    
+    // 3D window
+    int win3DFlag;      // whether 3D window is active
+    int win3DDirty;     // whether to update vData[]
+    uint xmin3D,xmax3D; // region of interest
+    uint ymin3D,ymax3D;
+    uint xSize3D,ySize3D;
 };
+
+// 3D window ---------------------------------
+
+#define SIZE3D 255
+#define SIZE3Dm (SIZE3D - 1)
+
+typedef struct {
+    vector_float3 position;
+    vector_float3 normal;
+    vector_float2 texture;
+    vector_float4 color;
+    float height;
+} TVertex;
+
+typedef struct {
+    int count;
+} Counter;
+
+typedef struct {
+    vector_float3 base;
+    float radius;
+    float deltaAngle;
+    float power;        // 1 ... 3
+    float ambient;
+    float height;
+    
+    vector_float3 position;
+    float angle;
+} LightData;
+
+typedef struct {
+    matrix_float4x4 mvp;
+    float pointSize;
+    LightData light;
+    
+    float yScale3D,ceiling3D,floor3D;
+} Uniforms;
+

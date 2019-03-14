@@ -26,7 +26,10 @@ class MetalView: MTKView {
         }
     }
     
-    override var isFlipped: Bool { return true }
+    override var acceptsFirstResponder: Bool { return true }
+}
+
+class MetalView3D: MTKView {
     override var acceptsFirstResponder: Bool { return true }
 }
 

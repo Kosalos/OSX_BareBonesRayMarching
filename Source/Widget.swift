@@ -1,5 +1,9 @@
 import Cocoa
 
+protocol WidgetDelegate {
+    func displayWidgets()
+}
+
 enum WidgetKind { case integer,float,dash }
 
 var alterationSpeed:Float = 1
@@ -42,8 +46,15 @@ struct WidgetData {
 }
 
 class Widget {
+    var delegate:WidgetDelegate?
+    var ident:Int = 0
     var data:[WidgetData] = []
     var focus:Int = 0
+    
+    init(_ id:Int, _ d:WidgetDelegate) {
+        ident = id
+        delegate = d
+    }
     
     func reset() {
         data.removeAll()
@@ -66,9 +77,10 @@ class Widget {
         data.append(w)
     }
 
-    func addDash() {
+    func addDash(_ legend:String = "") {
         var w = WidgetData()
         w.kind = .dash
+        w.legend = legend
         data.append(w)
     }
     
@@ -80,7 +92,7 @@ class Widget {
             
             if data[focus].kind == .dash { moveFocus(direction) }
             
-            updateInstructions()
+            delegate?.displayWidgets()
             vc.updateWindowTitle()
         }
     }
@@ -96,21 +108,23 @@ class Widget {
     }
     
     func keyPress(_ event:NSEvent) -> Bool {
-        //print(event.keyCode)
-        
         updateAlterationSpeed(event)
         
         switch event.keyCode {
         case 123: // Left arrow
             if data[focus].alterValue(-1) {
-                vc.setIsDirty()
-                if data[focus].showValue { updateInstructions() }
+                if ident == 0 {
+                    vc.flagViewsToRecalcFractal()
+                    if data[focus].showValue { delegate?.displayWidgets() }
+                }
                 return true
             }
         case 124: // Right arrow
             if data[focus].alterValue(+1) {
-                vc.setIsDirty()
-                if data[focus].showValue { updateInstructions() }
+                if ident == 0 {
+                    vc.flagViewsToRecalcFractal()
+                    if data[focus].showValue { delegate?.displayWidgets() }
+                }
                 return true
             }
         case 125: moveFocus(+1) // Down arrow
@@ -124,61 +138,15 @@ class Widget {
     
     func focusString() -> String { return data[focus].displayString() }
     
-    func updateInstructions() {
-        let str = NSMutableAttributedString()
-        
-        func booleanEntry(_ onoff:Bool, _ legend:String) { str.normal(legend + (onoff ? " = true" : " = false")) }
-        func juliaEntry() {
-            booleanEntry(vc.control.juliaboxMode,"J: Julia Mode")
-            str.normal("")
-        }
-
-        switch Int(vc.control.equation) {
-        case EQU_04_KLEINIAN :
-            booleanEntry(vc.control.showBalls,"B: ShowBalls")
-            booleanEntry(vc.control.fourGen,"F: FourGen")
-            booleanEntry(vc.control.doInversion,"I: Do Inversion")
-            str.normal("")
-        case EQU_30_KALIBOX, EQU_37_SPIRALBOX :
-            juliaEntry()
-        case EQU_27_FRAGM :
-            booleanEntry(vc.control.AlternateVersion,"K: Alternate Version")
-            juliaEntry()
-        case EQU_32_MPOLY :
-            booleanEntry(vc.control.polygonate,"Q: polygonate")
-            booleanEntry(vc.control.polyhedronate,"W: polyhedronate")
-            booleanEntry(vc.control.TotallyTubular,"E: TotallyTubular")
-            booleanEntry(vc.control.Sphere,"R: Sphere")
-            booleanEntry(vc.control.HoleSphere,"T: HoleSphere")
-            booleanEntry(vc.control.unSphere,"Y: unSphere")
-            booleanEntry(vc.control.gravity,"U: gravity")
-        case EQU_33_MHELIX :
-            booleanEntry(vc.control.gravity,"U: Moebius")
-            str.normal("")
-        case EQU_05_MANDELBOX :
-            booleanEntry(vc.control.doInversion,"I: Box Fold both sides")
-            juliaEntry()
-        case EQU_44_BUFFALO :
-            booleanEntry(vc.control.preabsx,"Q: Pre Abs X")
-            booleanEntry(vc.control.preabsy,"W: Pre Abs Y")
-            booleanEntry(vc.control.preabsz,"E: Pre Abs Z")
-            booleanEntry(vc.control.absx,"R: Abs X")
-            booleanEntry(vc.control.absy,"T: Abs Y")
-            booleanEntry(vc.control.absz,"Y: Abs Z")
-            booleanEntry(vc.control.UseDeltaDE,"U: Delta DE")
-            juliaEntry()
-        default : break
-        }
-
+    func addinstructionEntries(_ str:NSMutableAttributedString) {
         for i in 0 ..< data.count {
             switch data[i].kind {
             case .integer, .float :
-                str.colored(data[i].displayString(), i == focus ? .red : .white)
+            str.colored(data[i].displayString(), i == focus ? .red : .white)
             case .dash :
-                str.normal("-------------")
+                if data[i].legend != "" { str.normal(data[i].legend + " ---------") }
+                else { str.normal("-------------") }
             }
         }
-        
-        vc.instructions.attributedStringValue = str
     }
 }

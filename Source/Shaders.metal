@@ -65,7 +65,7 @@
 //    and a block of default values you can copy/paste from some other case statement in that has
 //    parameters roughly matching your list. We'll set the final default values in a few more steps.
 //    You might want to set your param defaults to match values you learned from the DE author's writeup.
-// 8. We need to update the updateWidgets() routine so that it displays the correct parameters
+// 8. We need to update the defineWidgetsForCurrentEquation() routine so that it displays the correct parameters
 //    when you fractal is active.
 //    In viewController.swift, ~line #1080, add your new ID case statement,
 //    and the widget entries that match the control parameters you used.
@@ -85,11 +85,11 @@
 //    1. Triple check your DE routine. Compare it to the code in the other DE routines,
 //       especially the way it determines the return value after the iteration loop terminates.
 //    2. Tap the 'H' key repeatedly until you see ANY pixels on the screen.
-//       Take a look at the randomValues() routine in viewcontroller.swift line #766,
+//       Take a look at the setControlParametersToRandomValues() routine in viewcontroller.swift line #766,
 //       which is called every 'H' press.
-//       Alter randomValues() if necessary so that it randomizes all your control params.
+//       Alter setControlParametersToRandomValues() if necessary so that it randomizes all your control params.
 //       (angle1, angle2 can be ignored, because they always work)
-//    3. When you get some rendered pixels, press 'V' (calls parameterDisplay(), that you might want to augment)
+//    3. When you get some rendered pixels, press 'V' (calls displayControlParametersInConsoleWindow(), that you might want to augment)
 //       It will display a block of variable settings in the console window.
 //       Copy that whole block, and paste it into your DE's reset() case statement
 //       (viewController.swift, ~line #501).
@@ -120,7 +120,7 @@
 // It calls prepareJulia().  Many of the fractals optionally use a 'Julia set constant position'
 // prepareJulia() packs the 3 widget values into a float3 for the shader.
 //
-// Also look at EQU_27_FRAGM section of updateInstructions()  (Widget.swift, line #157..)
+// Also look at EQU_27_FRAGM section of displayWidgets()  (Widget.swift, line #157..)
 // Here we call juliaEntry() so that the Julia on/off instruction is displayed.
 // also note how booleanEntry() is used to add a toggle instruction "K: Alternate Version"
 // That "K" keypress is handled in Viewcontroller's keyDown() routine, line #649.
@@ -131,7 +131,7 @@
 // Press 'X' to toggle to "changingViewVector" mode.  Now the 4,5; 6,7; 8,9; keys alter
 // the view vector rather than the camera.  Combine spinning the viewVector with moving the camera
 // until the fractal is finally positioned to the best view.
-// Then added the updateViewVector() settings to your reset() dataset.
+// Then added the updateShaderDirectionVector() settings to your reset() dataset.
 // good luck
 //------------------------------------------------------------
 
@@ -1663,7 +1663,7 @@ float DE_DARKSURF(float3 pos,device Control &control) {
 
 //MARK: - 44
 void BuffaloIteration(thread float3 &z, float r, thread float &r_dz,device Control &control) {
-    #define power control.cy
+    #define power44 control.cy
     r_dz = r_dz * 2 * r;
     
     if (control.preabsx) z.x = abs(z.x);
@@ -1675,8 +1675,8 @@ void BuffaloIteration(thread float3 &z, float r, thread float &r_dz,device Contr
     float z2 = z.z * z.z;
     float temp = 1.0 - (z2 / (x2 + y2));
     float newx = (x2 - y2) * temp;
-    float newy = power * z.x * z.y * temp;
-    float newz = -power * z.z * sqrt(x2 + y2);
+    float newy = power44 * z.x * z.y * temp;
+    float newz = -power44 * z.z * sqrt(x2 + y2);
     
     z.x = control.absx ? abs(newx) : newx;
     z.y = control.absy ? abs(newy) : newy;
@@ -2075,64 +2075,160 @@ float3 getBlinnShading(float3 normal, float3 direction, float3 light,device Cont
 
 kernel void rayMarchShader
 (
- texture2d<float, access::write> outTexture [[texture(0)]],
+ texture2d<float, access::write> outTexture     [[texture(0)]],
  texture2d<float, access::read> coloringTexture [[texture(1)]],
- device Control &control [[buffer(0)]],
+ device Control &c      [[ buffer(0) ]],
+ device TVertex* vData  [[ buffer(1) ]],
  uint2 p [[thread_position_in_grid]]
  )
 {
-    if(control.skip > 1 && ((p.x % control.skip) != 0 || (p.y % control.skip) != 0)) return;
+    if(p.x >= uint(c.xSize)) return; // screen size not evenly divisible by threadGroups
+    if(p.y >= uint(c.ySize)) return;
+    if(c.skip > 1 && ((p.x % c.skip) != 0 || (p.y % c.skip) != 0)) return;
+    
+    if(c.skip == 1 && c.win3DFlag > 0 && c.win3DDirty) {  // draw 3D bounding box
+        bool mark = false;
+        if((p.x == c.xmin3D-1 || p.x == c.xmin3D) && p.y >= c.ymin3D && p.y <= c.ymax3D) mark = true; else
+        if((p.x == c.xmax3D+1 || p.x == c.xmax3D) && p.y >= c.ymin3D && p.y <= c.ymax3D) mark = true;
+        if(!mark) {
+            if((p.y == c.ymin3D-1 || p.y == c.ymin3D) && p.x >= c.xmin3D && p.x <= c.xmax3D) mark = true; else
+            if((p.y == c.ymax3D+1 || p.y == c.ymax3D) && p.x >= c.xmin3D && p.x <= c.xmax3D) mark = true;
+        }
+        
+        if(mark) {
+            outTexture.write(float4(1,1,1,1),p);
+            return;
+        }
+    }
 
-    float den = float(control.xSize);
+    float den = float(c.xSize);
     float dx =  1.5 * (float(p.x)/den - 0.5);
     float dy = -1.5 * (float(p.y)/den - 0.5);
     float3 color = float3();
     
-    float3 direction = normalize((control.sideVector * dx) + (control.topVector * dy) + control.viewVector);
-    float2 dist = shortest_dist(control.camera,direction,control);
+    float3 direction = normalize((c.sideVector * dx) + (c.topVector * dy) + c.viewVector);
+    float2 dist = shortest_dist(c.camera,direction,c);
     
     if (dist.x <= MAX_DIST - 0.0001) {
-        float3 position = control.camera + dist.x * direction;
-        float3 normal = calcNormal(position,control);
+        float3 position = c.camera + dist.x * direction;
+        float3 normal = calcNormal(position,c);
         
         // use texture
-        if(control.txtOnOff) {
-            float scale = control.txtCenter.z * 4;
+        if(c.txtOnOff) {
+            float scale = c.txtCenter.z * 4;
             float len = length(position) / dist.x;
             float x = normal.x * len;
             float y = normal.z * len;
-            float w = control.txtSize.x;
-            float h = control.txtSize.y;
-            float xx = w + (control.txtCenter.x * 4 + x * scale) * (w + len);
-            float yy = h + (control.txtCenter.y * 4 + y * scale) * (h + len);
+            float w = c.txtSize.x;
+            float h = c.txtSize.y;
+            float xx = w + (c.txtCenter.x * 4 + x * scale) * (w + len);
+            float yy = h + (c.txtCenter.y * 4 + y * scale) * (h + len);
             
             uint2 pt;
             pt.x = uint(fmod(xx,w));
-            pt.y = uint(control.txtSize.y - fmod(yy,h)); // flip Y coord
+            pt.y = uint(c.txtSize.y - fmod(yy,h)); // flip Y coord
             color = coloringTexture.read(pt).xyz;
         }
         else {
             color = float3(1 - (normal / 10 + sqrt(dist.y / 80)));
         }
         
-        color *= control.bright;
-        color = 0.5 + (color - 0.5) * control.contrast * 2;
+        color *= c.bright;
+        color = 0.5 + (color - 0.5) * c.contrast * 2;
         
-        float3 light = getBlinnShading(normal, direction, control.nlight, control);
+        float3 light = getBlinnShading(normal, direction, c.nlight, c);
         color = mix(light, color, 0.8);
     }
-    
-    if(control.skip == 1) {
-        outTexture.write(float4(color.xyz,1),p);
-        return;
-    }
 
-    uint2 pp;
-    for(int x=0;x<control.skip;++x) {
-        pp.x = p.x + x;
-        for(int y=0;y<control.skip;++y) {
-            pp.y = p.y + y;
-            outTexture.write(float4(color.xyz,1),pp);
+    if(c.skip == 1) {
+        outTexture.write(float4(color.xyz,1),p);
+
+        // update vData[] for 3D window -----------------
+        if(c.win3DDirty && c.skip == 1) {
+            if(p.x >= c.xmin3D && p.x < c.xmax3D && p.y >= c.ymin3D && p.y < c.ymax3D) {
+                int x = int(p.x - c.xmin3D) * int(SIZE3D) / int(c.xSize3D);
+                int y = int(p.y - c.ymin3D) * int(SIZE3D) / int(c.ySize3D);
+                int index = y * SIZE3D + x;
+                
+                vData[index].height = dist.x;
+                vData[index].color = float4(color,1);
+            }
         }
     }
+    else {
+        uint2 pp;
+        for(int x=0;x<c.skip;++x) {
+            pp.x = p.x + x;
+            for(int y=0;y<c.skip;++y) {
+                pp.y = p.y + y;
+                outTexture.write(float4(color.xyz,1),pp);
+            }
+        }
+    }
+
+}
+
+/////////////////////////////////////////////////////////////////////////
+
+kernel void normalShader
+(
+ device TVertex* v [[ buffer(0) ]],
+ uint2 p [[thread_position_in_grid]])
+{
+    if(p.x >= SIZE3D || p.y >= SIZE3D) return; // data size not evenly divisible by threadGroups
+    
+    int i = int(p.y) * SIZE3D + int(p.x);
+    int i2 = i + ((p.x < SIZE3Dm) ? 1 : -1);
+    int i3 = i + ((p.y < SIZE3Dm) ? SIZE3D : -SIZE3D);
+    
+    TVertex v1 = v[i];
+    TVertex v2 = v[i2];
+    TVertex v3 = v[i3];
+    
+    v[i].normal = normalize(cross(v1.position - v2.position, v1.position - v3.position));
+}
+
+/////////////////////////////////////////////////////////////////////////
+
+struct Transfer {
+    float4 position [[position]];
+    float4 lighting;
+    float4 color;
+};
+
+vertex Transfer texturedVertexShader
+(
+ constant TVertex *data     [[ buffer(0) ]],
+ constant Uniforms &uniforms[[ buffer(1) ]],
+ unsigned int vid [[ vertex_id ]])
+{
+    TVertex in = data[vid];
+    Transfer out;
+    
+    float4 p = float4(in.position,1);
+    
+    if(in.height > uniforms.ceiling3D) {
+        p.y = uniforms.floor3D;
+        float G = 0.1;
+        out.color = float4(G,G,G,1);
+    }
+    else {
+        p.y = in.height * uniforms.yScale3D;
+        out.color = in.color;
+    }
+    
+    out.position = uniforms.mvp * p;
+
+    float distance = length(uniforms.light.position - in.position.xyz);
+    float intensity = uniforms.light.ambient + saturate(dot(in.normal.rgb, uniforms.light.position) / pow(distance,uniforms.light.power) );
+    out.lighting = float4(intensity,intensity,intensity,1);
+    
+    return out;
+}
+
+fragment float4 texturedFragmentShader
+(
+ Transfer data [[stage_in]])
+{
+    return data.color * data.lighting;
 }
