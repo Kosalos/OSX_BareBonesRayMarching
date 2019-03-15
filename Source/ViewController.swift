@@ -143,28 +143,29 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     }
     
     /// window title displays fractal name and number, and name of focused widget
+    let titleString:[String] =
+        [ "MandelBulb","Apollonian","Apollonian2","Jos Leys Kleinian",
+          "MandelBox","Quaternion Julia","Monster","Kali Tower","Polyhedral Menger",
+          "Gold","Spider","Knighty's Kleinian","EvilRyu's KIFS",
+          "IFS Tetrahedron","IFS Octahedron","IFS Dodecahedron","IFS Menger",
+          "Sierpinski Tetrahedron","Half Tetrahedron","Full Tetrahedron","Cubic",
+          "Half Octahedron","Full Octahedron","Kaleidoscopic",
+          "Knighty Polychora","QuadRay","3Dickulus FragM",
+          "3Dickulus Quaternion Julia","3Dickulus Quaternion Mandelbrot",
+          "Kali's MandelBox","Spudsville","Menger Smooth Polyhedra",
+          "Menger Helix","Flower Hive","Jungle","Prisoner","Pupukuusikkos Spiralbox",
+          "Aleksandrov MandelBulb","SurfBox","TwistBox","Kali Rontgen","Vertebrae",
+          "DarkBeam Surfbox","Buffalo Bulb","Ancient Temple","Kali 3D",
+          "Klienian Sponge","Floral Hybrid","Torus Knot","Donuts" ]
+    
     func updateWindowTitle() {
-        let titleString:[String] =
-            [ "MandelBulb","Apollonian","Apollonian2","Jos Leys Kleinian",
-              "MandelBox","Quaternion Julia","Monster","Kali Tower","Polyhedral Menger",
-              "Gold","Spider","Knighty's Kleinian","EvilRyu's KIFS",
-              "IFS Tetrahedron","IFS Octahedron","IFS Dodecahedron","IFS Menger",
-              "Sierpinski Tetrahedron","Half Tetrahedron","Full Tetrahedron","Cubic",
-              "Half Octahedron","Full Octahedron","Kaleidoscopic",
-              "Knighty Polychora","QuadRay","3Dickulus FragM",
-              "3Dickulus Quaternion Julia","3Dickulus Quaternion Mandelbrot",
-              "Kali's MandelBox","Spudsville","Menger Smooth Polyhedra",
-              "Menger Helix","Flower Hive","Jungle","Prisoner","Pupukuusikkos Spiralbox",
-              "Aleksandrov MandelBulb","SurfBox","TwistBox","Kali Rontgen","Vertebrae",
-              "DarkBeam Surfbox","Buffalo Bulb","Ancient Temple","Kali 3D",
-              "Klienian Sponge","Floral Hybrid","Torus Knot","Donuts" ]
-        
         let index = Int(control.equation)
         view.window?.title = Int(index + 1).description + ": " + titleString[index] + " : " + widget.focusString()
     }
     
     /// reset widget focus index, update window title, recalc fractal.  Called after Load and LoadNext
     func controlJustLoaded() {
+        reset()
         widget.focus = 0
         updateWindowTitle()
         flagViewsToRecalcFractal()
@@ -872,6 +873,9 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         }
 
         switch event.charactersIgnoringModifiers!.uppercased() {
+        case "O" :
+            presentPopover("EquationPickerVC")
+            return
         case "\\" : // set focus to 3D window
             if vc3D != nil {
                 vc3D.view.window?.makeMain()

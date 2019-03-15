@@ -2,6 +2,8 @@ Bare Bones Raymarching
 
 Press 'page up' to display this dialog.
 
+Press 'O' to launch Equation Picker dialog
+
 Note for arrow keys and jog keys :
 Hold 'Shift' key for slow changes
 Hold 'Option' key for fast changes

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1D09268C223C1248005BC5FC /* EquationPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D09268B223C1248005BC5FC /* EquationPickerViewController.swift */; };
 		1D0DDCD7222F148500D916F6 /* Win3DViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D0DDCD6222F148500D916F6 /* Win3DViewController.swift */; };
 		1D0DDCD9222F14E000D916F6 /* View3D.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D0DDCD8222F14E000D916F6 /* View3D.swift */; };
 		1D0DDCDB222F14F300D916F6 /* help2.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1D0DDCDA222F14F300D916F6 /* help2.txt */; };
@@ -25,6 +26,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1D09268B223C1248005BC5FC /* EquationPickerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EquationPickerViewController.swift; sourceTree = "<group>"; };
 		1D0DDCD6222F148500D916F6 /* Win3DViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Win3DViewController.swift; sourceTree = "<group>"; };
 		1D0DDCD8222F14E000D916F6 /* View3D.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = View3D.swift; sourceTree = "<group>"; };
 		1D0DDCDA222F14F300D916F6 /* help2.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = help2.txt; sourceTree = "<group>"; };
@@ -86,6 +88,7 @@
 				CFD49CC52115B92300B4C5EB /* MetalView.swift */,
 				1D465007221E88DA00D14A94 /* SaveLoadViewController.swift */,
 				1D4650092221B0BB00D14A94 /* HelpViewController.swift */,
+				1D09268B223C1248005BC5FC /* EquationPickerViewController.swift */,
 				CFEA3DEA211463D800C7DBD3 /* AppDelegate.swift */,
 				1D0DDCDE222F181B00D916F6 /* ArcBall.swift */,
 				CFEA3DEE211463D900C7DBD3 /* Assets.xcassets */,
@@ -179,6 +182,7 @@
 				CFD49CC62115B92300B4C5EB /* MetalView.swift in Sources */,
 				1D40CB4D21F1015F009C73A3 /* Widget.swift in Sources */,
 				1DAF37B721EAA112000DC9E5 /* ViewController.swift in Sources */,
+				1D09268C223C1248005BC5FC /* EquationPickerViewController.swift in Sources */,
 				CFEA3DEB211463D800C7DBD3 /* AppDelegate.swift in Sources */,
 				1D0DDCDD222F173600D916F6 /* Renderer.swift in Sources */,
 				1D465008221E88DA00D14A94 /* SaveLoadViewController.swift in Sources */,
