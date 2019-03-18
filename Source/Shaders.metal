@@ -2071,6 +2071,29 @@ float3 getBlinnShading(float3 normal, float3 direction, float3 light,device Cont
     return dif + spe * control.specular;
 }
 
+float3 lerp(float3 a, float3 b, float w) { return a + w*(b-a); }
+
+float3 hsv2rgb(float3 c) {
+    return lerp(saturate((abs(fract(c.x + float3(1,2,3)/3) * 6 - 3) - 1)),1,c.y) * c.z;
+}
+
+float3 HSVtoRGB(float3 hsv) {
+    /// Implementation based on: http://en.wikipedia.org/wiki/HSV_color_space
+    hsv.x = mod(hsv.x,2.*PI);
+    int Hi = int(mod(hsv.x / (2.*PI/6.), 6.));
+    float f = (hsv.x / (2.*PI/6.)) -float( Hi);
+    float p = hsv.z*(1.-hsv.y);
+    float q = hsv.z*(1.-f*hsv.y);
+    float t = hsv.z*(1.-(1.-f)*hsv.y);
+    if (Hi == 0) { return float3(hsv.z,t,p); }
+    if (Hi == 1) { return float3(q,hsv.z,p); }
+    if (Hi == 2) { return float3(p,hsv.z,t); }
+    if (Hi == 3) { return float3(p,q,hsv.z); }
+    if (Hi == 4) { return float3(t,p,hsv.z); }
+    if (Hi == 5) { return float3(hsv.z,p,q); }
+    return float3(0.);
+}
+
 //MARK: -
 
 kernel void rayMarchShader
@@ -2130,7 +2153,29 @@ kernel void rayMarchShader
             color = coloringTexture.read(pt).xyz;
         }
         else {
-            color = float3(1 - (normal / 10 + sqrt(dist.y / 80)));
+            float3 cc;
+            
+            switch(c.colorScheme) {
+                case 0 :
+                    color = float3(1 - (normal / 10 + sqrt(dist.y / 80)));
+                    break;
+                case 1 :
+                    color = float3(abs(1 - (normal / 3 + sqrt(dist.y / 8)))) / 10;
+                    break;
+                case 2 :
+                    color = float3(1 - (normal + sqrt(dist.y / 20))) / 10;
+                    cc = 0.5 + 0.5*cos( 6.2831 * position.z + float3(0.0,1.0,2.0) );
+                    color = mix(color,cc,0.5);
+                    break;
+                case 3 :
+                    color = abs(normal) * 0.1;
+                    color = HSVtoRGB(color * dist.y * 0.1);
+                    break;
+                case 4 :
+                    color = abs(normal) * dist.y * 0.01;
+                    color = hsv2rgb(color.yzx);
+                    break;
+            }
         }
         
         color *= c.bright;

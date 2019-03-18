@@ -940,7 +940,10 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         case "U" :
             toggle(&control.gravity)
             toggle(&control.UseDeltaDE)
-
+        case "G" :
+            control.colorScheme += 1
+            if control.colorScheme > 4 { control.colorScheme = 0 }
+            flagViewsToRecalcFractal()
         case ",","<" : adjustWindowSize(-1)
         case ".",">" : adjustWindowSize(+1)
         default : break

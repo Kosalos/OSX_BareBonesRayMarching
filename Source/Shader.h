@@ -120,6 +120,8 @@ struct Control {
     uint xmin3D,xmax3D; // region of interest
     uint ymin3D,ymax3D;
     uint xSize3D,ySize3D;
+    
+    int colorScheme;
 };
 
 // 3D window ---------------------------------

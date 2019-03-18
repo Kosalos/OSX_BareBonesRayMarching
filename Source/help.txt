@@ -26,7 +26,7 @@ Keyboard commands ----------------------------
 
 ?,/ : Toggle Fast Rendering
       (rendering is fast/blurry while keys are held down)
-
+G   : Cycle through the coloring schemes
 P   : Load Picture for texturing
       launches picture selection dialog.
       When active additional widgets alter which
