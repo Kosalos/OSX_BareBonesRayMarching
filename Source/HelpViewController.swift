@@ -18,4 +18,10 @@ class HelpViewController: NSViewController {
             fatalError("\n\nload help text failed\n\n")
         }
     }
+    
+    override func keyDown(with event: NSEvent) {
+        let vlist = [ vc,win3D ]
+        vlist[helpIndex]?.keyDown(with: event)
+    }
+        
 }

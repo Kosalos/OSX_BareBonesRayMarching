@@ -44,7 +44,7 @@ Mouse commands -------------------------------
 
 When 3D window is active :
 Click/Drag with left mouse button to define the 3D Window
-Region of Intereset
+Region of Interest
 
 ----------------------------------------------
 Developers :
