@@ -2134,7 +2134,7 @@ kernel void rayMarchShader
     
     if (dist.x <= MAX_DIST - 0.0001) {
         float3 position = c.camera + dist.x * direction;
-        float3 normal = calcNormal(position,c);
+        float3 cc,normal = calcNormal(position,c);
         
         // use texture
         if(c.txtOnOff) {
@@ -2152,37 +2152,35 @@ kernel void rayMarchShader
             pt.y = uint(c.txtSize.y - fmod(yy,h)); // flip Y coord
             color = coloringTexture.read(pt).xyz;
         }
-        else {
-            float3 cc;
-            
-            switch(c.colorScheme) {
-                case 0 :
-                    color = float3(1 - (normal / 10 + sqrt(dist.y / 80)));
-                    break;
-                case 1 :
-                    color = float3(abs(1 - (normal / 3 + sqrt(dist.y / 8)))) / 10;
-                    break;
-                case 2 :
-                    color = float3(1 - (normal + sqrt(dist.y / 20))) / 10;
-                    cc = 0.5 + 0.5*cos( 6.2831 * position.z + float3(0.0,1.0,2.0) );
-                    color = mix(color,cc,0.5);
-                    break;
-                case 3 :
-                    color = abs(normal) * 0.1;
-                    color = HSVtoRGB(color * dist.y * 0.1);
-                    break;
-                case 4 :
-                    color = abs(normal) * dist.y * 0.01;
-                    color = hsv2rgb(color.yzx);
-                    break;
-            }
-        }
         
-        color *= c.bright;
-        color = 0.5 + (color - 0.5) * c.contrast * 2;
+        switch(c.colorScheme) {
+            case 0 :
+                color += float3(1 - (normal / 10 + sqrt(dist.y / 80)));
+                break;
+            case 1 :
+                color += float3(abs(1 - (normal / 3 + sqrt(dist.y / 8)))) / 10;
+                break;
+            case 2 :
+                color += float3(1 - (normal + sqrt(dist.y / 20))) / 10;
+                cc = 0.5 + 0.5*cos( 6.2831 * position.z + float3(0.0,1.0,2.0) );
+                color = mix(color,cc,0.5);
+                break;
+            case 3 :
+                color += abs(normal) * 0.1;
+                color += HSVtoRGB(color * dist.y * 0.1);
+                break;
+            case 4 :
+                color += abs(normal) * dist.y * 0.01;
+                color += hsv2rgb(color.yzx);
+                break;
+        }
         
         float3 light = getBlinnShading(normal, direction, c.nlight, c);
         color = mix(light, color, 0.8);
+
+        color *= c.bright;
+        color = 0.5 + (color - 0.5) * c.contrast * 2;
+        
     }
 
     if(c.skip == 1) {
