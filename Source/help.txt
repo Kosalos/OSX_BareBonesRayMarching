@@ -40,6 +40,24 @@ end       : Load next saved image.
 page up   : Show this dialog
 page down : Toggle display of companion 3D window
 
+Video Recording ------------------------------
+
+You define a video recording by saving a list of keyframes.
+Each keyframe captures all your widget settings.
+When the list is complete,
+you direct the app to build the video.
+The app will interpolate 100 video frames for each keyframe,
+as it smoothly alters all widget settings.
+
+Press '[' to store keyframes.
+You must store at least two keyframes to define a video session.
+When ready, press ']' to complete the keyframes definition.
+The app will then calculate all the video frames,
+and save them toa '.m4v' video file
+(deep in the bowels of the app's documents folder).
+
+Note: Don't alter the window size during a recording session.
+
 Mouse commands -------------------------------
 
 When 3D window is active :

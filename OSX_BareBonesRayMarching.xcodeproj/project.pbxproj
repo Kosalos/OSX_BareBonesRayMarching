@@ -13,6 +13,7 @@
 		1D0DDCDB222F14F300D916F6 /* help2.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1D0DDCDA222F14F300D916F6 /* help2.txt */; };
 		1D0DDCDD222F173600D916F6 /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D0DDCDC222F173600D916F6 /* Renderer.swift */; };
 		1D0DDCDF222F181C00D916F6 /* ArcBall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D0DDCDE222F181B00D916F6 /* ArcBall.swift */; };
+		1D3FB46C224B416D0027DFDF /* MetalVideoRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D3FB46B224B416D0027DFDF /* MetalVideoRecorder.swift */; };
 		1D40CB4D21F1015F009C73A3 /* Widget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D40CB4C21F1015F009C73A3 /* Widget.swift */; };
 		1D465008221E88DA00D14A94 /* SaveLoadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D465007221E88DA00D14A94 /* SaveLoadViewController.swift */; };
 		1D46500A2221B0BB00D14A94 /* HelpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D4650092221B0BB00D14A94 /* HelpViewController.swift */; };
@@ -32,6 +33,7 @@
 		1D0DDCDA222F14F300D916F6 /* help2.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = help2.txt; sourceTree = "<group>"; };
 		1D0DDCDC222F173600D916F6 /* Renderer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Renderer.swift; sourceTree = "<group>"; };
 		1D0DDCDE222F181B00D916F6 /* ArcBall.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArcBall.swift; sourceTree = "<group>"; };
+		1D3FB46B224B416D0027DFDF /* MetalVideoRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalVideoRecorder.swift; sourceTree = "<group>"; };
 		1D40CB4C21F1015F009C73A3 /* Widget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Widget.swift; sourceTree = "<group>"; };
 		1D465007221E88DA00D14A94 /* SaveLoadViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SaveLoadViewController.swift; sourceTree = "<group>"; };
 		1D4650092221B0BB00D14A94 /* HelpViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelpViewController.swift; sourceTree = "<group>"; };
@@ -86,6 +88,7 @@
 				1D0DDCDC222F173600D916F6 /* Renderer.swift */,
 				1D0DDCD8222F14E000D916F6 /* View3D.swift */,
 				CFD49CC52115B92300B4C5EB /* MetalView.swift */,
+				1D3FB46B224B416D0027DFDF /* MetalVideoRecorder.swift */,
 				1D465007221E88DA00D14A94 /* SaveLoadViewController.swift */,
 				1D4650092221B0BB00D14A94 /* HelpViewController.swift */,
 				1D09268B223C1248005BC5FC /* EquationPickerViewController.swift */,
@@ -181,6 +184,7 @@
 				CFD49CCA2115C6DC00B4C5EB /* Shaders.metal in Sources */,
 				CFD49CC62115B92300B4C5EB /* MetalView.swift in Sources */,
 				1D40CB4D21F1015F009C73A3 /* Widget.swift in Sources */,
+				1D3FB46C224B416D0027DFDF /* MetalVideoRecorder.swift in Sources */,
 				1DAF37B721EAA112000DC9E5 /* ViewController.swift in Sources */,
 				1D09268C223C1248005BC5FC /* EquationPickerViewController.swift in Sources */,
 				CFEA3DEB211463D800C7DBD3 /* AppDelegate.swift in Sources */,
@@ -336,7 +340,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ENFORCE_EXCLUSIVE_ACCESS = none;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -355,9 +359,11 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MTL_FAST_MATH = YES;
+				MTL_OPTIMIZATION_LEVEL = 3;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Harry.OSX-BareBonesRayMarching";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};

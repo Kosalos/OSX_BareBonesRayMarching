@@ -173,5 +173,13 @@ extension Date {
         dateFormatter.dateFormat = "MM/dd/yyyy hh:mm"
         return dateFormatter.string(from: self)
     }
+
+    func toTimeStampedFilename(_ filename:String, _ extensionString:String) -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyyMMddhhmmss"
+        let ds = dateFormatter.string(from: self)
+        let str:String = String.init(format: "%@_%@.%@",filename,ds,extensionString)
+        return str
+    }
 }
 
