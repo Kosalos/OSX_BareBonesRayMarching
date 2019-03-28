@@ -137,7 +137,7 @@ class MetalVideoRecorder {
             
             deleteFile(fileURL.path)
             
-            startRecording(outputURL:fileURL, size: vc.metalViewL.bounds.size)
+            startRecording(outputURL:fileURL, size: vc.metalView.bounds.size)
             vc.control.skip = 1
         }
         else {

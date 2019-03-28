@@ -2108,14 +2108,33 @@ kernel void rayMarchShader
     if(p.x >= uint(c.xSize)) return; // screen size not evenly divisible by threadGroups
     if(p.y >= uint(c.ySize)) return;
     if(c.skip > 1 && ((p.x % c.skip) != 0 || (p.y % c.skip) != 0)) return;
+
+    float3 color = float3();
+
+    uint2 q = p;                    // copy of current pixel coordinate; x is altered for stereo
+    unsigned int xsize = c.xSize;   // copy of current window size; x is altered for stereo
+    float3 camera = c.camera;       // copy of camera position; x is altered for stereo
+    
+    if(c.isStereo) {
+        xsize /= 2;                 // window x size adjusted for 2 views side by side
+        float3 offset = c.sideVector * c.parallax;
+
+        if(p.x >= xsize) {      // right side of stereo pair?
+            q.x -= xsize;       // base 0  X coordinate
+            camera -= offset;   // adjust for right side parallax
+        }
+        else {
+            camera += offset;   // adjust for left side parallax
+        }
+    }
     
     if(c.skip == 1 && c.win3DFlag > 0 && c.win3DDirty) {  // draw 3D bounding box
         bool mark = false;
-        if((p.x == c.xmin3D-1 || p.x == c.xmin3D) && p.y >= c.ymin3D && p.y <= c.ymax3D) mark = true; else
-        if((p.x == c.xmax3D+1 || p.x == c.xmax3D) && p.y >= c.ymin3D && p.y <= c.ymax3D) mark = true;
+        if((q.x == c.xmin3D-1 || q.x == c.xmin3D) && q.y >= c.ymin3D && q.y <= c.ymax3D) mark = true; else
+        if((q.x == c.xmax3D+1 || q.x == c.xmax3D) && q.y >= c.ymin3D && q.y <= c.ymax3D) mark = true;
         if(!mark) {
-            if((p.y == c.ymin3D-1 || p.y == c.ymin3D) && p.x >= c.xmin3D && p.x <= c.xmax3D) mark = true; else
-            if((p.y == c.ymax3D+1 || p.y == c.ymax3D) && p.x >= c.xmin3D && p.x <= c.xmax3D) mark = true;
+            if((q.y == c.ymin3D-1 || q.y == c.ymin3D) && q.x >= c.xmin3D && q.x <= c.xmax3D) mark = true; else
+            if((q.y == c.ymax3D+1 || q.y == c.ymax3D) && q.x >= c.xmin3D && q.x <= c.xmax3D) mark = true;
         }
         
         if(mark) {
@@ -2124,16 +2143,14 @@ kernel void rayMarchShader
         }
     }
 
-    float den = float(c.xSize);
-    float dx =  1.5 * (float(p.x)/den - 0.5);
-    float dy = -1.5 * (float(p.y)/den - 0.5);
-    float3 color = float3();
-    
+    float den = float(xsize);
+    float dx =  1.5 * (float(q.x)/den - 0.5);
+    float dy = -1.5 * (float(q.y)/den - 0.5);
     float3 direction = normalize((c.sideVector * dx) + (c.topVector * dy) + c.viewVector);
-    float2 dist = shortest_dist(c.camera,direction,c);
+    float2 dist = shortest_dist(camera,direction,c);
     
     if (dist.x <= MAX_DIST - 0.0001) {
-        float3 position = c.camera + dist.x * direction;
+        float3 position = camera + dist.x * direction;
         float3 cc,normal = calcNormal(position,c);
         
         // use texture

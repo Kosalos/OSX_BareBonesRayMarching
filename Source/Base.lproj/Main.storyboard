@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" initialViewController="B8D-0N-5wS">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14460.31"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14490.70"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -101,10 +101,6 @@
                                 <rect key="frame" x="20" y="136" width="150" height="154"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             </customView>
-                            <customView id="EOw-qt-fvU" customClass="MetalView" customModule="OSX_BareBonesRayMarching" customModuleProvider="target">
-                                <rect key="frame" x="178" y="136" width="163" height="154"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                            </customView>
                             <textField autoresizesSubviews="NO" verticalHuggingPriority="750" textCompletion="NO" id="fCH-5f-ISd">
                                 <rect key="frame" x="18" y="20" width="121" height="88"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
@@ -118,8 +114,7 @@
                     </customView>
                     <connections>
                         <outlet property="instructions" destination="fCH-5f-ISd" id="IvK-F8-G9k"/>
-                        <outlet property="metalViewL" destination="8Wz-X6-zxw" id="sa0-xK-ddj"/>
-                        <outlet property="metalViewR" destination="EOw-qt-fvU" id="wE9-44-M93"/>
+                        <outlet property="metalView" destination="8Wz-X6-zxw" id="sa0-xK-ddj"/>
                     </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
@@ -254,6 +249,10 @@
                                         </textView>
                                     </subviews>
                                 </clipView>
+                                <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="EgO-P3-MHl">
+                                    <rect key="frame" x="-100" y="-100" width="355" height="15"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </scroller>
                                 <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="cVa-8Y-UkL">
                                     <rect key="frame" x="355" y="0.0" width="15" height="511"/>
                                     <autoresizingMask key="autoresizingMask"/>

@@ -114,7 +114,7 @@ class Widget {
         case 123: // Left arrow
             if data[focus].alterValue(-1) {
                 if ident == 0 {
-                    vc.flagViewsToRecalcFractal()
+                    vc.flagViewToRecalcFractal()
                     if data[focus].showValue { delegate?.displayWidgets() }
                 }
                 return true
@@ -122,7 +122,7 @@ class Widget {
         case 124: // Right arrow
             if data[focus].alterValue(+1) {
                 if ident == 0 {
-                    vc.flagViewsToRecalcFractal()
+                    vc.flagViewToRecalcFractal()
                     if data[focus].showValue { delegate?.displayWidgets() }
                 }
                 return true

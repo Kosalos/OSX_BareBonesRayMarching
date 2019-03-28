@@ -1,12 +1,11 @@
 import MetalKit
 
 protocol MetalViewDelegate {
-    func computeTexture(_ drawable:CAMetalDrawable,_ ident:Int)
+    func computeTexture(_ drawable:CAMetalDrawable)
 }
 
 class MetalView: MTKView {
     var delegate2:MetalViewDelegate?
-    var ident = Int()
     var viewIsDirty:Bool = true
 
     required init(coder: NSCoder) {
@@ -20,7 +19,7 @@ class MetalView: MTKView {
         super.draw()
         if viewIsDirty {
             if let drawable = currentDrawable {
-                delegate2?.computeTexture(drawable,ident)
+                delegate2?.computeTexture(drawable)
                 viewIsDirty = false
             }
         }

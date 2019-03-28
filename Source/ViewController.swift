@@ -17,18 +17,15 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     var pipeline:[MTLComputePipelineState] = []
     var threadsPerGroup:[MTLSize] = []
     var threadsPerGrid:[MTLSize] = []
-    var isStereo:Bool = false
     var isFullScreen:Bool = false
     var isChangingViewVector:Bool = false
-    var parallax:Float = 0.003
     var lightAngle:Float = 0
     var tCenterX:Float = 0
     var tCenterY:Float = 0
     var tScale:Float = 0
 
     @IBOutlet var instructions: NSTextField!
-    @IBOutlet var metalViewL: MetalView!
-    @IBOutlet var metalViewR: MetalView!
+    @IBOutlet var metalView: MetalView!
     
     let PIPELINE_FRACTAL = 0
     let PIPELINE_NORMAL  = 1
@@ -46,10 +43,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         super.viewWillAppear()
         widget = Widget(0,self)
         
-        metalViewL.ident = 0
-        metalViewR.ident = 1
-        metalViewL.window?.delegate = self;  (metalViewL).delegate2 = self
-        metalViewR.window?.delegate = self;  (metalViewR).delegate2 = self
+        metalView.window?.delegate = self
+        (metalView).delegate2 = self
         
         device = MTLCreateSystemDefaultDevice()
         commandQueue = device.makeCommandQueue()
@@ -78,6 +73,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         control.equation = Int32(EQU_01_MANDELBULB)
         control.txtOnOff = false    // 'no texture'
         control.skip = 1            // "fast render" defaults to 'not active'
+        control.isStereo = false
+        control.parallax = 0.003
         
         reset()
         ensureWindowSizeIsNotTooSmall()
@@ -93,17 +90,13 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     func setShaderToFastRender() {
         if fastRenderEnabled {
             control.skip = max(control.xSize / 250, 6)
-            if isStereo { control.skip *= 2 }
             slowRenderCountDown = 20 // 30 = 1 second
         }
     }
     
-    /// direct 2D fractals views to re-calculate image on next draw call
-    func flagViewsToRecalcFractal() {
-        metalViewL.viewIsDirty = true
-        if isStereo {
-            metalViewR.viewIsDirty = true
-        }
+    /// direct 2D fractal view to re-calculate image on next draw call
+    func flagViewToRecalcFractal() {
+        metalView.viewIsDirty = true
     }
     
     /// ensure companion 3D window is also closed
@@ -115,7 +108,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     func win3DClosed() {
         win3D = nil
         control.win3DFlag = 0
-        flagViewsToRecalcFractal() // to erase bounding box
+        flagViewToRecalcFractal() // to erase bounding box
     }
     
     //MARK: -
@@ -132,7 +125,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         }
         
         if isDirty {
-            flagViewsToRecalcFractal()
+            flagViewToRecalcFractal()
         }
     }
     
@@ -176,7 +169,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         reset()
         widget.focus = 0
         updateWindowTitle()
-        flagViewsToRecalcFractal()
+        flagViewToRecalcFractal()
     }
     
     /// load initial parameter values and view vectors for the current fractal (control.equation holds index)
@@ -394,6 +387,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.juliaX =  0.0
             control.juliaY =  0.0
             control.juliaZ =  0.0
+            control.bright = 0.9000001
         case EQU_29_MBROT :
             control.camera = float3(-0.23955467, -0.3426069, -2.4)
             control.cx = -9.685755e-08
@@ -402,7 +396,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.juliaX =  0.39999992
             control.juliaY =  5.399997
             control.juliaZ =  -2.3
-            control.bright = 0.5
+            control.bright = 1.3000002
+            control.contrast = 0.19999999
         case EQU_30_KALIBOX :
             control.camera = float3(0.32916373, -0.42756003, -3.6908724)
             control.cx = 1.6500008
@@ -419,7 +414,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.juliaX =  0.0
             control.juliaY =  0.0
             control.juliaZ =  0.0
-            control.bright = 0.5
+            control.bright = 0.9000001
         case EQU_31_SPUDS :
             control.camera = float3(0.98336715, -1.2565054, -3.960955)
             control.cx = 3.7524672
@@ -430,7 +425,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.dz = -4.100001
             control.dw = -3.2119942
             control.fMaxSteps = 8.0
-            control.bright = 0.3199999
+            control.bright = 0.92
             control.power = 3.2999988
         case EQU_32_MPOLY :
             control.camera = float3(0.0047654044, -0.4972743, -3.960955)
@@ -681,16 +676,12 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     var timeInterval:Double = 0.1
     
     /// call shader to update 2D fractal window(s), and 3D vertex data
-    func computeTexture(_ drawable:CAMetalDrawable, _ ident:Int) {
+    func computeTexture(_ drawable:CAMetalDrawable) {
         
         // this appears to stop beachball delays if I cause key roll-over?
         Thread.sleep(forTimeInterval: timeInterval)
         
         var c = control
-        if isStereo {
-            let offset:float3 = c.sideVector * parallax
-            c.camera += ident == 0 ? offset : -offset
-        }
         
         if control.txtOnOff {
             c.txtCenter.x = tCenterX
@@ -699,7 +690,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         }
         
         c.win3DDirty = 0     // assume 3D window is inactive
-        if vc3D != nil && ident == 0 { // 3D window is active, & we are drawing left fractal window
+        if vc3D != nil {     // 3D window is active
             c.win3DDirty = 1
             c.xSize3D = c.xmax3D - c.xmin3D
             c.ySize3D = c.ymax3D - c.ymin3D
@@ -849,7 +840,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             
             ensureSizeAndBounds(&control.xmin3D,&control.xmax3D,control.xSize)
             ensureSizeAndBounds(&control.ymin3D,&control.ymax3D,control.ySize)
-            flagViewsToRecalcFractal()
+            flagViewToRecalcFractal()
         }
     }
     
@@ -864,7 +855,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     override func keyDown(with event: NSEvent) {
         func toggle2() {
             defineWidgetsForCurrentEquation()
-            flagViewsToRecalcFractal()
+            flagViewToRecalcFractal()
         }
 
         super.keyDown(with: event)
@@ -905,10 +896,10 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         case "1" : changeEquationIndex(-1)
         case "2" : changeEquationIndex(+1)
         case "3" :
-            isStereo = !isStereo
+            control.isStereo = !control.isStereo
             adjustWindowSizeForStereo()
             defineWidgetsForCurrentEquation()
-            flagViewsToRecalcFractal()
+            flagViewToRecalcFractal()
         case "4","$" : jogCameraPosition(float3(-1,0,0))
         case "5","%" : jogCameraPosition(float3(+1,0,0))
         case "6","^" : jogCameraPosition(float3(0,-1,0))
@@ -926,7 +917,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             if control.txtOnOff {
                 control.txtOnOff = false
                 defineWidgetsForCurrentEquation()
-                flagViewsToRecalcFractal()
+                flagViewToRecalcFractal()
             }
             else {
                 loadImageFile()
@@ -934,7 +925,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             
         case " " : instructions.isHidden = !instructions.isHidden
         case "X" : isChangingViewVector = !isChangingViewVector
-        case "H" : setControlParametersToRandomValues(); flagViewsToRecalcFractal()
+        case "H" : setControlParametersToRandomValues(); flagViewToRecalcFractal()
         case "V" : displayControlParametersInConsoleWindow()
         case "Q" :
             control.polygonate = !control.polygonate
@@ -967,7 +958,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         case "G" :
             control.colorScheme += 1
             if control.colorScheme > 4 { control.colorScheme = 0 }
-            flagViewsToRecalcFractal()
+            flagViewToRecalcFractal()
         case ",","<" : adjustWindowSize(-1)
         case ".",">" : adjustWindowSize(+1)
         case "[" : mvr.addKeyFrame()
@@ -991,7 +982,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         }
         
         setShaderToFastRender()
-        flagViewsToRecalcFractal()
+        flagViewToRecalcFractal()
     }
     
     /// toggle display of companion 3D window
@@ -1014,7 +1005,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             win3D.close()
         }
         
-        flagViewsToRecalcFractal() // redraw 2D so that ROI rectangle is drawn (or erased)
+        flagViewToRecalcFractal() // redraw 2D so that ROI rectangle is drawn (or erased)
     }
     
     /// press 'V' to display control parameter values in console window
@@ -1089,7 +1080,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             if control.equation < 0 { control.equation = Int32(EQU_MAX - 1) }
         reset()
         defineWidgetsForCurrentEquation()
-        flagViewsToRecalcFractal()
+        flagViewToRecalcFractal()
     }
     
     /// define widget entries for current equation
@@ -1104,7 +1095,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         
         widget.reset()
         
-        if isStereo { widget.addEntry("Parallax",&parallax,0.001,1,0.01) }
+        if control.isStereo { widget.addEntry("Parallax",&control.parallax,0.001,1,0.01) }
         widget.addEntry("Bright",&control.bright,0.01,10,0.1)
         widget.addEntry("Contrast",&control.contrast,0.1,0.7,0.02)
         widget.addEntry("Specular",&control.specular,0,2,0.1)
@@ -1536,8 +1527,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         var h = pipeline[PIPELINE_FRACTAL].maxTotalThreadsPerThreadgroup / w
         threadsPerGroup[PIPELINE_FRACTAL] = MTLSizeMake(w, h, 1)
         
-        let wxs = Int(metalViewL.bounds.width) * 2     // why * 2 ??
-        let wys = Int(metalViewL.bounds.height) * 2
+        let wxs = Int(metalView.bounds.width) * 2     // why * 2 ??
+        let wys = Int(metalView.bounds.height) * 2
         control.xSize = Int32(wxs)
         control.ySize = Int32(wys)
         threadsPerGrid[PIPELINE_FRACTAL] = MTLSizeMake(wxs,wys,1)
@@ -1563,7 +1554,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     func adjustWindowSizeForStereo() {
         if !isFullScreen {
             var r:CGRect = (view.window?.frame)!
-            r.size.width *= CGFloat(isStereo ? 2.0 : 0.5)
+            r.size.width *= CGFloat(control.isStereo ? 2.0 : 0.5)
             view.window?.setFrame(r, display:true)
         }
         else {
@@ -1590,17 +1581,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         
         if isFullScreen {
             r = NSScreen.main!.frame
-            
-            if isStereo {
-                metalViewR.isHidden = false
-                let xc:CGFloat = r.size.width/2 + 1
-                metalViewL.frame = CGRect(x:0, y:0, width:xc, height:r.size.height)
-                metalViewR.frame = CGRect(x:xc-1, y:0, width:xc, height:r.size.height)
-            }
-            else {
-                metalViewR.isHidden = true
-                metalViewL.frame = CGRect(x:0, y:0, width:r.size.width, height:r.size.height)
-            }
+            metalView.frame = CGRect(x:0, y:0, width:r.size.width, height:r.size.height)
         }
         else {
             let minWinSize:CGSize = CGSize(width:300, height:300)
@@ -1617,16 +1598,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             
             if changed {  view.window?.setFrame(r, display:true) }
             
-            if isStereo {
-                metalViewR.isHidden = false
-                let xc:CGFloat = r.size.width/2 + 1
-                metalViewL.frame = CGRect(x:0, y:0, width:xc, height:r.size.height)
-                metalViewR.frame = CGRect(x:xc-1, y:0, width:xc, height:r.size.height)
-            }
-            else {
-                metalViewR.isHidden = true
-                metalViewL.frame = CGRect(x:1, y:1, width:r.size.width-2, height:r.size.height-2)
-            }
+            metalView.frame = CGRect(x:1, y:1, width:r.size.width-2, height:r.size.height-2)
         }
         
         instructions.frame = CGRect(x:5, y:30, width:500, height:700)
@@ -1635,7 +1607,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         instructions.bringToFront()
         
         updateThreadGroupsAccordingToWindowSize()
-        flagViewsToRecalcFractal()
+        flagViewToRecalcFractal()
     }
     
     func windowDidResize(_ notification: Notification) { updateLayoutOfChildViews() }
@@ -1686,7 +1658,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             
             if self.control.txtOnOff { // just loaded a texture
                 self.defineWidgetsForCurrentEquation()
-                self.flagViewsToRecalcFractal()
+                self.flagViewToRecalcFractal()
             }
         }
     }

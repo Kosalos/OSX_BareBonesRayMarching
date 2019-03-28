@@ -11,6 +11,9 @@ This is still a simple app; everything about it stays the same for all the fract
 Just changes to the GUI to access the equation parameters, and the \
 Distance Estimation routine for the RayMarching algorithm in the shader.
 
+Update: Added video recording. \
+You can define an array of keyframes that are interpolated to produce a smooth animation video.
+
 Includes equations for fifty 3D fractals : \
  MandelBulb , Apollonian , Apollonian2 , Jos Leys Kleinian  \
  MandelBox , Quaternion Julia , Monster , Kali Tower , Polyhedral Menger  \

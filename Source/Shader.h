@@ -122,6 +122,8 @@ struct Control {
     uint xSize3D,ySize3D;
     
     int colorScheme;
+    bool isStereo;
+    float parallax;
 };
 
 // 3D window ---------------------------------

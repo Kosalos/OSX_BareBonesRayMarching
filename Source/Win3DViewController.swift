@@ -192,7 +192,7 @@ class Win3DViewController: NSViewController, NSWindowDelegate, WidgetDelegate {
             return
         case 121 : // page down close this window
             win3D.close()
-            vc.flagViewsToRecalcFractal()
+            vc.flagViewToRecalcFractal()
             return
         default : break
         }
