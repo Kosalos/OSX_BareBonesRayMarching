@@ -384,7 +384,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.juliaX =  -1.4901161e-08
             control.juliaY =  -0.3
             control.juliaZ =  -0.8000001
-            control.bright = 0.25
+            control.bright = 1.05
             control.power = 8
         case EQU_28_QUATJULIA2 :
             control.camera = float3(-0.010578117, -0.49170083, -2.4)
@@ -862,8 +862,11 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     }
     
     override func keyDown(with event: NSEvent) {
-        func toggle(_ v:inout Bool) { v = !v;    defineWidgetsForCurrentEquation(); flagViewsToRecalcFractal() }
-        
+        func toggle2() {
+            defineWidgetsForCurrentEquation()
+            flagViewsToRecalcFractal()
+        }
+
         super.keyDown(with: event)
         widget.updateAlterationSpeed(event)
         
@@ -914,11 +917,11 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         case "9","(" : jogCameraPosition(float3(0,0,+1))
         case "?","/" : fastRenderEnabled = !fastRenderEnabled
             
-        case "B" : toggle(&control.showBalls)
-        case "F" : toggle(&control.fourGen)
-        case "I" : toggle(&control.doInversion)
-        case "J" : toggle(&control.juliaboxMode)
-        case "K" : toggle(&control.AlternateVersion)
+        case "B" : control.showBalls = !control.showBalls; toggle2()
+        case "F" : control.fourGen = !control.fourGen; toggle2()
+        case "I" : control.doInversion = !control.doInversion; toggle2()
+        case "J" : control.juliaboxMode = !control.juliaboxMode; toggle2()
+        case "K" : control.AlternateVersion = !control.AlternateVersion; toggle2()
         case "P" :
             if control.txtOnOff {
                 control.txtOnOff = false
@@ -934,26 +937,33 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         case "H" : setControlParametersToRandomValues(); flagViewsToRecalcFractal()
         case "V" : displayControlParametersInConsoleWindow()
         case "Q" :
-            toggle(&control.polygonate)
-            toggle(&control.preabsx)
+            control.polygonate = !control.polygonate
+            control.preabsx = !control.preabsx
+            toggle2()
         case "W" :
-            toggle(&control.polyhedronate)
-            toggle(&control.preabsy)
+            control.polyhedronate = !control.polyhedronate
+            control.preabsy = !control.preabsy
+            toggle2()
         case "E" :
-            toggle(&control.TotallyTubular)
-            toggle(&control.preabsz)
+            control.TotallyTubular = !control.TotallyTubular
+            control.preabsz = !control.preabsz
+            toggle2()
         case "R" :
-            toggle(&control.Sphere)
-            toggle(&control.absx)
+            control.Sphere = !control.Sphere
+            control.absx = !control.absx
+            toggle2()
         case "T" :
-            toggle(&control.HoleSphere)
-            toggle(&control.absy)
+            control.HoleSphere = !control.HoleSphere
+            control.absy = !control.absy
+            toggle2()
         case "Y" :
-            toggle(&control.unSphere)
-            toggle(&control.absz)
+            control.unSphere = !control.unSphere
+            control.absz = !control.absz
+            toggle2()
         case "U" :
-            toggle(&control.gravity)
-            toggle(&control.UseDeltaDE)
+            control.gravity = !control.gravity
+            control.UseDeltaDE = !control.UseDeltaDE
+            toggle2()
         case "G" :
             control.colorScheme += 1
             if control.colorScheme > 4 { control.colorScheme = 0 }
