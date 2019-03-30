@@ -11,7 +11,7 @@ class MetalVideoRecorder {
     var videoKeyFrames:[Control] = []
     var videoKeyFramesIndex:Int = 0
     var videoKeyFramesRatio:Float = 0
-    let framesPerKeyFrame:Int = 100
+    let framesPerKeyFrame:Int = 99
     var filename:String = ""
     
     private var assetWriter:AVAssetWriter! = nil
@@ -159,7 +159,10 @@ class MetalVideoRecorder {
         
         // determine parameters for next interpolated frame
         if videoKeyFramesIndex < videoKeyFrames.count - 1 {
-            func interpolate(_ v1:Float, _ v2:Float) -> Float { return v1 + (v2-v1) * videoKeyFramesRatio }
+            func parametricBlend(_ t:Float) -> Float { return powf(sin(Float.pi * t / 2),2) } // ease-in/out 0..1 -> 0..1
+            let ratio = parametricBlend(videoKeyFramesRatio)
+            
+            func interpolate(_ v1:Float, _ v2:Float) -> Float { return v1 + (v2-v1) * ratio }
 
             let c1 = videoKeyFrames[videoKeyFramesIndex]
             let c2 = videoKeyFrames[videoKeyFramesIndex + 1]
