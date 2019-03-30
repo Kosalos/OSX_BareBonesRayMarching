@@ -2155,14 +2155,14 @@ kernel void rayMarchShader
         
         // use texture
         if(c.txtOnOff) {
-            float scale = c.txtCenter.z * 4;
+            float scale = c.tScale * 4;
             float len = length(position) / dist.x;
             float x = normal.x * len;
             float y = normal.z * len;
             float w = c.txtSize.x;
             float h = c.txtSize.y;
-            float xx = w + (c.txtCenter.x * 4 + x * scale) * (w + len);
-            float yy = h + (c.txtCenter.y * 4 + y * scale) * (h + len);
+            float xx = w + (c.tCenterX * 4 + x * scale) * (w + len);
+            float yy = h + (c.tCenterY * 4 + y * scale) * (h + len);
             
             uint2 pt;
             pt.x = uint(fmod(xx,w));

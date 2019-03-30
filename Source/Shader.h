@@ -29,7 +29,7 @@ struct Control {
     
     bool txtOnOff;
     vector_float2 txtSize;
-    vector_float3 txtCenter;
+    float tCenterX,tCenterY,tScale;
 
     vector_float3 camera;
     vector_float3 viewVector,topVector,sideVector;

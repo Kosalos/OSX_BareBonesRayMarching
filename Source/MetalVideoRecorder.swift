@@ -210,6 +210,11 @@ class MetalVideoRecorder {
             vc.control.julia.x = interpolate(c1.julia.x, c2.julia.x)
             vc.control.julia.y = interpolate(c1.julia.y, c2.julia.y)
             vc.control.julia.z = interpolate(c1.julia.z, c2.julia.z)
+            vc.control.angle1 = interpolate(c1.angle1, c2.angle1)
+            vc.control.angle2 = interpolate(c1.angle2, c2.angle2)
+            vc.control.tCenterX = interpolate(c1.tCenterX, c2.tCenterX)
+            vc.control.tCenterY = interpolate(c1.tCenterY, c2.tCenterY)
+            vc.control.tScale = interpolate(c1.tScale, c2.tScale)
 
             videoKeyFramesRatio += 1.0 / Float(framesPerKeyFrame)
             if videoKeyFramesRatio >= 1.0 {

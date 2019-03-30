@@ -20,9 +20,6 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     var isFullScreen:Bool = false
     var isChangingViewVector:Bool = false
     var lightAngle:Float = 0
-    var tCenterX:Float = 0
-    var tCenterY:Float = 0
-    var tScale:Float = 0
 
     @IBOutlet var instructions: NSTextField!
     @IBOutlet var metalView: MetalView!
@@ -683,12 +680,6 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         
         var c = control
         
-        if control.txtOnOff {
-            c.txtCenter.x = tCenterX
-            c.txtCenter.y = tCenterY
-            c.txtCenter.z = tScale
-        }
-        
         c.win3DDirty = 0     // assume 3D window is inactive
         if vc3D != nil {     // 3D window is active
             c.win3DDirty = 1
@@ -1102,9 +1093,9 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         widget.addEntry("Light Position",&lightAngle,-3,3,0.3)
         
         if control.txtOnOff {
-            widget.addEntry("Texture Center X",&tCenterX,0.01,1,0.02)
-            widget.addEntry("Texture Center Y",&tCenterY,0.01,1,0.02)
-            widget.addEntry("Texture Scale",&tScale,0.01,1,0.02)
+            widget.addEntry("Texture Center X",&control.tCenterX,0.01,1,0.02)
+            widget.addEntry("Texture Center Y",&control.tCenterY,0.01,1,0.02)
+            widget.addEntry("Texture Scale",&control.tScale,0.01,1,0.02)
         }
         
         switch Int(control.equation) {
@@ -1624,7 +1615,9 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             
             control.txtSize.x = Float(cgImage.width)
             control.txtSize.y = Float(cgImage.height)
-            control.txtCenter = float3(repeating: 0.5)
+            control.tCenterX = 0.5
+            control.tCenterY = 0.5
+            control.tScale = 0.5
             return textureOut
         }
         catch {
