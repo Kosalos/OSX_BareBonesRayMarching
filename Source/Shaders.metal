@@ -2197,7 +2197,23 @@ kernel void rayMarchShader
 
         color *= c.bright;
         color = 0.5 + (color - 0.5) * c.contrast * 2;
-        
+    }
+    else {
+        // background color from texture
+        if(c.txtOnOff) {
+            float scale = c.tScale;
+            float x = direction.x;
+            float y = direction.z;
+            float w = c.txtSize.x;
+            float h = c.txtSize.y;
+            float xx = w + (c.tCenterX * 4 + x * scale) * w;
+            float yy = h + (c.tCenterY * 4 + y * scale) * h;
+            
+            uint2 pt;
+            pt.x = uint(fmod(xx,w));
+            pt.y = uint(c.txtSize.y - fmod(yy,h)); // flip Y coord
+            color = coloringTexture.read(pt).xyz;
+        }
     }
 
     if(c.skip == 1) {
