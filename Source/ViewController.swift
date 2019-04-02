@@ -18,7 +18,6 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     var threadsPerGroup:[MTLSize] = []
     var threadsPerGrid:[MTLSize] = []
     var isFullScreen:Bool = false
-    var isChangingViewVector:Bool = false
     var lightAngle:Float = 0
 
     @IBOutlet var instructions: NSTextField!
@@ -132,7 +131,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     func toSpherical(_ rec:float3) -> float3 { return float3(length(rec), atan2(rec.y,rec.x), atan2(sqrt(rec.x*rec.x+rec.y*rec.y), rec.z)) }
     
     func updateShaderDirectionVector(_ v:float3) {
-        control.viewVector = v
+        control.viewVector = normalize(v)
         control.topVector = toSpherical(control.viewVector)
         control.topVector.z += 1.5708
         control.topVector = toRectangular(control.topVector)
@@ -260,6 +259,11 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.cx = -0.09001912
             control.cy = 0.43999988
             control.cz = 1.0499994
+            control.cw = 1
+            control.dx = 0
+            control.dy = 0.6
+            control.dz = 0
+            control.fMaxSteps = 15
         case EQU_11_SPIDER :
             control.camera = float3(0.04676684, -0.50068825, -3.4419205)
             control.cx = 0.13099998
@@ -811,7 +815,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     override func mouseDown     (with event: NSEvent) { pt1 = event.locationInWindow }
     override func mouseDragged  (with event: NSEvent) { pt2 = event.locationInWindow }
     
-    // if 3D window is active: users has dragged a 3D region of interest (ROI) with left mouse button
+    // if 3D window is active: user has dragged a 3D region of interest (ROI) with left mouse button
     override func mouseUp(with event: NSEvent) {
         if vc3D != nil {
             control.xmin3D = uint(min(pt1.x,pt2.x) * 2)
@@ -834,7 +838,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             flagViewToRecalcFractal()
         }
     }
-    
+
     //MARK: -
     
     func presentPopover(_ name:String) {
@@ -843,12 +847,21 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         self.present(vc, asPopoverRelativeTo: view.bounds, of: view, preferredEdge: .minX, behavior: .transient)
     }
     
+    var ctrlKeyDown:Bool = false
+
+    func updateModifierKeyFlags(_ ev:NSEvent) {
+        let rv = ev.modifierFlags.intersection(.deviceIndependentFlagsMask).rawValue
+        ctrlKeyDown   = rv & (1 << 18) != 0
+    }
+
     override func keyDown(with event: NSEvent) {
         func toggle2() {
             defineWidgetsForCurrentEquation()
             flagViewToRecalcFractal()
         }
 
+        updateModifierKeyFlags(event)
+        
         super.keyDown(with: event)
         widget.updateAlterationSpeed(event)
         
@@ -891,12 +904,12 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             adjustWindowSizeForStereo()
             defineWidgetsForCurrentEquation()
             flagViewToRecalcFractal()
-        case "4","$" : jogCameraPosition(float3(-1,0,0))
-        case "5","%" : jogCameraPosition(float3(+1,0,0))
-        case "6","^" : jogCameraPosition(float3(0,-1,0))
-        case "7","&" : jogCameraPosition(float3(0,+1,0))
-        case "8","*" : jogCameraPosition(float3(0,0,-1))
-        case "9","(" : jogCameraPosition(float3(0,0,+1))
+        case "4","$" : jogCameraAndFocusPosition(float3(-1,0,0))
+        case "5","%" : jogCameraAndFocusPosition(float3(+1,0,0))
+        case "6","^" : jogCameraAndFocusPosition(float3(0,-1,0))
+        case "7","&" : jogCameraAndFocusPosition(float3(0,+1,0))
+        case "8","*" : jogCameraAndFocusPosition(float3(0,0,-1))
+        case "9","(" : jogCameraAndFocusPosition(float3(0,0,+1))
         case "?","/" : fastRenderEnabled = !fastRenderEnabled
             
         case "B" : control.showBalls = !control.showBalls; toggle2()
@@ -915,7 +928,6 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             }
             
         case " " : instructions.isHidden = !instructions.isHidden
-        case "X" : isChangingViewVector = !isChangingViewVector
         case "H" : setControlParametersToRandomValues(); flagViewToRecalcFractal()
         case "V" : displayControlParametersInConsoleWindow()
         case "Q" :
@@ -961,15 +973,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     }
     
     /// update 2D fractal camera position
-    func jogCameraPosition(_ direction:float3) {
+    func jogCameraAndFocusPosition(_ direction:float3) {
         let amount:float3 = direction * alterationSpeed * 0.01
         
-        if isChangingViewVector {
-            let s = toSpherical(control.viewVector) + amount
-            updateShaderDirectionVector(toRectangular(s))
+        if ctrlKeyDown {
+            updateShaderDirectionVector(control.viewVector + amount)
         }
         else {
-            control.camera += amount
+            control.camera += amount.x * control.sideVector
+            control.camera += amount.y * control.topVector
+            control.camera += amount.z * control.viewVector
         }
         
         setShaderToFastRender()
@@ -1160,9 +1173,14 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             widget.addEntry("Twist",&control.cx, 0.5,7,0.05)
             widget.addEntry("Shape",&control.dx, 0.1,50,0.2)
         case EQU_10_GOLD :
-            widget.addEntry("X",&control.cx,-5,5,0.01)
-            widget.addEntry("Y",&control.cy,-5,5,0.01)
-            widget.addEntry("Z",&control.cz,-5,5,0.01)
+            widget.addEntry("Iterations",&control.fMaxSteps,2,20,1)
+            widget.addEntry("T",&control.cx,-5,5,0.01)
+            widget.addEntry("U",&control.cy,-5,5,0.01)
+            widget.addEntry("V",&control.cz,-5,5,0.01)
+            widget.addEntry("W",&control.cw,-5,5,0.01)
+            widget.addEntry("X",&control.dx,-5,5,0.01)
+            widget.addEntry("Y",&control.dy,-5,5,0.01)
+            widget.addEntry("Z",&control.dz,-5,5,0.01)
         case EQU_11_SPIDER :
             widget.addEntry("X",&control.cx,0.001,5,0.01)
             widget.addEntry("Y",&control.cy,0.001,5,0.01)

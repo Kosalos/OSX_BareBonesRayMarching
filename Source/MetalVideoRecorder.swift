@@ -11,7 +11,7 @@ class MetalVideoRecorder {
     var videoKeyFrames:[Control] = []
     var videoKeyFramesIndex:Int = 0
     var videoKeyFramesRatio:Float = 0
-    let framesPerKeyFrame:Int = 99
+    var framesPerKeyFrame:Int = 99
     var filename:String = ""
     
     private var assetWriter:AVAssetWriter! = nil
@@ -45,7 +45,7 @@ class MetalVideoRecorder {
                                                                            sourcePixelBufferAttributes: sourcePixelBufferAttributes)
         
         assetWriter.add(assetWriterVideoInput)
-
+        
         
         assetWriter.startWriting()
         assetWriter.startSession(atSourceTime: CMTime.zero)
@@ -118,38 +118,53 @@ class MetalVideoRecorder {
         if !isCollectingVideoKeyFrames {
             isCollectingVideoKeyFrames = true
             videoKeyFrames.removeAll()
-
+            
             let t = Date.init(timeIntervalSinceNow: 0)
             filename = t.toTimeStampedFilename("Video","m4v")
             
-            let str:String = String(format:"Beginning Video recording: %@\nPress '[' for each keyframe,\nPress ']' to end recording.",filename)
-            alertPopup(str)
+            let alert = NSAlert()
+            alert.messageText = String(format:"Beginning Video recording: %@",filename)
+            alert.informativeText =
+            """
+            You have just saved the first keyframe.\n
+            Press '[' to add a keyframe of the current settings.
+            Press ']' add last keyframe, and end recording.
+            """
+            alert.addButton(withTitle: "Cancel")
+            alert.addButton(withTitle: "100 frames")
+            alert.addButton(withTitle: " 50 frames")
+            alert.addButton(withTitle: " 20 video frames per keyframe")
+            alert.beginSheetModal(for: vc.view.window!) {( returnCode: NSApplication.ModalResponse) -> Void in
+                switch returnCode.rawValue {
+                case 1001 : self.framesPerKeyFrame = 99
+                case 1002 : self.framesPerKeyFrame = 49
+                case 1003 : self.framesPerKeyFrame = 19
+                default   : self.isCollectingVideoKeyFrames = false
+                }
+            }
         }
         
         videoKeyFrames.append(vc.control)
     }
     
     func finishRecording() {
-        if videoKeyFrames.count > 1 {
-            isCollectingVideoKeyFrames = false
-
-            let fileURL:URL = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false).appendingPathComponent(filename)
-            
-            deleteFile(fileURL.path)
-            
-            startRecording(outputURL:fileURL, size: vc.metalView.bounds.size)
-            vc.control.skip = 1
-        }
-        else {
-            alertPopup("Cannot continue.\nYou must save at least two keyframes to\ndefine a video.")
-        }
+        videoKeyFrames.append(vc.control) // stopping recording adds terminating keyframe
+        
+        isCollectingVideoKeyFrames = false
+        
+        let fileURL:URL = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false).appendingPathComponent(filename)
+        
+        deleteFile(fileURL.path)
+        
+        startRecording(outputURL:fileURL, size: vc.metalView.bounds.size)
+        vc.control.skip = 1
     }
     
     func saveVideoFrame(_ texture:MTLTexture) -> Bool { // false = finished session, repaint instructions
         if !isRecording { return true } // true == do NOT repaint instructions
         
         writeFrame(forTexture:texture)
-
+        
         let fs:String = String(format:"Building Video: %@\nStandby.\nFrame %3d of %3d",
                                filename,
                                frameCount+1,
@@ -161,15 +176,16 @@ class MetalVideoRecorder {
         if videoKeyFramesIndex < videoKeyFrames.count - 1 {
             func parametricBlend(_ t:Float) -> Float { return powf(sin(Float.pi * t / 2),2) } // ease-in/out 0..1 -> 0..1
             let ratio = parametricBlend(videoKeyFramesRatio)
-            
             func interpolate(_ v1:Float, _ v2:Float) -> Float { return v1 + (v2-v1) * ratio }
-
+            
             let c1 = videoKeyFrames[videoKeyFramesIndex]
             let c2 = videoKeyFrames[videoKeyFramesIndex + 1]
             
-            vc.control.camera.x = interpolate(c1.camera.x, c2.camera.x)
-            vc.control.camera.y = interpolate(c1.camera.y, c2.camera.y)
-            vc.control.camera.z = interpolate(c1.camera.z, c2.camera.z)
+            vc.control.camera = mix(c1.camera,c2.camera,t:ratio)
+            vc.control.viewVector = normalize(mix(c1.viewVector,c2.viewVector,t:ratio))
+            vc.control.sideVector = normalize(mix(c1.sideVector,c2.sideVector,t:ratio))
+            vc.control.topVector = normalize(mix(c1.topVector,c2.topVector,t:ratio))
+            
             vc.control.cx = interpolate(c1.cx, c2.cx)
             vc.control.cy = interpolate(c1.cy, c2.cy)
             vc.control.cz = interpolate(c1.cz, c2.cz)
@@ -218,7 +234,7 @@ class MetalVideoRecorder {
             vc.control.tCenterX = interpolate(c1.tCenterX, c2.tCenterX)
             vc.control.tCenterY = interpolate(c1.tCenterY, c2.tCenterY)
             vc.control.tScale = interpolate(c1.tScale, c2.tScale)
-
+            
             videoKeyFramesRatio += 1.0 / Float(framesPerKeyFrame)
             if videoKeyFramesRatio >= 1.0 {
                 videoKeyFramesRatio = 0
@@ -235,23 +251,3 @@ class MetalVideoRecorder {
         return true
     }
 }
-
-func alertPopup(_ str:String) {
-    let alert = NSAlert()
-    alert.messageText = str
-    alert.beginSheetModal(for: vc.view.window!)
-}
-//
-//    {( returnCode: NSApplication.ModalResponse) -> Void in
-//        if returnCode.rawValue == 1001 {
-//            do {
-//                self.determineURL(index)
-//                vc.control.version = versionNumber
-//                let data:NSData = NSData(bytes:&vc.control, length:self.sz)
-//                try data.write(to: self.fileURL, options: .atomic)
-//            } catch {
-//                print(error)
-//            }
-//        }
-//    }
-//}

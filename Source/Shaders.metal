@@ -529,9 +529,12 @@ float DE_POLY_MENGER(float3 p,device Control &control) {
 float DE_GOLD(float3 p,device Control &control) {
     p.xz = mod(p.xz + 1.0, 2.0) - 1.0;
     float4 q = float4(p, 1);
-    for(int i = 0; i < 15; i++) {
-        q.xyz = abs(q.xyz) - float3(control.cx,control.cy,control.cz);
-        q = 2.0*q/clamp(dot(q.xyz, q.xyz), 0.4, 1.0) - float4(1.0, 0.0, 0.6, 0.0);
+    float3 offset1 = float3(control.cx, control.cy, control.cz);
+    float4 offset2 = float4(control.cw, control.dx, control.dy, control.dz);
+
+    for(int n = 0; n < control.maxSteps; ++n) {
+        q.xyz = abs(q.xyz) - offset1;
+        q = 2.0*q/clamp(dot(q.xyz, q.xyz), 0.4, 1.0) - offset2;
     }
     
     return length(q.xyz)/q.w;

@@ -17,9 +17,21 @@ Keyboard commands ----------------------------
 
 1,2 : Change Equation (previous, next)
 3   : Toggle Cross-Eyed Stereo
-4,5 :
-6,7 :
-8,9 : Jog in X,Y,Z (+ 'Shift' = slow, 'Option' = fast,
+
+===============================================
+Jogging the camera, and Rotating the view direction
+
+Use 4,5 for X
+    6,7 for Y
+    8,9 for Z
+Add <shift> for slow jog
+Add <option> for fast jog
+Add <shift + option> for very fast jog
+
+Add <control> to rotate the view direction rather than jog
+(shift & option can be added during rotation to control speed)
+===============================================
+
 0   : Toggle Full Screen
 
 <,> : Adjust window size smaller/larger
@@ -66,5 +78,5 @@ Region of Interest
 
 ----------------------------------------------
 Developers :
-  Read about the 'V','H' and 'X' key commands
+  Read about the 'V', and 'H' key commands
   described at the top of Shaders.metal.
