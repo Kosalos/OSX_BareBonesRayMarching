@@ -245,6 +245,7 @@ class MetalVideoRecorder {
                 if videoKeyFramesIndex == videoKeyFrames.count - 1 {
                     isRecording = false
                     endRecording({ () in })
+                    videoKeyFrames.removeAll() // so 2nd pressing of ']' has no effect
                     return false
                 }
             }
