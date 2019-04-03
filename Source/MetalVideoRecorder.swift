@@ -148,6 +148,8 @@ class MetalVideoRecorder {
     }
     
     func finishRecording() {
+        if videoKeyFrames.count < 2 { return } // 'Cancelled'
+        
         videoKeyFrames.append(vc.control) // stopping recording adds terminating keyframe
         
         isCollectingVideoKeyFrames = false
