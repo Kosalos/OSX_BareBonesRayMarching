@@ -1,7 +1,7 @@
 import Cocoa
 
 var helpIndex:Int = 0
-let helpFilename:[String] = [ "help.txt","help2.txt" ]
+let helpFilename:[String] = [ "help.txt","help2.txt","help3.txt" ]
 
 class HelpViewController: NSViewController {
     
@@ -19,8 +19,9 @@ class HelpViewController: NSViewController {
         }
     }
     
+    // so user can issue commands while viewing the help page
     override func keyDown(with event: NSEvent) {
-        let vlist = [ vc,win3D ]
+        let vlist = [ vc,win3D,videoRecorderWindow ]
         vlist[helpIndex]?.keyDown(with: event)
     }
         

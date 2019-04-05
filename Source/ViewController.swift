@@ -4,11 +4,11 @@ import MetalKit
 
 var vc:ViewController! = nil
 var win3D:NSWindowController! = nil
+var videoRecorderWindow:NSWindowController! = nil
 var controlBuffer:MTLBuffer! = nil
 var coloringTexture:MTLTexture! = nil
 
 var device: MTLDevice! = nil
-var mvr:MetalVideoRecorder! = nil
 
 class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, WidgetDelegate {
     var control = Control()
@@ -32,7 +32,6 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     override func viewDidLoad() {
         super.viewDidLoad()
         vc = self
-        mvr = MetalVideoRecorder()
     }
     
     override func viewDidAppear() {
@@ -98,6 +97,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     /// ensure companion 3D window is also closed
     func windowWillClose(_ aNotification: Notification) {
         if let w = win3D { w.close() }
+        if let v = videoRecorderWindow { v.close() }
     }
     
     // 3D window just closed. reset window handle, reset "3D window active flag", repaint 2D to remove ROI box
@@ -110,7 +110,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     //MARK: -
     
     @objc func timerHandler() {
-        var isDirty:Bool = mvr.isRecording
+        var isDirty:Bool = (vr != nil) && vr.isRecording
         
         if control.skip > 1 && slowRenderCountDown > 0 {
             slowRenderCountDown -= 1
@@ -659,7 +659,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.cx = 7.9931593
             control.cy = 0.35945648
             control.cz = 2.8700645
-            control.cw = -2.713223
+            control.dx = 0.0
+            control.dy = 0.0
             control.fMaxSteps = 4.0
             control.bright = 1.0100001
             control.contrast = 0.36000004
@@ -804,7 +805,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             commandBuffer?.waitUntilCompleted()
         }
         
-        if !mvr.saveVideoFrame(drawable.texture) { displayWidgets() } // false = finished session. repaint instructions
+        if let vr = vr { vr.saveVideoFrame(drawable.texture) }
     }
     
     //MARK: -
@@ -964,8 +965,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             flagViewToRecalcFractal()
         case ",","<" : adjustWindowSize(-1)
         case ".",">" : adjustWindowSize(+1)
-        case "[" : mvr.addKeyFrame()
-        case "]" : mvr.finishRecording()
+        case "[" : launchVideoRecorder()
+        case "]" : if let vr = vr { vr.addKeyFrame() }
         default : break
         }
         
@@ -1010,6 +1011,19 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         }
         
         flagViewToRecalcFractal() // redraw 2D so that ROI rectangle is drawn (or erased)
+    }
+
+    /// toggle display of video recorder window
+    func launchVideoRecorder() {
+        if videoRecorderWindow == nil {
+            let mainStoryboard = NSStoryboard.init(name: NSStoryboard.Name("Main"), bundle: nil)
+            videoRecorderWindow = mainStoryboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier("VideoRecorder")) as? NSWindowController
+            videoRecorderWindow.showWindow(self)
+        }
+        
+        videoRecorderWindow.showWindow(self)
+        
+        vr.addKeyFrame()
     }
     
     /// press 'V' to display control parameter values in console window
@@ -1113,6 +1127,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         
         switch Int(control.equation) {
         case EQU_01_MANDELBULB :
+            control.juliaboxMode = false
             widget.addEntry("Iterations",&control.fMaxSteps,3,30,1)
             widget.addEntry("Power",&control.power,1.5,12,0.02)
             juliaGroup()

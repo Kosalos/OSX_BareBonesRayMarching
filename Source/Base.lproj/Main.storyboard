@@ -94,7 +94,7 @@
             <objects>
                 <viewController id="XfG-lQ-9wD" customClass="ViewController" customModule="OSX_BareBonesRayMarching" customModuleProvider="target" sceneMemberID="viewController">
                     <customView key="view" wantsLayer="YES" id="j26-Xi-ato" customClass="BaseNSView" customModule="OSX_BareBonesRayMarching" customModuleProvider="target">
-                        <rect key="frame" x="0.0" y="0.0" width="361" height="300"/>
+                        <rect key="frame" x="0.0" y="0.0" width="252" height="300"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <customView id="8Wz-X6-zxw" customClass="MetalView" customModule="OSX_BareBonesRayMarching" customModuleProvider="target">
@@ -104,6 +104,10 @@
                             <textField autoresizesSubviews="NO" verticalHuggingPriority="750" textCompletion="NO" id="fCH-5f-ISd">
                                 <rect key="frame" x="18" y="20" width="121" height="88"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <shadow key="shadow" blurRadius="2">
+                                    <size key="offset" width="1" height="-2"/>
+                                    <color key="color" name="windowFrameTextColor" catalog="System" colorSpace="catalog"/>
+                                </shadow>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" enabled="NO" refusesFirstResponder="YES" allowsUndo="NO" sendsActionOnEndEditing="YES" alignment="left" id="4JV-dm-QtW">
                                     <font key="font" metaFont="system" size="14"/>
                                     <color key="textColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -119,7 +123,7 @@
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-4019.5" y="129"/>
+            <point key="canvasLocation" x="-4074" y="129"/>
         </scene>
         <!--SaveLoadVC-->
         <scene sceneID="D49-Yr-lnw">
@@ -399,7 +403,251 @@
                 </viewController>
                 <customObject id="Prn-23-sKX" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-3229.5" y="564"/>
+            <point key="canvasLocation" x="-4327" y="685"/>
+        </scene>
+        <!--VideoRecorder-->
+        <scene sceneID="c9f-gS-onw">
+            <objects>
+                <windowController storyboardIdentifier="VideoRecorder" showSeguePresentationStyle="single" id="SH9-ZH-6R9" userLabel="VideoRecorder" sceneMemberID="viewController">
+                    <window key="window" title="VideoRecorder" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="89R-JT-GBJ">
+                        <windowStyleMask key="styleMask" titled="YES" closable="YES" resizable="YES"/>
+                        <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+                        <rect key="contentRect" x="425" y="461" width="279" height="170"/>
+                        <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
+                        <connections>
+                            <outlet property="delegate" destination="SH9-ZH-6R9" id="xhC-QK-oT5"/>
+                        </connections>
+                    </window>
+                    <connections>
+                        <segue destination="KhK-EP-Yax" kind="relationship" relationship="window.shadowedContentViewController" id="Ueb-DT-viT"/>
+                    </connections>
+                </windowController>
+                <customObject id="0jF-Pc-AM0" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-3204" y="-188"/>
+        </scene>
+        <!--Video Recorder View Controller-->
+        <scene sceneID="FMk-8g-sDL">
+            <objects>
+                <viewController id="KhK-EP-Yax" customClass="VideoRecorderViewController" customModule="OSX_BareBonesRayMarching" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" wantsLayer="YES" id="so4-1s-sTo" customClass="BackgroundView" customModule="OSX_BareBonesRayMarching" customModuleProvider="target">
+                        <rect key="frame" x="0.0" y="0.0" width="373" height="532"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <subviews>
+                            <scrollView autohidesScrollers="YES" horizontalLineScroll="30" horizontalPageScroll="10" verticalLineScroll="30" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="zad-mL-OXY">
+                                <rect key="frame" x="20" y="212" width="127" height="281"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <clipView key="contentView" id="1i8-Ck-Om7">
+                                    <rect key="frame" x="1" y="1" width="125" height="279"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnReordering="NO" columnSelection="YES" columnResizing="NO" multipleSelection="NO" autosaveColumns="NO" rowHeight="30" rowSizeStyle="automatic" viewBased="YES" id="zcJ-xJ-Uh1">
+                                            <rect key="frame" x="0.0" y="0.0" width="125" height="279"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
+                                            <tableColumns>
+                                                <tableColumn width="125" minWidth="40" maxWidth="1000" id="NkM-27-hKq">
+                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border">
+                                                        <font key="font" metaFont="smallSystem"/>
+                                                        <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
+                                                    </tableHeaderCell>
+                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" title="Text Cell" id="oE0-rK-6ot">
+                                                        <font key="font" metaFont="system"/>
+                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                    </textFieldCell>
+                                                    <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                    <prototypeCellViews>
+                                                        <tableCellView id="xpw-n5-vVF">
+                                                            <rect key="frame" x="0.0" y="0.0" width="125" height="30"/>
+                                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                        </tableCellView>
+                                                    </prototypeCellViews>
+                                                </tableColumn>
+                                            </tableColumns>
+                                        </tableView>
+                                    </subviews>
+                                </clipView>
+                                <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="uN6-IY-WMO">
+                                    <rect key="frame" x="1" y="350" width="290" height="15"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </scroller>
+                                <scroller key="verticalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="8o1-Ux-Glg">
+                                    <rect key="frame" x="224" y="17" width="15" height="102"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </scroller>
+                            </scrollView>
+                            <button verticalHuggingPriority="750" id="fYR-Hm-s20">
+                                <rect key="frame" x="14" y="164" width="225" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="push" title="Add Keyframe to end" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cUJ-eT-pOr">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="addKeyframePressed:" target="KhK-EP-Yax" id="cVM-1l-BQc"/>
+                                </connections>
+                            </button>
+                            <button verticalHuggingPriority="750" id="9bk-0u-Yoy">
+                                <rect key="frame" x="14" y="97" width="225" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="push" title="Update Selected Keyframe" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="mkV-tY-muK">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="updateKeyframePressed:" target="KhK-EP-Yax" id="U4g-d1-Vv8"/>
+                                </connections>
+                            </button>
+                            <button verticalHuggingPriority="750" id="Jni-xR-GsF">
+                                <rect key="frame" x="14" y="73" width="225" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="push" title="Delete Selected Keyframe" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Sws-rV-uMq">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="deleteKeyframePressed:" target="KhK-EP-Yax" id="rIe-nE-c0I"/>
+                                </connections>
+                            </button>
+                            <button verticalHuggingPriority="750" id="58X-L3-haD">
+                                <rect key="frame" x="14" y="137" width="225" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="push" title="Insert Above Selected Keyframe" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="CiL-LX-zUw">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="insertKeyframePressed:" target="KhK-EP-Yax" id="RXw-cu-AkQ"/>
+                                </connections>
+                            </button>
+                            <button verticalHuggingPriority="750" id="QMR-np-Wgc">
+                                <rect key="frame" x="149" y="317" width="139" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="push" title="Create Video" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="bam-mu-zzw">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="createVideoPressed:" target="KhK-EP-Yax" id="pH2-Rw-r8q"/>
+                                </connections>
+                            </button>
+                            <button verticalHuggingPriority="750" id="Yv3-Y8-wUy">
+                                <rect key="frame" x="240" y="73" width="119" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="push" title="Reset" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="G0M-qp-KSa">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="resetPressed:" target="KhK-EP-Yax" id="mXu-1a-ZDf"/>
+                                </connections>
+                            </button>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="neM-ha-ivG">
+                                <rect key="frame" x="18" y="501" width="131" height="17"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <textFieldCell key="cell" lineBreakMode="clipping" title="Keyframe List" id="Yfb-tM-fni">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <segmentedControl verticalHuggingPriority="750" id="FpY-ag-NAE">
+                                <rect key="frame" x="153" y="452" width="131" height="24"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <segmentedCell key="cell" borderStyle="border" alignment="left" style="rounded" trackingMode="selectOne" id="rNL-ZG-dGh">
+                                    <font key="font" metaFont="system"/>
+                                    <segments>
+                                        <segment label="20" width="41"/>
+                                        <segment label="50" width="41" selected="YES" tag="1"/>
+                                        <segment label="100" width="41"/>
+                                    </segments>
+                                </segmentedCell>
+                                <connections>
+                                    <action selector="framesPerKeyframeChanged:" target="KhK-EP-Yax" id="F9w-qa-dmy"/>
+                                </connections>
+                            </segmentedControl>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="4bX-YP-eSE">
+                                <rect key="frame" x="153" y="483" width="174" height="17"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <textFieldCell key="cell" lineBreakMode="clipping" title="Video frames per keyframe" id="aFf-eC-qkJ">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <segmentedControl verticalHuggingPriority="750" id="dwH-6J-uDu">
+                                <rect key="frame" x="158" y="396" width="193" height="24"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <segmentedCell key="cell" borderStyle="border" alignment="left" segmentDistribution="fill" style="rounded" trackingMode="selectOne" id="2Pl-wq-Iza">
+                                    <font key="font" metaFont="system"/>
+                                    <segments>
+                                        <segment label="0" width="35"/>
+                                        <segment label="2" width="35" selected="YES" tag="1"/>
+                                        <segment label="5" width="34"/>
+                                        <segment label="10"/>
+                                        <segment label="20"/>
+                                    </segments>
+                                </segmentedCell>
+                                <connections>
+                                    <action selector="smoothingFactorChanged:" target="KhK-EP-Yax" id="7Y1-za-8Ya"/>
+                                </connections>
+                            </segmentedControl>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="dDG-Ck-lLB">
+                                <rect key="frame" x="153" y="427" width="174" height="17"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <textFieldCell key="cell" lineBreakMode="clipping" title="Smoothing Factor" id="7FP-ge-cCF">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="windowFrameTextColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <button verticalHuggingPriority="750" id="Cpd-MC-yJ7">
+                                <rect key="frame" x="153" y="363" width="92" height="18"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="check" title="Ease In/Out" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="vGo-7p-n1n">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="easeInOutChanged:" target="KhK-EP-Yax" id="6m3-sh-j0s"/>
+                                </connections>
+                            </button>
+                            <textField verticalHuggingPriority="750" id="vDB-gl-9eo">
+                                <rect key="frame" x="20" y="11" width="333" height="61"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <textFieldCell key="cell" lineBreakMode="truncatingTail" refusesFirstResponder="YES" sendsActionOnEndEditing="YES" borderStyle="border" drawsBackground="YES" id="sqe-Ia-gLJ">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <button verticalHuggingPriority="750" id="bgN-ji-icr">
+                                <rect key="frame" x="330" y="110" width="25" height="25"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="help" bezelStyle="helpButton" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="OxQ-KA-glU">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="helpPressed:" target="KhK-EP-Yax" id="ixn-xx-yOq"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                    </view>
+                    <connections>
+                        <outlet property="addKeyframe" destination="fYR-Hm-s20" id="5m4-B8-v0p"/>
+                        <outlet property="framesPerKeyframe" destination="FpY-ag-NAE" id="1ES-Yh-XfJ"/>
+                        <outlet property="keyFrameList" destination="zad-mL-OXY" id="Tvd-Jq-hjc"/>
+                        <outlet property="smoothingFactor" destination="dwH-6J-uDu" id="k04-qK-XJL"/>
+                        <outlet property="statusField" destination="vDB-gl-9eo" id="XY6-GT-Bm1"/>
+                    </connections>
+                </viewController>
+                <customObject id="jiV-aq-B5f" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-3167.5" y="245"/>
         </scene>
     </scenes>
 </document>
