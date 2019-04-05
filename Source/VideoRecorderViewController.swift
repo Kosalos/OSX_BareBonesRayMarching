@@ -56,7 +56,7 @@ class VideoRecorderViewController: NSViewController, NSTableViewDataSource, NSTa
             if keyFrames.count > 0 {    // reestablish selected row highlight
                 row = min(row,keyFrames.count-1) // they had just deleted the last entry in the list?
                 tv.selectRowIndexes(IndexSet(integer:row), byExtendingSelection:false)
-                vc.control = keyFrames[row]
+                vc.control = loadKeyframe(row)
                 vc.flagViewToRecalcFractal()
             }
         }
@@ -150,7 +150,7 @@ class VideoRecorderViewController: NSViewController, NSTableViewDataSource, NSTa
     }
     
     func tableView(_ tableView: NSTableView, shouldSelectRow row: Int) -> Bool {
-        vc.control = keyFrames[row]
+        vc.control = loadKeyframe(row)
         vc.flagViewToRecalcFractal()
         return true
     }
@@ -193,14 +193,8 @@ class VideoRecorderViewController: NSViewController, NSTableViewDataSource, NSTa
         frameCount = 0
         keyFramesIndex = 0
         keyFramesRatio = 0
-        
-        // reset parameters to 1st keyframe dataset (except ones we want to inherit from user settings)
-        let temp = vc.control
-        vc.control = keyFrames[0]
-        vc.control.bright = temp.bright
-        vc.control.contrast = temp.contrast
-        vc.control.specular = temp.specular
-        vc.control.colorScheme = temp.colorScheme
+
+        vc.control = loadKeyframe(0)
     }
     
     func endRecording(_ completionHandler: @escaping () -> ()) {
@@ -268,8 +262,8 @@ class VideoRecorderViewController: NSViewController, NSTableViewDataSource, NSTa
         
         deleteFile(fileURL.path)
         
-        startRecording(outputURL:fileURL, size: vc.metalView.bounds.size)
         vc.control.skip = 1
+        startRecording(outputURL:fileURL, size: vc.metalView.bounds.size)
     }
     
     func saveVideoFrame(_ texture:MTLTexture) { // false = finished session, repaint instructions
@@ -280,6 +274,18 @@ class VideoRecorderViewController: NSViewController, NSTableViewDataSource, NSTa
         }
     }
     
+    func loadKeyframe(_ index:Int) -> Control {
+        var temp = keyFrames[index]
+        temp.bright = vc.control.bright
+        temp.contrast = vc.control.contrast
+        temp.specular = vc.control.specular
+        temp.colorScheme = vc.control.colorScheme
+        temp.isStereo = vc.control.isStereo
+        temp.xSize = vc.control.xSize
+        temp.ySize = vc.control.ySize
+        return temp
+    }
+
     func interpolateParameters() {
         if !isRecording { return }
         
@@ -293,8 +299,8 @@ class VideoRecorderViewController: NSViewController, NSTableViewDataSource, NSTa
             return (oldV * (sFactor-1) + newV) / sFactor
         }
         
-        let c1 = keyFrames[keyFramesIndex]
-        let c2 = keyFrames[keyFramesIndex + 1]
+        let c1:Control = loadKeyframe(keyFramesIndex)
+        let c2:Control = loadKeyframe(keyFramesIndex+1)
         
         vc.control.camera = mix(c1.camera,c2.camera,t:ratio)
         vc.control.viewVector = normalize(mix(c1.viewVector,c2.viewVector,t:ratio))
