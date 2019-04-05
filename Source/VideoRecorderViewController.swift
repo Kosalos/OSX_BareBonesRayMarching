@@ -283,6 +283,29 @@ class VideoRecorderViewController: NSViewController, NSTableViewDataSource, NSTa
         temp.isStereo = vc.control.isStereo
         temp.xSize = vc.control.xSize
         temp.ySize = vc.control.ySize
+        temp.fBox_Iterations = vc.control.fBox_Iterations
+        temp.fFinal_Iterations = vc.control.fFinal_Iterations
+        temp.showBalls = vc.control.showBalls
+        temp.doInversion = vc.control.doInversion
+        temp.fourGen = vc.control.fourGen
+        temp.juliaboxMode = vc.control.juliaboxMode
+        temp.msIterations = vc.control.msIterations
+        temp.mbIterations = vc.control.mbIterations
+        temp.AlternateVersion = vc.control.AlternateVersion
+        temp.polygonate = vc.control.polygonate
+        temp.polyhedronate = vc.control.polyhedronate
+        temp.TotallyTubular = vc.control.TotallyTubular
+        temp.Sphere = vc.control.Sphere
+        temp.HoleSphere = vc.control.HoleSphere
+        temp.unSphere = vc.control.unSphere
+        temp.gravity = vc.control.gravity
+        temp.preabsx = vc.control.preabsx
+        temp.preabsy = vc.control.preabsy
+        temp.preabsz = vc.control.preabsz
+        temp.absx = vc.control.absx
+        temp.absy = vc.control.absy
+        temp.absz = vc.control.absz
+        temp.UseDeltaDE = vc.control.UseDeltaDE
         return temp
     }
 
@@ -331,7 +354,7 @@ class VideoRecorderViewController: NSViewController, NSTableViewDataSource, NSTa
         vc.control.Clamp_y = smoothed(vc.control.Clamp_y,interpolate(c1.Clamp_y, c2.Clamp_y))
         vc.control.Clamp_DF = smoothed(vc.control.Clamp_DF,interpolate(c1.Clamp_DF, c2.Clamp_DF))
         vc.control.box_size_z = smoothed(vc.control.box_size_z,interpolate(c1.box_size_z, c2.box_size_z))
-        vc.control.box_size_x = smoothed(vc.control.box_size_z,interpolate(c1.box_size_x, c2.box_size_x))
+        vc.control.box_size_x = smoothed(vc.control.box_size_x,interpolate(c1.box_size_x, c2.box_size_x))
         vc.control.KleinR = smoothed(vc.control.KleinR,interpolate(c1.KleinR, c2.KleinR))
         vc.control.KleinI = smoothed(vc.control.KleinI,interpolate(c1.KleinI, c2.KleinI))
         vc.control.InvCx = smoothed(vc.control.InvCx,interpolate(c1.InvCx, c2.InvCx))
