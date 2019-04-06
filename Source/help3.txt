@@ -7,6 +7,8 @@ except brightness, contrast, specular and color scheme.
 Note: the <Add Keyframe to end> button can be pressed as ']'
 on the main window.
 
+Press '[' to move keyboard focus back to Main window
+
 Video frames per keyframe:
 Affects the duration and smoothness of the video.
 

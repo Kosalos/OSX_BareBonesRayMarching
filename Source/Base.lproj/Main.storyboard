@@ -431,23 +431,23 @@
             <objects>
                 <viewController id="KhK-EP-Yax" customClass="VideoRecorderViewController" customModule="OSX_BareBonesRayMarching" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" wantsLayer="YES" id="so4-1s-sTo" customClass="BackgroundView" customModule="OSX_BareBonesRayMarching" customModuleProvider="target">
-                        <rect key="frame" x="0.0" y="0.0" width="373" height="532"/>
+                        <rect key="frame" x="0.0" y="0.0" width="373" height="552"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <scrollView autohidesScrollers="YES" horizontalLineScroll="30" horizontalPageScroll="10" verticalLineScroll="30" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="zad-mL-OXY">
-                                <rect key="frame" x="20" y="212" width="127" height="281"/>
+                                <rect key="frame" x="20" y="232" width="83" height="263"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <clipView key="contentView" id="1i8-Ck-Om7">
-                                    <rect key="frame" x="1" y="1" width="125" height="279"/>
+                                    <rect key="frame" x="1" y="1" width="81" height="261"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnReordering="NO" columnSelection="YES" columnResizing="NO" multipleSelection="NO" autosaveColumns="NO" rowHeight="30" rowSizeStyle="automatic" viewBased="YES" id="zcJ-xJ-Uh1">
-                                            <rect key="frame" x="0.0" y="0.0" width="125" height="279"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="81" height="261"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                             <tableColumns>
-                                                <tableColumn width="125" minWidth="40" maxWidth="1000" id="NkM-27-hKq">
+                                                <tableColumn width="81" minWidth="40" maxWidth="1000" id="NkM-27-hKq">
                                                     <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -461,7 +461,7 @@
                                                     <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                     <prototypeCellViews>
                                                         <tableCellView id="xpw-n5-vVF">
-                                                            <rect key="frame" x="0.0" y="0.0" width="125" height="30"/>
+                                                            <rect key="frame" x="0.0" y="0.0" width="81" height="30"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         </tableCellView>
                                                     </prototypeCellViews>
@@ -480,7 +480,7 @@
                                 </scroller>
                             </scrollView>
                             <button verticalHuggingPriority="750" id="fYR-Hm-s20">
-                                <rect key="frame" x="14" y="164" width="225" height="32"/>
+                                <rect key="frame" x="14" y="184" width="242" height="32"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="push" title="Add Keyframe to end" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cUJ-eT-pOr">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -491,7 +491,7 @@
                                 </connections>
                             </button>
                             <button verticalHuggingPriority="750" id="9bk-0u-Yoy">
-                                <rect key="frame" x="14" y="97" width="225" height="32"/>
+                                <rect key="frame" x="14" y="117" width="242" height="32"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="push" title="Update Selected Keyframe" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="mkV-tY-muK">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -502,7 +502,7 @@
                                 </connections>
                             </button>
                             <button verticalHuggingPriority="750" id="Jni-xR-GsF">
-                                <rect key="frame" x="14" y="73" width="225" height="32"/>
+                                <rect key="frame" x="14" y="93" width="242" height="32"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="push" title="Delete Selected Keyframe" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Sws-rV-uMq">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -513,7 +513,7 @@
                                 </connections>
                             </button>
                             <button verticalHuggingPriority="750" id="58X-L3-haD">
-                                <rect key="frame" x="14" y="137" width="225" height="32"/>
+                                <rect key="frame" x="14" y="157" width="242" height="32"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="push" title="Insert Above Selected Keyframe" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="CiL-LX-zUw">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -523,19 +523,8 @@
                                     <action selector="insertKeyframePressed:" target="KhK-EP-Yax" id="RXw-cu-AkQ"/>
                                 </connections>
                             </button>
-                            <button verticalHuggingPriority="750" id="QMR-np-Wgc">
-                                <rect key="frame" x="149" y="317" width="139" height="32"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <buttonCell key="cell" type="push" title="Create Video" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="bam-mu-zzw">
-                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                    <font key="font" metaFont="system"/>
-                                </buttonCell>
-                                <connections>
-                                    <action selector="createVideoPressed:" target="KhK-EP-Yax" id="pH2-Rw-r8q"/>
-                                </connections>
-                            </button>
                             <button verticalHuggingPriority="750" id="Yv3-Y8-wUy">
-                                <rect key="frame" x="240" y="73" width="119" height="32"/>
+                                <rect key="frame" x="260" y="93" width="99" height="32"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="push" title="Reset" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="G0M-qp-KSa">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -546,7 +535,7 @@
                                 </connections>
                             </button>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="neM-ha-ivG">
-                                <rect key="frame" x="18" y="501" width="131" height="17"/>
+                                <rect key="frame" x="18" y="501" width="95" height="17"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" title="Keyframe List" id="Yfb-tM-fni">
                                     <font key="font" metaFont="system"/>
@@ -555,7 +544,7 @@
                                 </textFieldCell>
                             </textField>
                             <segmentedControl verticalHuggingPriority="750" id="FpY-ag-NAE">
-                                <rect key="frame" x="153" y="452" width="131" height="24"/>
+                                <rect key="frame" x="123" y="472" width="131" height="24"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <segmentedCell key="cell" borderStyle="border" alignment="left" style="rounded" trackingMode="selectOne" id="rNL-ZG-dGh">
                                     <font key="font" metaFont="system"/>
@@ -570,7 +559,7 @@
                                 </connections>
                             </segmentedControl>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="4bX-YP-eSE">
-                                <rect key="frame" x="153" y="483" width="174" height="17"/>
+                                <rect key="frame" x="123" y="501" width="174" height="17"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" title="Video frames per keyframe" id="aFf-eC-qkJ">
                                     <font key="font" metaFont="system"/>
@@ -579,7 +568,7 @@
                                 </textFieldCell>
                             </textField>
                             <segmentedControl verticalHuggingPriority="750" id="dwH-6J-uDu">
-                                <rect key="frame" x="158" y="396" width="193" height="24"/>
+                                <rect key="frame" x="123" y="409" width="193" height="24"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <segmentedCell key="cell" borderStyle="border" alignment="left" segmentDistribution="fill" style="rounded" trackingMode="selectOne" id="2Pl-wq-Iza">
                                     <font key="font" metaFont="system"/>
@@ -596,7 +585,7 @@
                                 </connections>
                             </segmentedControl>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="dDG-Ck-lLB">
-                                <rect key="frame" x="153" y="427" width="174" height="17"/>
+                                <rect key="frame" x="123" y="435" width="174" height="17"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" title="Smoothing Factor" id="7FP-ge-cCF">
                                     <font key="font" metaFont="system"/>
@@ -605,7 +594,7 @@
                                 </textFieldCell>
                             </textField>
                             <button verticalHuggingPriority="750" id="Cpd-MC-yJ7">
-                                <rect key="frame" x="153" y="363" width="92" height="18"/>
+                                <rect key="frame" x="123" y="362" width="92" height="18"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="check" title="Ease In/Out" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="vGo-7p-n1n">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -616,16 +605,16 @@
                                 </connections>
                             </button>
                             <textField verticalHuggingPriority="750" id="vDB-gl-9eo">
-                                <rect key="frame" x="20" y="11" width="333" height="61"/>
+                                <rect key="frame" x="20" y="11" width="333" height="81"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <textFieldCell key="cell" lineBreakMode="truncatingTail" refusesFirstResponder="YES" sendsActionOnEndEditing="YES" borderStyle="border" drawsBackground="YES" id="sqe-Ia-gLJ">
-                                    <font key="font" metaFont="system"/>
+                                    <font key="font" size="14" name="Courier"/>
                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
                             <button verticalHuggingPriority="750" id="bgN-ji-icr">
-                                <rect key="frame" x="330" y="110" width="25" height="25"/>
+                                <rect key="frame" x="330" y="130" width="25" height="25"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="help" bezelStyle="helpButton" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="OxQ-KA-glU">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -633,6 +622,17 @@
                                 </buttonCell>
                                 <connections>
                                     <action selector="helpPressed:" target="KhK-EP-Yax" id="ixn-xx-yOq"/>
+                                </connections>
+                            </button>
+                            <button verticalHuggingPriority="750" id="QMR-np-Wgc">
+                                <rect key="frame" x="119" y="270" width="147" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="push" title="Create Video" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="bam-mu-zzw">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="createVideoPressed:" target="KhK-EP-Yax" id="pH2-Rw-r8q"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -647,7 +647,7 @@
                 </viewController>
                 <customObject id="jiV-aq-B5f" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-3167.5" y="245"/>
+            <point key="canvasLocation" x="-3167.5" y="255"/>
         </scene>
     </scenes>
 </document>

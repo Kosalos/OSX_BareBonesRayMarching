@@ -16,6 +16,7 @@ class VideoRecorderViewController: NSViewController, NSTableViewDataSource, NSTa
     var sFactor:Float = 2
     var filename:String = ""
     var easeInOutFlag:Bool = true
+    var selectedRow:Int = 0
     
     @IBOutlet var keyFrameList: NSScrollView!
     @IBOutlet var framesPerKeyframe: NSSegmentedControl!
@@ -33,37 +34,42 @@ class VideoRecorderViewController: NSViewController, NSTableViewDataSource, NSTa
     @IBAction func addKeyframePressed(_ sender: NSButton) { addKeyFrame() }
     
     @IBAction func insertKeyframePressed(_ sender: NSButton) {
-        let row = tv.selectedRow
-        if row >= 0 {
-            keyFrames.insert(vc.control, at:row)
+        selectedRow = tv.selectedRow
+        if selectedRow >= 0 {
+            keyFrames.insert(vc.control, at:selectedRow)
             tv.reloadData()
         }
     }
     
     @IBAction func updateKeyframePressed(_ sender: NSButton) {
-        let row = tv.selectedRow
-        if row >= 0 {
-            keyFrames[row] = vc.control
+        selectedRow = tv.selectedRow
+        if selectedRow >= 0 {
+            keyFrames[selectedRow] = vc.control
         }
     }
     
     @IBAction func deleteKeyframePressed(_ sender: NSButton) {
-        var row = tv.selectedRow
-        if row >= 0 {
-            keyFrames.remove(at:row)
+        if selectedRow >= 0 {
+            keyFrames.remove(at:selectedRow)
             tv.reloadData()
             
             if keyFrames.count > 0 {    // reestablish selected row highlight
-                row = min(row,keyFrames.count-1) // they had just deleted the last entry in the list?
-                tv.selectRowIndexes(IndexSet(integer:row), byExtendingSelection:false)
-                vc.control = loadKeyframe(row)
+                selectedRow = min(selectedRow,keyFrames.count-1) // they had just deleted the last entry in the list?
+                tv.selectRowIndexes(IndexSet(integer:selectedRow), byExtendingSelection:false)
+                vc.control = loadKeyframe(selectedRow)
                 vc.flagViewToRecalcFractal()
             }
         }
     }
     
     @IBAction func createVideoPressed(_ sender: NSButton) {
-        if keyFrames.count < 2 { return }
+        if keyFrames.count < 2 {
+            let alert = NSAlert()
+            alert.messageText = "Cannot Continue"
+            alert.informativeText = "You must have at least two keyframes defined."
+            alert.beginSheetModal(for: view.window!) { ( returnCode: NSApplication.ModalResponse) -> Void in () }
+            return
+        }
         
         let t = Date.init(timeIntervalSinceNow: 0)
         filename = t.toTimeStampedFilename("Video","m4v")
@@ -109,9 +115,11 @@ class VideoRecorderViewController: NSViewController, NSTableViewDataSource, NSTa
         tv = keyFrameList.documentView as? NSTableView
         tv.dataSource = self
         tv.delegate = self
+        tv.becomeFirstResponder()
     }
     
     override func viewDidAppear() {
+        view.becomeFirstResponder()
         reset()
     }
     
@@ -129,6 +137,9 @@ class VideoRecorderViewController: NSViewController, NSTableViewDataSource, NSTa
         
         switch event.charactersIgnoringModifiers!.uppercased() {
         case " " : if isRecording { stopRecording() }
+        case "[" :  // move focus back to Main window
+            vc.view.window?.makeMain()
+            vc.view.window?.makeKey()
         default : break
         }
     }
@@ -150,11 +161,12 @@ class VideoRecorderViewController: NSViewController, NSTableViewDataSource, NSTa
     }
     
     func tableView(_ tableView: NSTableView, shouldSelectRow row: Int) -> Bool {
-        vc.control = loadKeyframe(row)
+        selectedRow = row
+        vc.control = loadKeyframe(selectedRow)
         vc.flagViewToRecalcFractal()
         return true
     }
-    
+
     //=======================================================================
     
     private var assetWriter:AVAssetWriter! = nil
@@ -193,7 +205,7 @@ class VideoRecorderViewController: NSViewController, NSTableViewDataSource, NSTa
         frameCount = 0
         keyFramesIndex = 0
         keyFramesRatio = 0
-
+        
         vc.control = loadKeyframe(0)
     }
     
@@ -306,9 +318,10 @@ class VideoRecorderViewController: NSViewController, NSTableViewDataSource, NSTa
         temp.absy = vc.control.absy
         temp.absz = vc.control.absz
         temp.UseDeltaDE = vc.control.UseDeltaDE
+        temp.parallax = vc.control.parallax
         return temp
     }
-
+    
     func interpolateParameters() {
         if !isRecording { return }
         
@@ -393,10 +406,11 @@ class VideoRecorderViewController: NSViewController, NSTableViewDataSource, NSTa
     }
     
     func updateRecordingStatusDisplay() {
-        let fs:String = String(format:"Building Video: %@\nStandby.\nFrame %3d of %3d",
+        let fs:String = String(format:"Building Video: %@\nStandby.\nFrame%3d of %3d, Keyframe%5.2f",
                                filename,
                                frameCount+1,
-                               (framesPerKeyFrame+1) * (keyFrames.count - 1))
+                               (framesPerKeyFrame+1) * (keyFrames.count - 1),
+                               Float(keyFramesIndex+1) + keyFramesRatio)
         statusField.attributedStringValue = NSMutableAttributedString(string:fs)
     }
 }

@@ -1022,8 +1022,6 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         }
         
         videoRecorderWindow.showWindow(self)
-        
-        vr.addKeyFrame()
     }
     
     /// press 'V' to display control parameter values in console window
