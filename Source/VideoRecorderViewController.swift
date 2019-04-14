@@ -286,9 +286,12 @@ class VideoRecorderViewController: NSViewController, NSTableViewDataSource, NSTa
         }
     }
     
+    /// retrieve parameter dataset from keyframe storage.
+    ///
+    /// Certain fields are NOT retreived, but instead maintain the curent user settings (so different recordings can be made from keyframe data)
     func loadKeyframe(_ index:Int) -> Control {
         var temp = keyFrames[index]
-        temp.bright = vc.control.bright
+        temp.bright = vc.control.bright     // all these fields are not overwritten by keyframe data
         temp.contrast = vc.control.contrast
         temp.specular = vc.control.specular
         temp.colorScheme = vc.control.colorScheme
@@ -319,6 +322,11 @@ class VideoRecorderViewController: NSViewController, NSTableViewDataSource, NSTa
         temp.absz = vc.control.absz
         temp.UseDeltaDE = vc.control.UseDeltaDE
         temp.parallax = vc.control.parallax
+        temp.tCenterX = vc.control.tCenterX
+        temp.tCenterY = vc.control.tCenterY
+        temp.tScale = vc.control.tScale
+        temp.txtOnOff = vc.control.txtOnOff
+        temp.txtSize = vc.control.txtSize
         return temp
     }
     
@@ -406,7 +414,7 @@ class VideoRecorderViewController: NSViewController, NSTableViewDataSource, NSTa
     }
     
     func updateRecordingStatusDisplay() {
-        let fs:String = String(format:"Building Video: %@\nStandby.\nFrame%3d of %3d, Keyframe%5.2f",
+        let fs:String = String(format:"Building Video: %@\nStandby.\nFrame %d of %d, Keyframe%5.2f",
                                filename,
                                frameCount+1,
                                (framesPerKeyFrame+1) * (keyFrames.count - 1),

@@ -134,7 +134,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         control.viewVector = normalize(v)
         control.topVector = toSpherical(control.viewVector)
         control.topVector.z += 1.5708
-        control.topVector = toRectangular(control.topVector)
+        control.topVector = normalize(toRectangular(control.topVector))
         control.sideVector = cross(control.viewVector,control.topVector)
         control.sideVector = normalize(control.sideVector) * length(control.topVector)
     }
@@ -771,6 +771,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         default : break
         }
         
+        if let vr = vr { if vr.isRecording { c.skip = 1 }}  // editing params while recording was causing 'blocky fast renders' to be recorded
+        
         controlBuffer.contents().copyMemory(from:&c, byteCount:MemoryLayout<Control>.stride)
         
         let start = NSDate()
@@ -961,7 +963,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             toggle2()
         case "G" :
             control.colorScheme += 1
-            if control.colorScheme > 4 { control.colorScheme = 0 }
+            if control.colorScheme > 5 { control.colorScheme = 0 }
             flagViewToRecalcFractal()
         case ",","<" : adjustWindowSize(-1)
         case ".",">" : adjustWindowSize(+1)

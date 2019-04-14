@@ -2131,6 +2131,8 @@ kernel void rayMarchShader
         }
     }
     
+    // drawing high resolution 2D window, and companion 3D window is active : draw white colored Region of Interest rectangle on 2D window
+    // here we determine whether the current pixel lies on the ROI rectangle. If so, draw white pixel and exit.
     if(c.skip == 1 && c.win3DFlag > 0 && c.win3DDirty) {  // draw 3D bounding box
         bool mark = false;
         if((q.x == c.xmin3D-1 || q.x == c.xmin3D) && q.y >= c.ymin3D && q.y <= c.ymax3D) mark = true; else
@@ -2160,8 +2162,8 @@ kernel void rayMarchShader
         if(c.txtOnOff) {
             float scale = c.tScale * 4;
             float len = length(position) / dist.x;
-            float x = normal.x * len;
-            float y = normal.z * len;
+            float x = normal.x / len;
+            float y = normal.z / len;
             float w = c.txtSize.x;
             float h = c.txtSize.y;
             float xx = w + (c.tCenterX * 4 + x * scale) * (w + len);
@@ -2193,6 +2195,14 @@ kernel void rayMarchShader
                 color += abs(normal) * dist.y * 0.01;
                 color += hsv2rgb(color.yzx);
                 break;
+            case 5 :
+            {
+                float3 nn = normal;
+                nn.x += nn.z;
+                nn.y += nn.z;
+                color += hsv2rgb( normalize(0.5 - nn));
+            }
+                break;
         }
         
         float3 light = getBlinnShading(normal, direction, c.nlight, c);
@@ -2223,7 +2233,7 @@ kernel void rayMarchShader
         outTexture.write(float4(color.xyz,1),p);
 
         // update vData[] for 3D window -----------------
-        if(c.win3DDirty && c.skip == 1) {
+        if(c.win3DDirty) {
             if(p.x >= c.xmin3D && p.x < c.xmax3D && p.y >= c.ymin3D && p.y < c.ymax3D) {
                 int x = int(p.x - c.xmin3D) * int(SIZE3D) / int(c.xSize3D);
                 int y = int(p.y - c.ymin3D) * int(SIZE3D) / int(c.ySize3D);
