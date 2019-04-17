@@ -113,6 +113,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     @objc func timerHandler() {
         var isDirty:Bool = (vr != nil) && vr.isRecording
         
+        if performJog() { isDirty = true }
+        
         if control.skip > 1 && slowRenderCountDown > 0 {
             slowRenderCountDown -= 1
             if slowRenderCountDown == 0 {
@@ -909,12 +911,12 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             adjustWindowSizeForStereo()
             defineWidgetsForCurrentEquation()
             flagViewToRecalcFractal()
-        case "4","$" : jogCameraAndFocusPosition(float3(-1,0,0))
-        case "5","%" : jogCameraAndFocusPosition(float3(+1,0,0))
-        case "6","^" : jogCameraAndFocusPosition(float3(0,-1,0))
-        case "7","&" : jogCameraAndFocusPosition(float3(0,+1,0))
-        case "8","*" : jogCameraAndFocusPosition(float3(0,0,-1))
-        case "9","(" : jogCameraAndFocusPosition(float3(0,0,+1))
+        case "4","$" : jogCameraAndFocusPosition(-1,0,0)
+        case "5","%" : jogCameraAndFocusPosition(+1,0,0)
+        case "6","^" : jogCameraAndFocusPosition(0,-1,0)
+        case "7","&" : jogCameraAndFocusPosition(0,+1,0)
+        case "8","*" : jogCameraAndFocusPosition(0,0,-1)
+        case "9","(" : jogCameraAndFocusPosition(0,0,+1)
         case "?","/" : fastRenderEnabled = !fastRenderEnabled
             
         case "B" : control.showBalls = !control.showBalls; toggle2()
@@ -978,23 +980,49 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         if widget.keyPress(event) { setShaderToFastRender() }
     }
     
+    override func keyUp(with event: NSEvent) {
+        super.keyUp(with: event)
+
+        switch event.charactersIgnoringModifiers!.uppercased() {
+        case "4","$","5","%" : jogRelease(1,0,0)
+        case "6","^","7","&" : jogRelease(0,1,0)
+        case "8","*","9","(" : jogRelease(0,0,1)
+        default : break
+        }
+    }
+    
     /// update 2D fractal camera position
-    func jogCameraAndFocusPosition(_ direction:float3) {
-        let amount:float3 = direction * alterationSpeed * 0.01
+    
+    var jogAmount:float3 = float3()
+    
+    func jogCameraAndFocusPosition(_ dx:Int, _ dy:Int, _ dz:Int) {
+        if dx != 0 { jogAmount.x = Float(dx) * alterationSpeed * 0.01 }
+        if dy != 0 { jogAmount.y = Float(dy) * alterationSpeed * 0.01 }
+        if dz != 0 { jogAmount.z = Float(dz) * alterationSpeed * 0.01 }
+    }
+    
+    func jogRelease(_ dx:Int, _ dy:Int, _ dz:Int) {
+        if dx != 0 { jogAmount.x = 0 }
+        if dy != 0 { jogAmount.y = 0 }
+        if dz != 0 { jogAmount.z = 0 }
+    }
+
+    func performJog() -> Bool {
+        if jogAmount.x == 0 && jogAmount.y == 0 && jogAmount.z == 0 { return false}
         
         if ctrlKeyDown {
-            updateShaderDirectionVector(control.viewVector + amount)
+            updateShaderDirectionVector(control.viewVector + jogAmount)
         }
         else {
-            control.camera += amount.x * control.sideVector
-            control.camera += amount.y * control.topVector
-            control.camera += amount.z * control.viewVector
+            control.camera += jogAmount.x * control.sideVector
+            control.camera += jogAmount.y * control.topVector
+            control.camera += jogAmount.z * control.viewVector
         }
         
         setShaderToFastRender()
-        flagViewToRecalcFractal()
+        return true
     }
-    
+
     /// toggle display of companion 3D window
     func toggleDisplayOfCompanion3DView() {
         control.win3DFlag = control.win3DFlag > 0 ? 0 : 1

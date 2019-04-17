@@ -2051,7 +2051,7 @@ float3 shortest_dist(float3 eye, float3 marchingDirection,device Control &contro
         if(ans.x >= MAX_DIST) break;
         
         // don't let average distance be driven into the dirt
-        if(dist >= 0.0001) hop = (hop + dist * 15)/16;
+        if(dist >= 0.0001) hop = mix(hop,dist,0.95);
     }
     
     ans.y = float(i);
