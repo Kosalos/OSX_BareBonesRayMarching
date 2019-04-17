@@ -70,6 +70,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         control.skip = 1            // "fast render" defaults to 'not active'
         control.isStereo = false
         control.parallax = 0.003
+        control.colorParam = 1
         
         reset()
         ensureWindowSizeIsNotTooSmall()
@@ -176,6 +177,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         control.specular = 0
         control.angle1 = 0
         control.angle2 = 0
+        control.colorParam = 25000
         
         switch Int(control.equation) {
         case EQU_01_MANDELBULB :
@@ -963,7 +965,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             toggle2()
         case "G" :
             control.colorScheme += 1
-            if control.colorScheme > 5 { control.colorScheme = 0 }
+            if control.colorScheme > 7 { control.colorScheme = 0 }
+            defineWidgetsForCurrentEquation()
             flagViewToRecalcFractal()
         case ",","<" : adjustWindowSize(-1)
         case ".",">" : adjustWindowSize(+1)
@@ -1058,7 +1061,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         print("control.bright =",control.bright)
         print("control.contrast =",control.contrast)
         print("control.specular =",control.specular)
-        
+        print("control.colorParam =",control.colorParam)
+
         print("updateShaderDirectionVector(",control.viewVector.debugDescription,")")
     }
     
@@ -1114,7 +1118,12 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         widget.reset()
         
         if control.isStereo { widget.addEntry("Parallax",&control.parallax,0.001,1,0.01) }
-        widget.addEntry("Bright",&control.bright,0.01,10,0.1)
+        widget.addEntry("Bright",&control.bright,0.01,10,0.02)
+
+        if control.colorScheme == 6 || control.colorScheme == 7 {
+            widget.addEntry("Color Boost",&control.colorParam,1,1200000,200)
+        }
+        
         widget.addEntry("Contrast",&control.contrast,0.1,0.7,0.02)
         widget.addEntry("Specular",&control.specular,0,2,0.1)
         widget.addEntry("Light Position",&lightAngle,-3,3,0.3)
@@ -1639,23 +1648,29 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     //MARK: -
     
     /// store just loaded .png picture to texture
-    func loadTexture(from image: NSImage) -> MTLTexture {
+    func loadTexture(from image: NSImage) -> MTLTexture? {
         let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil)!
         
         let textureLoader = MTKTextureLoader(device: device)
+        var textureOut:MTLTexture! = nil
+        
         do {
-            let textureOut = try textureLoader.newTexture(cgImage:cgImage)
+            textureOut = try textureLoader.newTexture(cgImage:cgImage)
             
             control.txtSize.x = Float(cgImage.width)
             control.txtSize.y = Float(cgImage.height)
             control.tCenterX = 0.5
             control.tCenterY = 0.5
             control.tScale = 0.5
-            return textureOut
         }
         catch {
-            fatalError("Can't load texture")
+            let alert = NSAlert()
+            alert.messageText = "Cannot Continue"
+            alert.informativeText = "Error while trying to load this texture."
+            alert.beginSheetModal(for: view.window!) { ( returnCode: NSApplication.ModalResponse) -> Void in () }
         }
+        
+        return textureOut
     }
     
     /// launch file open dialog for picking .png picture for texturing
@@ -1676,7 +1691,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
                 
                 if let image:NSImage = NSImage(contentsOfFile: selectedPath) {
                     coloringTexture = self.loadTexture(from: image)
-                    self.control.txtOnOff = true
+                    self.control.txtOnOff = coloringTexture != nil
                 }
             }
             

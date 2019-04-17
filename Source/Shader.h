@@ -124,6 +124,7 @@ struct Control {
     int colorScheme;
     bool isStereo;
     float parallax;
+    float colorParam;
 };
 
 // 3D window ---------------------------------

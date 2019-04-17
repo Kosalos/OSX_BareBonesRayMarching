@@ -2036,11 +2036,11 @@ float DE(float3 pos,device Control &control) {
 }
 
 //MARK: -
-// x = distance, y = iteration count
+// x = distance, y = iteration count, z = average distance hop
 
-float2 shortest_dist(float3 eye, float3 marchingDirection,device Control &control) {
-    float dist;
-    float2 ans = float2(MIN_DIST,0);
+float3 shortest_dist(float3 eye, float3 marchingDirection,device Control &control) {
+    float dist,hop = 0;
+    float3 ans = float3(MIN_DIST,0,0);
     int i = 0;
     
     for(; i < MAX_MARCHING_STEPS; ++i) {
@@ -2049,9 +2049,13 @@ float2 shortest_dist(float3 eye, float3 marchingDirection,device Control &contro
 
         ans.x += dist;
         if(ans.x >= MAX_DIST) break;
+        
+        // don't let average distance be driven into the dirt
+        if(dist >= 0.0001) hop = (hop + dist * 15)/16;
     }
     
     ans.y = float(i);
+    ans.z = hop;
     return ans;
 }
 
@@ -2152,7 +2156,7 @@ kernel void rayMarchShader
     float dx =  1.5 * (float(q.x)/den - 0.5);
     float dy = -1.5 * (float(q.y)/den - 0.5);
     float3 direction = normalize((c.sideVector * dx) + (c.topVector * dy) + c.viewVector);
-    float2 dist = shortest_dist(camera,direction,c);
+    float3 dist = shortest_dist(camera,direction,c);
     
     if (dist.x <= MAX_DIST - 0.0001) {
         float3 position = camera + dist.x * direction;
@@ -2201,6 +2205,22 @@ kernel void rayMarchShader
                 nn.x += nn.z;
                 nn.y += nn.z;
                 color += hsv2rgb( normalize(0.5 - nn));
+            }
+                break;
+            case 6 :
+            {
+                float escape = dist.z * c.colorParam;
+                float co = dist.y * 0.3 - log(log(length(position))/log(escape))/log(3.);
+                co = sqrt(co) / 3;
+                color += float3(.5 + cos(co + float3(0,0.3,0.4)) ); // blue,magenta,yellow
+            }
+                break;
+            case 7 :
+            {
+                float escape = dist.z * c.colorParam;
+                float co = dist.y - log(log(length(position))/log(escape))/log(3.);
+                co = sqrt(co / 3);
+                color += float3(.5 + sin(co) * 8);
             }
                 break;
         }

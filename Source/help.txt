@@ -39,6 +39,8 @@ Add <control> to rotate the view direction rather than jog
 ?,/ : Toggle Fast Rendering
       (rendering is fast/blurry while keys are held down)
 G   : Cycle through the coloring schemes
+      note: certain color schemes have a widget entry called 'Color Boost'
+      you'll need to fiddle with this parameter as well as Brightness for best results.
 P   : Load Picture for texturing
       launches picture selection dialog.
       When active additional widgets alter which
