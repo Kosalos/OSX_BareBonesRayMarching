@@ -48,11 +48,11 @@
 //    To fit the pattern of the other fractals, this routine should accept a
 //    float3 position, and output a float distance.
 // 2. Add a new entry to the fractal ID list at the top of shader.h
-//    If your new fractal is named pos.o, I would give it the ID "EQU_42_pos.O"
+//    If your new fractal is named fooBar, I would give it the ID "EQU_42_fooBar"
 //    (or whatever # is next in line)
 // 3. Add the fractal's name to the end of the titleString[] array (viewcontroller, ~line #129)
 // 4. Add the fractal ID to the compute shader's switch statement. (this file, ~line #1617)
-//    Have it call your new DE routine (example: DE_pos.O(pos,control) )
+//    Have it call your new DE routine (example: DE_fooBar(pos,control) )
 // 5. Add your DE routine to Shaders.metal (this file)
 // 6. Refactor your DE routine as necessary:
 //    a. To matchup with the other routines, your input position variable should be called 'pos'
@@ -98,7 +98,7 @@
 //       Ensure your widget definitions encompass the values the random routine found.
 //       For example, perhaps you used "widget.addEntry("Box",&control.cx, 0,10,0.01)"
 //       which restricts cx to 0 ... 10,  yet your new default setting has cx = -3.
-//       Update your widget defintions as necessary so that when we re-run the program,
+//       Update your widget definitions as necessary so that when we re-run the program,
 //       you can begin to manually edit each parameter to find a good rendering.
 //    5. Every time you make progress in getting a better rendering, repeat step 3 so
 //       that your default settings capture your progress.
@@ -125,13 +125,6 @@
 // also note how booleanEntry() is used to add a toggle instruction "K: Alternate Version"
 // That "K" keypress is handled in Viewcontroller's keyDown() routine, line #649.
 //
-// I don't know enough math to correctly add the ability to 'drive around' the fractal, so
-// for now there is limited panning. Hopefully someone can provide the needed code!
-// Anyhow, some fractals, such as the MandelBulb, are best viewed from the side.
-// Press 'X' to toggle to "changingViewVector" mode.  Now the 4,5; 6,7; 8,9; keys alter
-// the view vector rather than the camera.  Combine spinning the viewVector with moving the camera
-// until the fractal is finally positioned to the best view.
-// Then added the updateShaderDirectionVector() settings to your reset() dataset.
 // good luck
 //------------------------------------------------------------
 
@@ -2112,13 +2105,33 @@ kernel void rayMarchShader
  uint2 p [[thread_position_in_grid]]
  )
 {
-    if(p.x >= uint(c.xSize)) return; // screen size not evenly divisible by threadGroups
-    if(p.y >= uint(c.ySize)) return;
-    if(c.skip > 1 && ((p.x % c.skip) != 0 || (p.y % c.skip) != 0)) return;
-
+    uint2 srcP = p; // copy of pixel coordinate, altered during radial symmetry
+    if(srcP.x >= uint(c.xSize)) return; // screen size not evenly divisible by threadGroups
+    if(srcP.y >= uint(c.ySize)) return;
+    if(c.skip > 1 && ((srcP.x % c.skip) != 0 || (srcP.y % c.skip) != 0)) return;
+    
+    // apply radial symmetry? ---------
+    if(c.radialAngle > 0.01) { // 0 = don't apply
+        float centerX = c.xSize/2;
+        float centerY = c.ySize/2;
+        float dx = float(p.x - centerX);
+        float dy = float(p.y - centerY);
+        
+        float angle = fabs(atan2(dy,dx));
+        
+        float dRatio = 0.01 + c.radialAngle;
+        while(angle > dRatio) angle -= dRatio;
+        if(angle > dRatio/2) angle = dRatio - angle;
+        
+        float dist = sqrt(dx * dx + dy * dy);
+        
+        srcP.x = uint(centerX + cos(angle) * dist);
+        srcP.y = uint(centerY + sin(angle) * dist);
+    }
+    
     float3 color = float3();
 
-    uint2 q = p;                    // copy of current pixel coordinate; x is altered for stereo
+    uint2 q = srcP;                 // copy of current pixel coordinate; x is altered for stereo
     unsigned int xsize = c.xSize;   // copy of current window size; x is altered for stereo
     float3 camera = c.camera;       // copy of camera position; x is altered for stereo
     
@@ -2126,7 +2139,7 @@ kernel void rayMarchShader
         xsize /= 2;                 // window x size adjusted for 2 views side by side
         float3 offset = c.sideVector * c.parallax;
 
-        if(p.x >= xsize) {      // right side of stereo pair?
+        if(srcP.x >= xsize) {   // right side of stereo pair?
             q.x -= xsize;       // base 0  X coordinate
             camera -= offset;   // adjust for right side parallax
         }
@@ -2139,11 +2152,11 @@ kernel void rayMarchShader
     // here we determine whether the current pixel lies on the ROI rectangle. If so, draw white pixel and exit.
     if(c.skip == 1 && c.win3DFlag > 0 && c.win3DDirty) {  // draw 3D bounding box
         bool mark = false;
-        if((q.x == c.xmin3D-1 || q.x == c.xmin3D) && q.y >= c.ymin3D && q.y <= c.ymax3D) mark = true; else
-        if((q.x == c.xmax3D+1 || q.x == c.xmax3D) && q.y >= c.ymin3D && q.y <= c.ymax3D) mark = true;
+        if((p.x == c.xmin3D-1 || p.x == c.xmin3D) && p.y >= c.ymin3D && p.y <= c.ymax3D) mark = true; else
+        if((p.x == c.xmax3D+1 || p.x == c.xmax3D) && p.y >= c.ymin3D && p.y <= c.ymax3D) mark = true;
         if(!mark) {
-            if((q.y == c.ymin3D-1 || q.y == c.ymin3D) && q.x >= c.xmin3D && q.x <= c.xmax3D) mark = true; else
-            if((q.y == c.ymax3D+1 || q.y == c.ymax3D) && q.x >= c.xmin3D && q.x <= c.xmax3D) mark = true;
+            if((p.y == c.ymin3D-1 || p.y == c.ymin3D) && p.x >= c.xmin3D && p.x <= c.xmax3D) mark = true; else
+            if((p.y == c.ymax3D+1 || p.y == c.ymax3D) && p.x >= c.xmin3D && p.x <= c.xmax3D) mark = true;
         }
         
         if(mark) {
@@ -2274,7 +2287,6 @@ kernel void rayMarchShader
             }
         }
     }
-
 }
 
 /////////////////////////////////////////////////////////////////////////

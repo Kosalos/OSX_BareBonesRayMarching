@@ -170,8 +170,10 @@ class Win3DViewController: NSViewController, NSWindowDelegate, WidgetDelegate {
     }
     
     func showHelpDialog() {
-        helpIndex = 1
-        presentPopover("HelpVC")
+        if !isHelpVisible {
+            helpIndex = 1
+            presentPopover("HelpVC")
+        }
     }
     
     func presentPopover(_ name:String) {

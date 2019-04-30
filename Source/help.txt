@@ -65,6 +65,12 @@ When 3D window is active :
 Click/Drag with left mouse button to define the 3D Window
 Region of Interest
 
+Radial Symmetry ------------------------------
+
+When value is zero (set to lowest value), the image renders as normal.
+When active (non-zero, specifying pie wedge size in radians),
+a pie slice shapged region of the image is repeated to form a mandala.
+
 ----------------------------------------------
 Developers :
   Read about the 'V', and 'H' key commands

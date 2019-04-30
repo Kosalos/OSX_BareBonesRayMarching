@@ -180,6 +180,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         control.angle1 = 0
         control.angle2 = 0
         control.colorParam = 25000
+        control.radialAngle = 0
         
         switch Int(control.equation) {
         case EQU_01_MANDELBULB :
@@ -877,8 +878,10 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             presentPopover("SaveLoadVC")
             return
         case 116 : // page up
-            helpIndex = 0
-            presentPopover("HelpVC")
+            if !isHelpVisible {
+                helpIndex = 0
+                presentPopover("HelpVC")
+            }
             return
         case 119 : // end
             let s = SaveLoadViewController()
@@ -1040,7 +1043,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             win3D.showWindow(self)
         }
         else {
-            win3D.close()
+            win3D?.close()
         }
         
         flagViewToRecalcFractal() // redraw 2D so that ROI rectangle is drawn (or erased)
@@ -1155,6 +1158,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         widget.addEntry("Contrast",&control.contrast,0.1,0.7,0.02)
         widget.addEntry("Specular",&control.specular,0,2,0.1)
         widget.addEntry("Light Position",&lightAngle,-3,3,0.3)
+
+        widget.addEntry("Radial Symmetry",&control.radialAngle,0,Float.pi,0.03)
         
         if control.txtOnOff {
             widget.addEntry("Texture Center X",&control.tCenterX,0.01,1,0.02)

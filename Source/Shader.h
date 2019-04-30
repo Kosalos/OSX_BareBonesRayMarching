@@ -125,6 +125,7 @@ struct Control {
     bool isStereo;
     float parallax;
     float colorParam;
+    float radialAngle;
 };
 
 // 3D window ---------------------------------
