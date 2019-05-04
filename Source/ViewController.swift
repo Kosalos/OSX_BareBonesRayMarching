@@ -165,6 +165,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     
     /// reset widget focus index, update window title, recalc fractal.  Called after Load and LoadNext
     func controlJustLoaded() {
+        defineWidgetsForCurrentEquation()
         widget.focus = 0
         updateWindowTitle()
         flagViewToRecalcFractal()
@@ -195,6 +196,18 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.bend = 0.0202780124
             control.multiplier = 25
             control.fMaxSteps = 8
+            
+            if control.doInversion {
+                control.camera = float3(-4.4953876, -6.3138175, -29.144863)
+                updateShaderDirectionVector(float3(0.0, 0.09950372, 0.9950372))
+                control.foam =  1.0326525
+                control.foam2 =  0.9399999
+                control.bend =  0.01
+                control.InvCx = 0.56
+                control.InvCy = 0.34
+                control.InvCz = 0.46000004
+                control.InvRadius = 2.7199993
+            }
         case EQU_04_KLEINIAN :
             control.camera = float3(0.5586236, 1.1723881, -1.8257363)
             control.fMaxSteps = 70
@@ -704,7 +717,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         c.Box_Iterations = Int32(control.fBox_Iterations)
         
         switch Int(control.equation) {
-        case EQU_04_KLEINIAN :
+        case EQU_04_KLEINIAN, EQU_02_APOLLONIAN, EQU_03_APOLLONIAN2 :
             c.Final_Iterations = Int32(control.fFinal_Iterations)
             c.InvCenter = float3(c.InvCx, c.InvCy, c.InvCz)
         case EQU_07_MONSTER :
@@ -864,6 +877,13 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     override func keyDown(with event: NSEvent) {
         func toggle2() {
             defineWidgetsForCurrentEquation()
+            
+            switch Int(control.equation) {
+            case EQU_02_APOLLONIAN, EQU_03_APOLLONIAN2 :
+                reset()
+            default : break
+            }
+
             flagViewToRecalcFractal()
         }
 
@@ -1062,49 +1082,48 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     /// press 'V' to display control parameter values in console window
     func displayControlParametersInConsoleWindow() {
         print("camera =",control.camera.debugDescription)
-        print("direction =",control.viewVector.debugDescription)
-        print("KleinR =",control.KleinR)
-        print("KleinI =",control.KleinI)
-        print("Box iterations = ",control.fBox_Iterations)
-        print("Final iterations = ",control.fFinal_Iterations)
-        print("InvCenter = ",control.InvCenter.debugDescription)
+        print("viewVector = ",control.viewVector.debugDescription)
+        print("topVector = ",control.topVector.debugDescription)
+        print("sideVector = ",control.sideVector.debugDescription)
+        print("multiplier = ",control.multiplier)
+        print("foam = ",control.foam)
+        print("foam2 = ",control.foam2)
+        print("bend = ",control.bend)
+        print("InvCenter = ",control.InvCx,",",control.InvCy,",",control.InvCz)
         print("InvRadius = ",control.InvRadius)
-        print("Box size X = ",control.box_size_x)
-        print("Box size Z = ",control.box_size_z)
-        print("  ")
-//        print("control.camera =",control.camera.debugDescription)
-//        print("control.cx =",control.cx)
-//        print("control.cy =",control.cy)
-//        print("control.cz =",control.cz)
-//        print("control.cw =",control.cw)
-//        print("control.dx =",control.dx)
-//        print("control.dy =",control.dy)
-//        print("control.dz =",control.dz)
-//        print("control.dw =",control.dw)
-//        print("control.ex =",control.ex)
-//        print("control.ey =",control.ey)
-//        print("control.ez =",control.ez)
-//        print("control.ew =",control.ew)
-//        print("control.fx =",control.fx)
-//        print("control.fy =",control.fy)
-//        print("control.fz =",control.fz)
-//        print("control.fw =",control.fw)
-//        
-//        print("control.fMaxSteps =",control.fMaxSteps)
-//        
-//        print("control.angle1 =",control.angle1)
-//        print("control.angle2 =",control.angle2)
-//        print("control.juliaX = ",control.juliaX)
-//        print("control.juliaY = ",control.juliaY)
-//        print("control.juliaZ = ",control.juliaZ)
-//        print("control.power =",control.power)
-//        
-//        print("control.bright =",control.bright)
-//        print("control.contrast =",control.contrast)
-//        print("control.specular =",control.specular)
-//        print("control.colorParam =",control.colorParam)
-//
-//        print("updateShaderDirectionVector(",control.viewVector.debugDescription,")")
+        print(" ")
+        print("control.cx =",control.cx)
+        print("control.cy =",control.cy)
+        print("control.cz =",control.cz)
+        print("control.cw =",control.cw)
+        print("control.dx =",control.dx)
+        print("control.dy =",control.dy)
+        print("control.dz =",control.dz)
+        print("control.dw =",control.dw)
+        print("control.ex =",control.ex)
+        print("control.ey =",control.ey)
+        print("control.ez =",control.ez)
+        print("control.ew =",control.ew)
+        print("control.fx =",control.fx)
+        print("control.fy =",control.fy)
+        print("control.fz =",control.fz)
+        print("control.fw =",control.fw)
+        
+        print("control.fMaxSteps =",control.fMaxSteps)
+        
+        print("control.angle1 =",control.angle1)
+        print("control.angle2 =",control.angle2)
+        print("control.juliaX = ",control.juliaX)
+        print("control.juliaY = ",control.juliaY)
+        print("control.juliaZ = ",control.juliaZ)
+        print("control.power =",control.power)
+        
+        print("control.bright =",control.bright)
+        print("control.contrast =",control.contrast)
+        print("control.specular =",control.specular)
+        print("control.colorParam =",control.colorParam)
+
+        print("updateShaderDirectionVector(",control.viewVector.debugDescription,")")
     }
     
     /// press 'H" to set control parameters to random values
@@ -1156,6 +1175,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             }
         }
         
+        func inversionGroup() {
+            if control.doInversion {
+                widget.addEntry("InvCenter X",&control.InvCx,0,1.5,0.02)
+                widget.addEntry("InvCenter Y",&control.InvCy,0,1.5,0.02)
+                widget.addEntry("InvCenter Z",&control.InvCz,0,1.5,0.02)
+                widget.addEntry("Inv Radius",&control.InvRadius, 0.01,4,0.01)
+                widget.addEntry("Delta Angle",&control.DeltaAngle, 0.1,10,0.004)
+            }
+        }
+        
         widget.reset()
         
         if control.isStereo { widget.addEntry("Parallax",&control.parallax,0.001,1,0.01) }
@@ -1190,6 +1219,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             widget.addEntry("Foam",&control.foam,0.1,3,0.02)
             widget.addEntry("Foam2",&control.foam2,0.1,3,0.02)
             widget.addEntry("Bend",&control.bend,0.01,0.03,0.0001)
+            inversionGroup()
         case EQU_04_KLEINIAN :
             widget.addEntry("Final Iterations",&control.fFinal_Iterations, 1,39,1)
             widget.addEntry("Box Iterations",&control.fBox_Iterations,1,10,1)
@@ -1197,17 +1227,9 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             widget.addEntry("Box Size Z",&control.box_size_z, 0.01,2,0.006)
             widget.addEntry("Klein R",&control.KleinR, 0.01,2.5,0.005)
             widget.addEntry("Klein I",&control.KleinI, 0.01,2.5,0.005)
-            
-            if control.doInversion {
-                widget.addEntry("InvCenter X",&control.InvCx,0,1.5,0.02)
-                widget.addEntry("InvCenter Y",&control.InvCy,0,1.5,0.02)
-                widget.addEntry("InvCenter Z",&control.InvCz,0,1.5,0.02)
-                widget.addEntry("Inv Radius",&control.InvRadius, 0.01,4,0.01)
-            }
-            
-            widget.addEntry("Delta Angle",&control.DeltaAngle, 0.1,10,0.004)
             widget.addEntry("Clamp Y",&control.Clamp_y, 0.001,2,0.01)
             widget.addEntry("Clamp DF",&control.Clamp_DF, 0.001,2,0.03)
+            inversionGroup()
         case EQU_05_MANDELBOX :
             widget.addEntry("Iterations",&control.fMaxSteps,3,60,1)
             widget.addEntry("Scale Factor",&control.power,0.6,10,0.02)
@@ -1557,6 +1579,9 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         case EQU_04_KLEINIAN :
             booleanEntry(control.showBalls,"B: ShowBalls")
             booleanEntry(control.fourGen,"F: FourGen")
+            booleanEntry(control.doInversion,"I: Do Inversion")
+            str.normal("")
+        case EQU_02_APOLLONIAN, EQU_03_APOLLONIAN2 :
             booleanEntry(control.doInversion,"I: Do Inversion")
             str.normal("")
         case EQU_30_KALIBOX, EQU_37_SPIRALBOX :
