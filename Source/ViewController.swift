@@ -165,7 +165,6 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     
     /// reset widget focus index, update window title, recalc fractal.  Called after Load and LoadNext
     func controlJustLoaded() {
-        reset()
         widget.focus = 0
         updateWindowTitle()
         flagViewToRecalcFractal()
@@ -1062,39 +1061,50 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     
     /// press 'V' to display control parameter values in console window
     func displayControlParametersInConsoleWindow() {
-        print("control.camera =",control.camera.debugDescription)
-        print("control.cx =",control.cx)
-        print("control.cy =",control.cy)
-        print("control.cz =",control.cz)
-        print("control.cw =",control.cw)
-        print("control.dx =",control.dx)
-        print("control.dy =",control.dy)
-        print("control.dz =",control.dz)
-        print("control.dw =",control.dw)
-        print("control.ex =",control.ex)
-        print("control.ey =",control.ey)
-        print("control.ez =",control.ez)
-        print("control.ew =",control.ew)
-        print("control.fx =",control.fx)
-        print("control.fy =",control.fy)
-        print("control.fz =",control.fz)
-        print("control.fw =",control.fw)
-        
-        print("control.fMaxSteps =",control.fMaxSteps)
-        
-        print("control.angle1 =",control.angle1)
-        print("control.angle2 =",control.angle2)
-        print("control.juliaX = ",control.juliaX)
-        print("control.juliaY = ",control.juliaY)
-        print("control.juliaZ = ",control.juliaZ)
-        print("control.power =",control.power)
-        
-        print("control.bright =",control.bright)
-        print("control.contrast =",control.contrast)
-        print("control.specular =",control.specular)
-        print("control.colorParam =",control.colorParam)
-
-        print("updateShaderDirectionVector(",control.viewVector.debugDescription,")")
+        print("camera =",control.camera.debugDescription)
+        print("direction =",control.viewVector.debugDescription)
+        print("KleinR =",control.KleinR)
+        print("KleinI =",control.KleinI)
+        print("Box iterations = ",control.fBox_Iterations)
+        print("Final iterations = ",control.fFinal_Iterations)
+        print("InvCenter = ",control.InvCenter.debugDescription)
+        print("InvRadius = ",control.InvRadius)
+        print("Box size X = ",control.box_size_x)
+        print("Box size Z = ",control.box_size_z)
+        print("  ")
+//        print("control.camera =",control.camera.debugDescription)
+//        print("control.cx =",control.cx)
+//        print("control.cy =",control.cy)
+//        print("control.cz =",control.cz)
+//        print("control.cw =",control.cw)
+//        print("control.dx =",control.dx)
+//        print("control.dy =",control.dy)
+//        print("control.dz =",control.dz)
+//        print("control.dw =",control.dw)
+//        print("control.ex =",control.ex)
+//        print("control.ey =",control.ey)
+//        print("control.ez =",control.ez)
+//        print("control.ew =",control.ew)
+//        print("control.fx =",control.fx)
+//        print("control.fy =",control.fy)
+//        print("control.fz =",control.fz)
+//        print("control.fw =",control.fw)
+//        
+//        print("control.fMaxSteps =",control.fMaxSteps)
+//        
+//        print("control.angle1 =",control.angle1)
+//        print("control.angle2 =",control.angle2)
+//        print("control.juliaX = ",control.juliaX)
+//        print("control.juliaY = ",control.juliaY)
+//        print("control.juliaZ = ",control.juliaZ)
+//        print("control.power =",control.power)
+//        
+//        print("control.bright =",control.bright)
+//        print("control.contrast =",control.contrast)
+//        print("control.specular =",control.specular)
+//        print("control.colorParam =",control.colorParam)
+//
+//        print("updateShaderDirectionVector(",control.viewVector.debugDescription,")")
     }
     
     /// press 'H" to set control parameters to random values
