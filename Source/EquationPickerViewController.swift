@@ -29,6 +29,7 @@ class EquationPickerViewController: NSViewController, NSTableViewDataSource, NST
 
     func tableView(_ tableView: NSTableView, shouldSelectRow row: Int) -> Bool {
         vc.control.equation = Int32(row)
+        vc.reset()  // stomp on all params
         vc.controlJustLoaded()
         return true
     }

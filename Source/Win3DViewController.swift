@@ -135,7 +135,7 @@ class Win3DViewController: NSViewController, NSWindowDelegate, WidgetDelegate {
         widget.addEntry("Height",&yScale3D,-150,150,0.1)
         widget.addEntry("Ceiling",&ceiling3D,0.1,50,0.1)
         widget.addEntry("Floor",&floor3D,-50,50,0.1)
-        widget.addDash("Light Controls")
+        widget.addLegend("Light Controls")
         widget.addEntry("Spread",&light.power,0.1,2,0.1)
         widget.addEntry("Ambient",&light.ambient,0,1,0.01)
         widget.addEntry("Speed",&light.deltaAngle,0.001,0.05,0.001)

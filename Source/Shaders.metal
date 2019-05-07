@@ -193,7 +193,7 @@ float DE_MANDELBULB(float3 pos,device Control &control) {
 }
 
 //MARK: - 2
-float DE_APOLLONIAN_Inner(float3 pos,device Control &control) {
+float DE_APOLLONIAN(float3 pos,device Control &control) {
     float k,t = control.foam2 + 0.25 * cos(control.bend * PI * control.multiplier * (pos.z - pos.x));
     float scale = 1;
     
@@ -207,27 +207,8 @@ float DE_APOLLONIAN_Inner(float3 pos,device Control &control) {
     return 1.5 * (0.25 * abs(pos.y) / scale);
 }
 
-float DE_APOLLONIAN(float3 pos,device Control &control) {
-    if(control.doInversion) {
-        pos = pos - control.InvCenter;
-        float r = length(pos);
-        float r2 = r*r;
-        pos = (control.InvRadius * control.InvRadius / r2 ) * pos + control.InvCenter;
-        
-        float an = atan2(pos.y,pos.x) + control.DeltaAngle;
-        float ra = sqrt(pos.y * pos.y + pos.x * pos.x);
-        pos.x = cos(an)*ra;
-        pos.y = sin(an)*ra;
-        float de = DE_APOLLONIAN_Inner(pos,control);
-        de = r2 * de / (control.InvRadius * control.InvRadius + r * de);
-        return de;
-    }
-    
-    return DE_APOLLONIAN_Inner(pos,control);
-}
-
 //MARK: - 3
-float DE_APOLLONIAN2_Inner(float3 pos,device Control &control) {
+float DE_APOLLONIAN2(float3 pos,device Control &control) {
     float t = control.foam2 + 0.25 * cos(control.bend * PI * control.multiplier * (pos.z - pos.x));
     float scale = 1;
     
@@ -243,25 +224,6 @@ float DE_APOLLONIAN2_Inner(float3 pos,device Control &control) {
     float d1 = sqrt( min( min( dot(pos.xy,pos.xy), dot(pos.yz,pos.yz) ), dot(pos.zx,pos.zx) ) ) - 0.02;
     float dmi = min(d1,abs(pos.y));
     return 0.5 * dmi / scale;
-}
-
-float DE_APOLLONIAN2(float3 pos,device Control &control) {
-    if(control.doInversion) {
-        pos = pos - control.InvCenter;
-        float r = length(pos);
-        float r2 = r*r;
-        pos = (control.InvRadius * control.InvRadius / r2 ) * pos + control.InvCenter;
-        
-        float an = atan2(pos.y,pos.x) + control.DeltaAngle;
-        float ra = sqrt(pos.y * pos.y + pos.x * pos.x);
-        pos.x = cos(an)*ra;
-        pos.y = sin(an)*ra;
-        float de = DE_APOLLONIAN2_Inner(pos,control);
-        de = r2 * de / (control.InvRadius * control.InvRadius + r * de);
-        return de;
-    }
-    
-    return DE_APOLLONIAN2_Inner(pos,control);
 }
 
 //MARK: - 4
@@ -337,7 +299,7 @@ float DE_KLEINIAN(float3 pos,device Control &control) {
         float r2 = r*r;
         pos = (control.InvRadius * control.InvRadius / r2 ) * pos + control.InvCenter;
         
-        float an = atan2(pos.y,pos.x) + control.DeltaAngle;
+        float an = atan2(pos.y,pos.x) + control.InvAngle;
         float ra = sqrt(pos.y * pos.y + pos.x * pos.x);
         pos.x = cos(an)*ra;
         pos.y = sin(an)*ra;
@@ -2009,7 +1971,7 @@ float DE_DONUTS(float3 pos,device Control &control) {
 }
 
 //MARK: - distance estimate
-float DE(float3 pos,device Control &control) {
+float DE_Inner(float3 pos,device Control &control) {
     switch(control.equation) {
         case EQU_01_MANDELBULB  : return DE_MANDELBULB(pos,control);
         case EQU_02_APOLLONIAN  : return DE_APOLLONIAN(pos,control);
@@ -2065,6 +2027,26 @@ float DE(float3 pos,device Control &control) {
     
     return 0;
 }
+
+float DE(float3 pos,device Control &control) {
+    if(control.doInversion) {
+        pos = pos - control.InvCenter;
+        float r = length(pos);
+        float r2 = r*r;
+        pos = (control.InvRadius * control.InvRadius / r2 ) * pos + control.InvCenter;
+        
+        float an = atan2(pos.y,pos.x) + control.InvAngle;
+        float ra = sqrt(pos.y * pos.y + pos.x * pos.x);
+        pos.x = cos(an)*ra;
+        pos.y = sin(an)*ra;
+        float de = DE_Inner(pos,control);
+        de = r2 * de / (control.InvRadius * control.InvRadius + r * de);
+        return de;
+    }
+    
+    return DE_Inner(pos,control);
+}
+
 
 //MARK: -
 // x = distance, y = iteration count, z = average distance hop

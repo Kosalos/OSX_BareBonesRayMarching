@@ -181,7 +181,12 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         control.angle2 = 0
         control.colorParam = 25000
         control.radialAngle = 0
-        
+        control.InvCx = 0.1
+        control.InvCy = 0.1
+        control.InvCz = 0.1
+        control.InvRadius = 0.3
+        control.InvAngle = 0.1
+
         switch Int(control.equation) {
         case EQU_01_MANDELBULB :
             updateShaderDirectionVector(float3(0.010000015, 0.41950363, 0.64503753))
@@ -189,6 +194,15 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.multiplier = 80
             control.power = 8
             control.fMaxSteps = 10
+            
+            if control.doInversion {
+                control.camera = float3( -0.138822 , -1.4459486 , -1.9716375 )
+                updateShaderDirectionVector(float3( 0.012995179 , 0.54515165 , 0.8382366 ))
+                control.InvCenter = float3( -0.10600001 , -0.74200004 , -1.3880001 )
+                control.InvRadius =  2.14
+                control.InvAngle =  0.9100002
+            }
+
         case EQU_02_APOLLONIAN, EQU_03_APOLLONIAN2 :
             control.camera = float3(0.42461035, 10.847559, 2.5749633)
             control.foam = 1.05265248
@@ -214,7 +228,6 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.fFinal_Iterations = 21
             control.fBox_Iterations = 17
             control.showBalls = true
-            control.doInversion = true
             control.fourGen = false
             control.Clamp_y = 0.221299887
             control.Clamp_DF = 0.00999999977
@@ -223,8 +236,24 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.KleinR = 1.9324
             control.KleinI = 0.04583
             control.InvCenter = float3(1.0517285, 0.7155759, 0.9883028)
-            control.DeltaAngle = 5.5392437
+            control.InvAngle = 5.5392437
             control.InvRadius = 2.06132293
+            
+            if control.doInversion {
+                control.camera = float3(-1.5613757, -0.61350304, 0.41508165)
+                updateShaderDirectionVector(float3(0.0, 0.09950372, 0.9950372))
+                control.InvCx = -1.67399943
+                control.InvCy = -0.494000345
+                control.InvCz = 0.721998572
+                control.InvAngle = 4.15921211
+                control.InvRadius = 0.639999986
+                control.box_size_z = 0.38800019
+                control.box_size_x = 0.6880005
+                control.KleinR = 1.97239995
+                control.KleinI = 0.00999999977
+                control.Clamp_y = 0.201299876
+                control.Clamp_DF = 0.00999999977
+            }
         case EQU_05_MANDELBOX :
             control.camera = float3(-1.3771019, 0.9999971, -5.037427)
             control.cx = 1.42
@@ -236,10 +265,18 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.juliaX =  0.0
             control.juliaY =  -6.0
             control.juliaZ =  -8.0
-            control.bright = 1.01
-            control.contrast = 0.5
+            control.bright = 1.3299997
+            control.contrast = 0.3199999
             control.power = 2.42
             control.juliaboxMode = true
+            
+            if control.doInversion {
+                control.camera = float3( -1.4471021 , 0.23879418 , -4.3080645 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950371 , 0.99503714 ))
+                control.InvCenter = float3( -0.13600002 , 0.30600032 , 0.011999967 )
+                control.InvRadius =  0.62999976
+                control.InvAngle =  0.37999997
+            }
         case EQU_06_QUATJULIA :
             control.camera = float3(-0.010578117, -0.49170083, -2.4)
             control.cx = -1.74999952
@@ -249,6 +286,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.fMaxSteps = 7
             control.contrast = 0.28
             control.specular = 0.9
+            
+            if control.doInversion {
+                control.camera = float3( -0.010578117 , -0.49170083 , -2.4 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950371 , 0.99503714 ))
+                control.InvCx =  0.098000005
+                control.InvCy =  0.19999999
+                control.InvCz =  -1.0519996
+                control.InvRadius =  1.5200003
+                control.InvAngle =  -0.29999992
+            }
         case EQU_07_MONSTER :
             control.camera = float3(0.0012031387, -0.106357165, -1.1865364)
             control.cx = 120
@@ -256,6 +303,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.cz = 1
             control.cw = 1.3
             control.fMaxSteps = 10
+
+            if control.doInversion {
+                control.camera = float3( 0.0012031387 , -0.106357165 , -1.1865364 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  0.025999993
+                control.InvCy =  -0.062000014
+                control.InvCz =  -0.74199986
+                control.InvRadius =  0.40999997
+                control.InvAngle =  -0.8200002
+            }
         case EQU_08_KALI_TOWER :
             control.camera = float3(-0.051097937, 5.059899, -4.0350704)
             control.cx = 8.65
@@ -263,13 +320,33 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.cz = 2.3
             control.cw = 0.13
             control.fMaxSteps = 2
+            
+            if control.doInversion {
+                control.camera = float3( 0.06890213 , 4.266852 , -1.0111475 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  0.29999992
+                control.InvCy =  3.6779976
+                control.InvCz =  0.15800123
+                control.InvRadius =  1.2900001
+                control.InvAngle =  0.089999974
+            }
         case EQU_09_POLY_MENGER :
             control.camera = float3(-0.20046826, -0.51177955, -5.087464)
             control.cx = 4.7799964
             control.cy = 2.1500008
             control.cz = 2.899998
             control.cw = 3.0999982
-            control.dx = 5;
+            control.dx = 5
+
+            if control.doInversion {
+                control.camera = float3( 0.62953156 , 0.51310825 , -5.1899557 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  0.242
+                control.InvCy =  0.15800002
+                control.InvCz =  0.074000046
+                control.InvRadius =  0.31
+                control.InvAngle =  -0.009999985
+            }
         case EQU_10_GOLD :
             updateShaderDirectionVector(float3(0.010000015, 0.41950363, 0.64503753))
             control.camera = float3(0.038563743, -1.1381346, -1.8405379)
@@ -281,11 +358,31 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.dy = 0.6
             control.dz = 0
             control.fMaxSteps = 15
+
+            if control.doInversion {
+                control.camera = float3( 0.042072453 , -0.99094355 , -1.6142143 )
+                updateShaderDirectionVector(float3( 0.012995181 , 0.54515177 , 0.83823675 ))
+                control.InvCx =  0.036
+                control.InvCy =  0.092000015
+                control.InvCz =  -0.15200002
+                control.InvRadius =  0.17999996
+                control.InvAngle =  -0.25999996
+            }
         case EQU_11_SPIDER :
             control.camera = float3(0.04676684, -0.50068825, -3.4419205)
             control.cx = 0.13099998
             control.cy = 0.21100003
             control.cz = 0.041
+            
+            if control.doInversion {
+                control.camera = float3( 0.04676684 , -0.46387178 , -3.0737557 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  0.28600028
+                control.InvCy =  0.18000007
+                control.InvCz =  -0.07799993
+                control.InvRadius =  0.13
+                control.InvAngle =  -0.079999976
+            }
         case EQU_12_KLEINIAN2 :
             control.camera = float3(4.1487565, 2.6955016, 1.3862593)
             control.cx = -0.7821867
@@ -297,26 +394,86 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.dz = 1.5499997
             control.dw = 0.9000002
             control.power = 1
+            
+            if control.doInversion {
+                control.camera = float3( 4.1487565 , 2.6955016 , 1.3862593 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  -0.092
+                control.InvCy =  0.01999999
+                control.InvCz =  -0.47600016
+                control.InvRadius =  4.2999983
+                control.InvAngle =  0.13000003
+            }
         case EQU_13_KIFS :
             control.camera = float3(-0.033257294, -0.58263075, -5.087464)
             control.cx = 2.7499976
             control.cy = 2.6499977
             control.cz = 4.049997
+            
+            if control.doInversion {
+                control.camera = float3( -0.033257294 , -0.42640972 , -3.5252607 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  0.0040000193
+                control.InvCy =  0.028000021
+                control.InvCz =  -0.378
+                control.InvRadius =  0.9499994
+                control.InvAngle =  -0.05999998
+            }
         case EQU_14_IFS_TETRA :
             control.camera = float3(-0.034722134, -0.45799592, -3.3590596)
             control.cx = 1.4900005
+            
+            if control.doInversion {
+                control.camera = float3( 0.05527785 , 0.018626798 , -1.2057981 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  0.0019999929
+                control.InvCy =  0.05600003
+                control.InvCz =  0.08400006
+                control.InvRadius =  0.28000003
+                control.InvAngle =  -3.6399987
+            }
         case EQU_15_IFS_OCTA :
             control.camera = float3(0.00014548551, -0.20753044, -1.7193593)
             control.cx = 1.65
+            
+            if control.doInversion {
+                control.camera = float3( 0.00014548551 , -0.20753044 , -1.7193593 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  -1.1175871e-08
+                control.InvCy =  0.1
+                control.InvCz =  -2.0020003
+                control.InvRadius =  1.9000001
+                control.InvAngle =  0.1
+            }
         case EQU_16_IFS_DODEC :
             control.camera = float3(-0.09438618, -0.52536994, -4.1138387)
             control.cx = 1.8
             control.cy = 1.5999994
+            
+            if control.doInversion {
+                control.camera = float3( -0.09438618 , -0.52536994 , -4.1138387 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  -0.14200002
+                control.InvCy =  -0.442
+                control.InvCz =  -2.9619994
+                control.InvRadius =  3.01
+                control.InvAngle =  0.0
+            }
         case EQU_17_IFS_MENGER :
             control.camera = float3(0.017836891, -0.40871215, -3.3820548)
             control.cx = 3.0099978
             control.cy = -0.53999937
             control.fMaxSteps = 3
+            
+            if control.doInversion {
+                control.camera = float3( 0.017836891 , -0.40871215 , -3.3820548 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  -0.020000013
+                control.InvCy =  -0.222
+                control.InvCz =  -3.1019993
+                control.InvRadius =  2.31
+                control.InvAngle =  0.1
+            }
         case EQU_18_SIERPINSKI :
             control.camera = float3(0.03816485, -0.08283869, -0.63742965)
             control.cx = 1.3240005
@@ -324,6 +481,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.angle1 = 3.1415962
             control.angle2 = 1.5610005
             control.fMaxSteps = 27
+            
+            if control.doInversion {
+                control.camera = float3( 0.03816485 , -0.12562533 , -1.0652959 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  0.11600001
+                control.InvCy =  0.07200002
+                control.InvCz =  -0.00799999
+                control.InvRadius =  0.20999998
+                control.InvAngle =  0.110000014
+            }
         case EQU_19_HALF_TETRA :
             control.camera = float3(-0.023862544, -0.113349974, -0.90810966)
             control.cx = 1.2040006
@@ -331,6 +498,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.angle1 = -3.9415956
             control.angle2 = 0.79159856
             control.fMaxSteps = 53
+            
+            if control.doInversion {
+                control.camera = float3( 0.13613744 , 0.07272194 , -0.85636866 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  0.07199999
+                control.InvCy =  0.070000015
+                control.InvCz =  0.037999995
+                control.InvRadius =  0.33999994
+                control.InvAngle =  0.44
+            }
         case EQU_20_FULL_TETRA :
             control.camera = float3(-0.018542236, -0.08817809, -0.90810966)
             control.cx = 1.1280007
@@ -338,6 +515,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.angle1 = -1.2150029
             control.angle2 = -0.018401254
             control.fMaxSteps = 71.0
+            
+            if control.doInversion {
+                control.camera = float3( -0.018542236 , -0.08817809 , -0.90810966 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  0.0069999956
+                control.InvCy =  0.03999999
+                control.InvCz =  0.22400002
+                control.InvRadius =  0.3
+                control.InvAngle =  0.4399999
+            }
         case EQU_21_CUBIC :
             control.camera = float3(-0.0011281949, -0.21761245, -0.97539556)
             control.cx = 1.1000057
@@ -345,6 +532,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.angle1 = -1.8599923
             control.angle2 = 1.1640991
             control.fMaxSteps = 73.0
+            
+            if control.doInversion {
+                control.camera = float3( -0.0011282 , -0.09223774 , -0.8271352 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  -0.0020000078
+                control.InvCy =  -0.026000004
+                control.InvCz =  -0.602
+                control.InvRadius =  0.51
+                control.InvAngle =  0.27600044
+            }
         case EQU_22_HALF_OCTA :
             control.camera = float3(-0.015249629, -0.14036252, -0.8621065)
             control.cx = 1.1399999
@@ -352,6 +549,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.angle1 = 2.8750083
             control.angle2 = 1.264099
             control.fMaxSteps = 50.0
+            
+            if control.doInversion {
+                control.camera = float3( 0.004750366 , -0.07966529 , -0.9586258 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  0.017999994
+                control.InvCy =  -0.062000014
+                control.InvCz =  -1.0059996
+                control.InvRadius =  0.61
+                control.InvAngle =  0.06000001
+            }
         case EQU_23_FULL_OCTA :
             control.camera = float3(0.0028324036, -0.05510863, -0.47697017)
             control.cx = 1.132
@@ -359,6 +566,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.angle1 = 2.8500082
             control.angle2 = 1.264099
             control.fMaxSteps = 34.0
+            
+            if control.doInversion {
+                control.camera = float3( 0.0028324036 , -0.05510863 , -0.47697017 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  0.07400001
+                control.InvCy =  0.0059999917
+                control.InvCz =  0.006000004
+                control.InvRadius =  0.10999999
+                control.InvAngle =  -1.3100002
+            }
         case EQU_24_KALEIDO :
             control.camera = float3(-0.00100744, -0.1640267, -1.7581517)
             control.cx = 1.1259973
@@ -367,6 +584,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.angle1 = 1.7849922
             control.angle2 = -1.2375059
             control.fMaxSteps = 35.0
+            
+            if control.doInversion {
+                control.camera = float3( -0.00100744 , -0.1640267 , -1.7581517 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  0.034000028
+                control.InvCy =  -0.026000002
+                control.InvCz =  -1.082
+                control.InvRadius =  0.97000015
+                control.InvAngle =  -0.17
+            }
         case EQU_25_POLYCHORA :
             control.camera = float3(-0.00100744, -0.16238609, -1.7581517)
             control.cx = 5.0
@@ -376,6 +603,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.dx = 0.08000006
             control.dy = 0.008000016
             control.dz = -1.5999997
+            
+            if control.doInversion {
+                control.camera = float3( 0.54899234 , -0.03701113 , -0.7053995 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  0.5320001
+                control.InvCy =  0.012000054
+                control.InvCz =  -0.023999948
+                control.InvRadius =  0.36999995
+                control.InvAngle =  0.15
+            }
         case EQU_26_QUADRAY :
             control.camera = float3(0.017425783, -0.03216796, -3.7908385)
             control.cx = -0.8950321
@@ -383,6 +620,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.cz = 0.10000001
             control.cw = 2
             control.fMaxSteps = 10.0
+            
+            if control.doInversion {
+                control.camera = float3( 0.107425764 , -0.3406294 , -3.7599885 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  0.1
+                control.InvCy =  0.1
+                control.InvCz =  0.1
+                control.InvRadius =  3.0999992
+                control.InvAngle =  0.1
+            }
         case EQU_27_FRAGM :
             control.camera = float3(-0.010637887, -0.27700076, -2.4429061)
             control.cx = 0.6
@@ -397,6 +644,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.juliaZ =  -0.8000001
             control.bright = 1.05
             control.power = 8
+            
+            if control.doInversion {
+                control.camera = float3( -0.010637887 , -0.29889002 , -2.661827 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950371 , 0.99503714 ))
+                control.InvCx =  0.012000011
+                control.InvCy =  0.027999992
+                control.InvCz =  -0.19200002
+                control.InvRadius =  0.81000006
+                control.InvAngle =  0.099999994
+            }
         case EQU_28_QUATJULIA2 :
             control.camera = float3(-0.010578117, -0.49170083, -2.4)
             control.cx = -1.7499995
@@ -406,6 +663,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.juliaY =  0.0
             control.juliaZ =  0.0
             control.bright = 0.9000001
+            
+            if control.doInversion {
+                control.camera = float3( -0.010578117 , -0.49170083 , -2.4 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  0.1
+                control.InvCy =  0.006000016
+                control.InvCz =  -0.072
+                control.InvRadius =  0.51
+                control.InvAngle =  0.1
+            }
         case EQU_29_MBROT :
             control.camera = float3(-0.23955467, -0.3426069, -2.4)
             control.cx = -9.685755e-08
@@ -416,6 +683,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.juliaZ =  -2.3
             control.bright = 1.3000002
             control.contrast = 0.19999999
+            
+            if control.doInversion {
+                control.camera = float3( 0.39044535 , -0.1694704 , -0.16614081 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  0.4520001
+                control.InvCy =  -0.148
+                control.InvCz =  0.626
+                control.InvRadius =  0.16999993
+                control.InvAngle =  0.07000001
+            }
         case EQU_30_KALIBOX :
             control.camera = float3(0.32916373, -0.42756003, -3.6908724)
             control.cx = 1.6500008
@@ -433,6 +710,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.juliaY =  0.0
             control.juliaZ =  0.0
             control.bright = 0.9000001
+            
+            if control.doInversion {
+                control.camera = float3( 0.32916373 , -0.42756003 , -3.6908724 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  0.16800001
+                control.InvCy =  -0.080000006
+                control.InvCz =  -0.39400005
+                control.InvRadius =  0.96000016
+                control.InvAngle =  0.1
+            }
         case EQU_31_SPUDS :
             control.camera = float3(0.98336715, -1.2565054, -3.960955)
             control.cx = 3.7524672
@@ -445,6 +732,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.fMaxSteps = 8.0
             control.bright = 0.92
             control.power = 3.2999988
+            
+            if control.doInversion {
+                control.camera = float3( 0.18336754 , -0.29131955 , -4.057477 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  -0.544
+                control.InvCy =  -0.18200001
+                control.InvCz =  -0.44799998
+                control.InvRadius =  1.3700002
+                control.InvAngle =  0.1
+            }
         case EQU_32_MPOLY :
             control.camera = float3(0.0047654044, -0.4972743, -3.960955)
             control.cx = 4.712923
@@ -456,6 +753,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.fMaxSteps = 8.0
             control.bright = 1.0799999
             control.HoleSphere = true
+            
+            if control.doInversion {
+                control.camera = float3( -0.13523462 , -0.29229668 , -1.9111774 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950371 , 0.99503714 ))
+                control.InvCx =  -0.18800002
+                control.InvCy =  -0.084000014
+                control.InvCz =  -0.57400006
+                control.InvRadius =  0.51
+                control.InvAngle =  -0.42999998
+            }
         case EQU_33_MHELIX :
             control.camera = float3(0.45329404, -1.7558048, -21.308537)
             control.cx = 1.0140339
@@ -467,6 +774,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.juliaZ =  -10.0
             control.bright = 1.12
             control.gravity = true // 'moebius'
+            
+            if control.doInversion {
+                control.camera = float3( 0.45329404 , -1.7558048 , -21.308537 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  0.1
+                control.InvCy =  0.1
+                control.InvCz =  0.68999994
+                control.InvRadius =  7.0999956
+                control.InvAngle =  0.1
+            }
         case EQU_34_FLOWER :
             control.camera = float3(-0.16991696, -2.5964863, -12.54011)
             control.cx = 1.6740334
@@ -476,6 +793,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.juliaY =  13.999996
             control.juliaZ =  3.0999992
             control.bright = 1.5000001
+            
+            if control.doInversion {
+                control.camera = float3( -0.16991696 , -2.5964863 , -12.54011 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  0.03800006
+                control.InvCy =  0.162
+                control.InvCz =  0.11799997
+                control.InvRadius =  0.7099998
+                control.InvAngle =  0.18000002
+            }
         case EQU_35_JUNGLE :
             control.camera = float3(-1.8932692, -10.888095, -12.339884)
             control.cx = 1.8540331
@@ -483,6 +810,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.cz = 3.1000001
             control.cw = 2.1499999
             control.fMaxSteps = 1.0
+            
+            if control.doInversion {
+                control.camera = float3( -0.44326913 , -1.5447038 , -13.274241 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  0.2000001
+                control.InvCy =  0.18000007
+                control.InvCz =  -0.10799984
+                control.InvRadius =  1.3000002
+                control.InvAngle =  0.1
+            }
         case EQU_36_PRISONER :
             control.camera = float3(-0.002694401, -0.36424443, -3.5887358)
             control.cx = 1.0799996
@@ -492,6 +829,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.bright = 1.5000001
             control.contrast = 0.15999986
             control.power = 4.8999977
+            
+            if control.doInversion {
+                control.camera = float3( -0.002694401 , -0.36424443 , -3.5887358 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  0.058
+                control.InvCy =  0.12200004
+                control.InvCz =  -2.3920004
+                control.InvRadius =  2.22
+                control.InvAngle =  -0.00999994
+            }
         case EQU_37_SPIRALBOX :
             control.camera = float3(0.047575176, -0.122939646, 1.5686907)
             control.cx = 0.8810008
@@ -499,6 +846,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.juliaY =  1.0999998
             control.juliaZ =  0.19999993
             control.fMaxSteps = 9
+            
+            if control.doInversion {
+                control.camera = float3( 0.047575176 , -0.122939646 , 1.5686907 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  0.1
+                control.InvCy =  0.07600006
+                control.InvCz =  -0.46800002
+                control.InvRadius =  2.31
+                control.InvAngle =  0.1
+            }
         case EQU_38_ALEK_BULB :
             control.camera = float3(-0.07642456, -0.23929897, -2.1205378)
             control.fMaxSteps = 10.0
@@ -508,6 +865,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.bright = 1.4000001
             control.contrast = 0.5
             control.power = 3.4599924
+            
+            if control.doInversion {
+                control.camera = float3( -0.07642456 , -0.23929897 , -2.1205378 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  0.076
+                control.InvCy =  0.029999996
+                control.InvCz =  0.015999988
+                control.InvRadius =  2.01
+                control.InvAngle =  0.06000001
+            }
         case EQU_39_SURFBOX :
             control.camera = float3(-0.37710285, 0.4399976, -5.937426)
             control.cx = 1.4199952
@@ -523,6 +890,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.contrast = 0.5
             control.power = 2.5600004
             control.juliaboxMode = true
+            
+            if control.doInversion {
+                control.camera = float3( -0.37710285 , 0.4399976 , -5.937426 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  0.10799999
+                control.InvCy =  0.19999999
+                control.InvCz =  0.1
+                control.InvRadius =  0.47000003
+                control.InvAngle =  -0.15999997
+            }
         case EQU_40_TWISTBOX :
             control.camera = float3(0.24289839, -2.1800025, -9.257425)
             control.cx = 1.5611011
@@ -533,12 +910,32 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.bright = 1.4100001
             control.contrast = 0.3399999
             control.power = 8.21999
+            
+            if control.doInversion {
+                control.camera = float3( 0.23289838 , 0.048880175 , -1.2394277 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  0.068000056
+                control.InvCy =  0.1
+                control.InvCz =  0.029999983
+                control.InvRadius =  0.24000005
+                control.InvAngle =  -0.7099997
+            }
         case EQU_41_KALI_RONTGEN :
             control.camera = float3(-0.16709971, -0.020002633, -0.9474212)
             control.cx = 0.88783956
             control.cy = 1.3439986
             control.cz = 0.56685466
             control.fMaxSteps = 7.0
+            
+            if control.doInversion {
+                control.camera = float3( 0.4029004 , -0.036918215 , -0.6140825 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  0.23400004
+                control.InvCy =  0.04200006
+                control.InvCz =  0.07000005
+                control.InvRadius =  0.22000004
+                control.InvAngle =  1.4000001
+            }
         case EQU_42_VERTEBRAE :
             control.camera = float3(0.5029001, -1.3100017, -9.947422)
             control.cx = 5.599995
@@ -558,9 +955,19 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.fz = -0.0112106
             control.fw = 2.666039
             control.fMaxSteps = 2.0
-            control.bright = 0.41
-            control.contrast = 0.28000006
+            control.bright = 1.47
+            control.contrast = 0.22000006
             control.specular = 2.0
+            
+            if control.doInversion {
+                control.camera = float3( 1.0229 , -1.1866168 , -8.713577 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  -0.9600001
+                control.InvCy =  -0.5200006
+                control.InvCz =  -3.583999
+                control.InvRadius =  4.01
+                control.InvAngle =  3.1000001
+            }
         case EQU_43_DARKSURF :
             control.camera = float3(-0.4870995, -1.9200011, -1.7574148)
             control.cx = 7.1999893
@@ -577,6 +984,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.bright = 1.0
             control.contrast = 0.5
             control.specular = 0.0
+            
+            if control.doInversion {
+                control.camera = float3( -0.10709968 , -0.06923248 , -1.9424983 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  0.068000056
+                control.InvCy =  0.10799999
+                control.InvCz =  0.09400001
+                control.InvRadius =  0.13999999
+                control.InvAngle =  -0.95000005
+            }
         case EQU_44_BUFFALO :
             control.preabsx = true
             control.preabsy = true
@@ -598,6 +1015,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.contrast = 0.17999999
             control.specular = 1.1999998
             updateShaderDirectionVector( float3(-0.0045253364, 0.73382026, 0.091496624) )
+            
+            if control.doInversion {
+                control.camera = float3( 0.033746917 , -0.4353387 , -0.07229346 )
+                updateShaderDirectionVector(float3( -0.0061193192 , 0.9922976 , 0.12372495 ))
+                control.InvCx =  0.016000055
+                control.InvCy =  0.08400003
+                control.InvCz =  5.2619725e-08
+                control.InvRadius =  0.3
+                control.InvAngle =  -2.0000002
+            }
         case EQU_45_TEMPLE :
             control.camera = float3(1.4945942, -0.47837746, -8.777346)
             control.cx = 1.9772799
@@ -612,6 +1039,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.bright = 1.1100001
             control.contrast = 0.53999996
             control.specular = 1.4000002
+            
+            if control.doInversion {
+                control.camera = float3( 0.15459429 , 0.04401703 , -0.33744603 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950371 , 0.99503714 ))
+                control.InvCx =  -0.07599993
+                control.InvCy =  0.07000005
+                control.InvCz =  0.2139999
+                control.InvRadius =  2.29
+                control.InvAngle =  -0.029999984
+            }
         case EQU_46_KALI3 :
             control.juliaboxMode = true
             control.camera = float3(-0.025405688, -0.418378, -3.017353)
@@ -620,9 +1057,19 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.juliaX =  -0.97769934
             control.juliaY =  -0.8630977
             control.juliaZ =  -0.58009946
-            control.bright = 1.6100001
+            control.bright = 2.2299995
             control.contrast = 0.1
             control.specular = 2.0
+            
+            if control.doInversion {
+                control.camera = float3( -0.025405688 , -0.12185693 , -0.8561316 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  0.0020000527
+                control.InvCy =  -0.009999948
+                control.InvCz =  -0.158
+                control.InvRadius =  0.29000002
+                control.InvAngle =  -0.82000005
+            }
         case EQU_47_SPONGE :
             control.camera = float3(0.7610872, -0.7994865, -3.8773263)
             control.cx = -0.8064072
@@ -639,28 +1086,49 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.bright = 2.31
             control.contrast = 0.17999999
             control.specular = 0.3
+            
+            if control.doInversion {
+                control.camera = float3( 0.25108737 , -0.9736173 , -2.603676 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+                control.InvCx =  0.35200006
+                control.InvCy =  0.009999977
+                control.InvCz =  -0.092
+                control.InvRadius =  1.0600003
+                control.InvAngle =  -0.019999992
+            }
         case EQU_48_FLORAL :
-            control.camera = float3(-24.393913, -13.7295, -34.877304)
-            control.cx = 3.1049967
-            control.cy = -5.800398
+            control.camera = float3( -12.573917 , -3.4179301 , -53.867744 )
+            updateShaderDirectionVector(float3( 0.0 , 0.09950372 , 0.9950372 ))
+            control.cx = 17.0
+            control.cy = -1.390399
             control.cz = 2.8034544
             control.cw = -1.7025113
-            control.dx = -10.5
-            control.dy = -7.4109964
-            control.dz = -3.487999
+            control.dx = -1.6000023
+            control.dy = -5.0514984
+            control.dz = -4.858
             control.dw = 3.0838223
-            control.ex = -2.7218008
-            control.ey = 1.2499981
-            control.ez = 2.9939957
+            control.ex = 11.0
+            control.ey = 2.3699985
+            control.ez = 3.8739958
             control.ew = -2.3987765
-            control.fx = 1.1306266
-            control.fy = 7.76505
-            control.fz = 0.8100605
+            control.fx = 14.65563
+            control.fy = -5.989952
+            control.fz = -3.6949396
             control.fw = 1.3926225
-            control.fMaxSteps = 2.0
-            control.bright = 2.0100002
-            control.contrast = 0.1
+            control.fMaxSteps = 3.0
+            control.bright = 0.47000006
+            control.contrast = 0.7
             control.specular = 1.9
+            
+            if control.doInversion {
+                control.camera = float3( 1.1760863 , -10.455813 , -38.119076 )
+                updateShaderDirectionVector(float3( 0.0 , 0.09950371 , 0.99503714 ))
+                control.InvCx =  -2.0440004
+                control.InvCy =  -0.021997645
+                control.InvCz =  -0.63200307
+                control.InvRadius =  9.269997
+                control.InvAngle =  -0.81999993
+            }
         case EQU_49_KNOT :
             control.camera = float3(0.22108716, -4.869475, -3.187327)
             control.cx = 6.28
@@ -671,6 +1139,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.contrast = 0.36000004
             control.specular = 1.2000002
             updateShaderDirectionVector( float3(-0.05346525, 1.0684087, 0.78181773) )
+            
+            if control.doInversion {
+                control.camera = float3( 0.042541288 , -0.7013039 , -0.15071231 )
+                updateShaderDirectionVector(float3( -0.04035148 , 0.80635315 , 0.5900562 ))
+                control.InvCx =  0.017999994
+                control.InvCy =  -0.30200002
+                control.InvCz =  0.15799986
+                control.InvRadius =  0.48999983
+                control.InvAngle =  -3.0499992
+            }
         case EQU_50_DONUTS :
             control.camera = float3(-0.2254057, -7.728364, -19.269318)
             control.cx = 7.9931593
@@ -683,6 +1161,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.contrast = 0.36000004
             control.specular = 1.2000002
             updateShaderDirectionVector( float3(-2.0272768e-08, 0.46378687, 0.89157283) )
+            
+            if control.doInversion {
+                control.camera = float3( -0.2254057 , -7.728364 , -19.269318 )
+                updateShaderDirectionVector(float3( -2.0172154e-08 , 0.4614851 , 0.8871479 ))
+                control.InvCx =  -1.8719988
+                control.InvCy =  -4.1039987
+                control.InvCz =  -1.367999
+                control.InvRadius =  7.589995
+                control.InvAngle =  -2.7999995
+            }
         default : break // zorro
         }
         
@@ -715,11 +1203,12 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         c.nlight = normalize(c.light)
         c.maxSteps = Int32(control.fMaxSteps);
         c.Box_Iterations = Int32(control.fBox_Iterations)
-        
+
+        c.InvCenter = float3(c.InvCx, c.InvCy, c.InvCz)
+
         switch Int(control.equation) {
         case EQU_04_KLEINIAN, EQU_02_APOLLONIAN, EQU_03_APOLLONIAN2 :
             c.Final_Iterations = Int32(control.fFinal_Iterations)
-            c.InvCenter = float3(c.InvCx, c.InvCy, c.InvCz)
         case EQU_07_MONSTER :
             c.mm[0][0] = 99   // mark as needing calculation in shader
         case EQU_09_POLY_MENGER :
@@ -825,6 +1314,15 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         }
         
         if let vr = vr { vr.saveVideoFrame(drawable.texture) }
+    }
+    
+    //MARK: -
+
+    func toggleInversion() {
+        control.doInversion = !control.doInversion
+        defineWidgetsForCurrentEquation()
+        reset()
+        flagViewToRecalcFractal()
     }
     
     //MARK: -
@@ -943,7 +1441,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             
         case "B" : control.showBalls = !control.showBalls; toggle2()
         case "F" : control.fourGen = !control.fourGen; toggle2()
-        case "I" : control.doInversion = !control.doInversion; toggle2()
+        case "I" : toggleInversion()
         case "J" : control.juliaboxMode = !control.juliaboxMode; toggle2()
         case "K" : control.AlternateVersion = !control.AlternateVersion; toggle2()
         case "P" :
@@ -1124,6 +1622,18 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         print("control.colorParam =",control.colorParam)
 
         print("updateShaderDirectionVector(",control.viewVector.debugDescription,")")
+        
+        //----------------------------------
+        print(" ")
+        print("if control.doInversion {")
+        print("    control.camera = float3(",control.camera.x,",",control.camera.y,",",control.camera.z,")")
+        print("    updateShaderDirectionVector(float3(",control.viewVector.x,",",control.viewVector.y,",",control.viewVector.z,"))")
+        print("    control.InvCx = ",control.InvCx)
+        print("    control.InvCy = ",control.InvCy)
+        print("    control.InvCz = ",control.InvCz)
+        print("    control.InvRadius = ",control.InvRadius)
+        print("    control.InvAngle = ",control.InvAngle)
+        print("}")
     }
     
     /// press 'H" to set control parameters to random values
@@ -1168,20 +1678,13 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     /// define widget entries for current equation
     func defineWidgetsForCurrentEquation() {
         func juliaGroup(_ range:Float = 10, _ delta:Float = 1) {
+            widget.addLegend("")
+            widget.addBoolean("J: Julia Mode",&control.juliaboxMode)
+
             if control.juliaboxMode {
-                widget.addEntry("Julia X",&control.juliaX,-range,range, delta)
-                widget.addEntry("Julia Y",&control.juliaY,-range,range, delta)
-                widget.addEntry("Julia Z",&control.juliaZ,-range,range, delta)
-            }
-        }
-        
-        func inversionGroup() {
-            if control.doInversion {
-                widget.addEntry("InvCenter X",&control.InvCx,0,1.5,0.02)
-                widget.addEntry("InvCenter Y",&control.InvCy,0,1.5,0.02)
-                widget.addEntry("InvCenter Z",&control.InvCz,0,1.5,0.02)
-                widget.addEntry("Inv Radius",&control.InvRadius, 0.01,4,0.01)
-                widget.addEntry("Delta Angle",&control.DeltaAngle, 0.1,10,0.004)
+                widget.addEntry("  X",&control.juliaX,-range,range, delta)
+                widget.addEntry("  Y",&control.juliaY,-range,range, delta)
+                widget.addEntry("  Z",&control.juliaZ,-range,range, delta)
             }
         }
         
@@ -1199,28 +1702,20 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         widget.addEntry("Light Position",&lightAngle,-3,3,0.3)
 
         widget.addEntry("Radial Symmetry",&control.radialAngle,0,Float.pi,0.03)
-        
-        if control.txtOnOff {
-            widget.addEntry("Texture Center X",&control.tCenterX,0.01,1,0.02)
-            widget.addEntry("Texture Center Y",&control.tCenterY,0.01,1,0.02)
-            widget.addEntry("Texture Scale",&control.tScale,0.01,1,0.02)
-        }
-        
+
         switch Int(control.equation) {
         case EQU_01_MANDELBULB :
-            control.juliaboxMode = false
             widget.addEntry("Iterations",&control.fMaxSteps,3,30,1)
             widget.addEntry("Power",&control.power,1.5,12,0.02)
-            juliaGroup()
-            control.juliaboxMode = true
         case EQU_02_APOLLONIAN, EQU_03_APOLLONIAN2 :
             widget.addEntry("Iterations",&control.fMaxSteps,2,10,1)
             widget.addEntry("Multiplier",&control.multiplier,10,300,0.2)
             widget.addEntry("Foam",&control.foam,0.1,3,0.02)
             widget.addEntry("Foam2",&control.foam2,0.1,3,0.02)
             widget.addEntry("Bend",&control.bend,0.01,0.03,0.0001)
-            inversionGroup()
         case EQU_04_KLEINIAN :
+            widget.addBoolean("B: ShowBalls",&control.showBalls)
+            widget.addBoolean("F: FourGen",&control.fourGen)
             widget.addEntry("Final Iterations",&control.fFinal_Iterations, 1,39,1)
             widget.addEntry("Box Iterations",&control.fBox_Iterations,1,10,1)
             widget.addEntry("Box Size X",&control.box_size_x, 0.01,2,0.006)
@@ -1229,7 +1724,6 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             widget.addEntry("Klein I",&control.KleinI, 0.01,2.5,0.005)
             widget.addEntry("Clamp Y",&control.Clamp_y, 0.001,2,0.01)
             widget.addEntry("Clamp DF",&control.Clamp_DF, 0.001,2,0.03)
-            inversionGroup()
         case EQU_05_MANDELBOX :
             widget.addEntry("Iterations",&control.fMaxSteps,3,60,1)
             widget.addEntry("Scale Factor",&control.power,0.6,10,0.02)
@@ -1363,17 +1857,18 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             widget.addEntry("X",&control.cx,-15,15,0.05)
             widget.addEntry("Y",&control.cy,-15,15,0.05)
         case EQU_27_FRAGM :
-            widget.addDash("MandelBulb")
-            widget.addEntry("Iterations",&control.fMaxSteps,0,20,1,.integer,true)
-            widget.addEntry("Power",&control.power,1,12,0.1)
+            widget.addLegend("MandelBulb --------------")
+            widget.addEntry("   Iterations",&control.fMaxSteps,0,20,1,.integer,true)
+            widget.addEntry("   Power",&control.power,1,12,0.1)
+            widget.addLegend("Sphere Menger -----------")
+            widget.addEntry("   Iterations",&control.fmsIterations,0,20,1,.integer,true)
+            widget.addEntry("   Shape",&control.cx,-0.6,2.5,0.003)
+            widget.addEntry("   Angle",&control.angle2,-4,4,0.006)
+            widget.addLegend("MandelBox ---------------")
+            widget.addEntry("   Iterations",&control.fmbIterations,0,20,1,.integer,true)
+            widget.addEntry("   Angle",&control.angle1,-4,4,0.002)
+            widget.addBoolean("   K: Alternate Version",&control.AlternateVersion)
             juliaGroup(10,0.005)
-            widget.addDash("Sphere Menger")
-            widget.addEntry("Iterations",&control.fmsIterations,0,20,1,.integer,true)
-            widget.addEntry("Shape",&control.cx,-0.6,2.5,0.003)
-            widget.addEntry("Angle",&control.angle2,-4,4,0.006)
-            widget.addDash("MandelBox")
-            widget.addEntry("Iterations",&control.fmbIterations,0,20,1,.integer,true)
-            widget.addEntry("Angle",&control.angle1,-4,4,0.002)
         case EQU_28_QUATJULIA2 :
             widget.addEntry("Iterations",&control.fMaxSteps,3,10,1)
             widget.addEntry("Mul",&control.cx,-5,5,0.05)
@@ -1406,8 +1901,15 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             widget.addEntry("Scale",&control.dz,-5,5,0.1)
             widget.addEntry("Scale2",&control.dw,-5,5,0.1)
         case EQU_32_MPOLY :
+            widget.addBoolean("Q: polygonate",&control.polygonate)
             if control.polygonate { widget.addEntry("# Sides",&control.cx,0,15,0.1) }
+            widget.addBoolean("W: polyhedronate",&control.polyhedronate)
             if control.polyhedronate { widget.addEntry("# Sides2",&control.cy,0,15,0.1) }
+            widget.addBoolean("E: TotallyTubular",&control.TotallyTubular)
+            widget.addBoolean("R: Sphere",&control.Sphere)
+            widget.addBoolean("T: HoleSphere",&control.HoleSphere)
+            widget.addBoolean("Y: unSphere",&control.unSphere)
+            widget.addBoolean("U: gravity",&control.gravity)
             if control.gravity { widget.addEntry("Gravity",&control.cw,-5,5,0.02) }
             widget.addEntry("Scale",&control.cz,-5,5,0.02)
             widget.addEntry("Offset",&control.dx,-5,5,0.01)
@@ -1419,6 +1921,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             widget.addEntry("scaleX",&control.juliaX,-50,50, 2)
             widget.addEntry("scaleY",&control.juliaY,-50,50, 2)
             widget.addEntry("scaleZ",&control.juliaZ,-50,50, 2)
+            widget.addBoolean("U: Moebius",&control.gravity)
         case EQU_34_FLOWER :
             widget.addEntry("Iterations",&control.fMaxSteps,2,30,1)
             widget.addEntry("Scale",&control.cx,0.5,3,0.01)
@@ -1440,13 +1943,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         case EQU_37_SPIRALBOX :
             widget.addEntry("Iterations",&control.fMaxSteps,6,20,1)
             widget.addEntry("Fold",&control.cx,0.5,1,0.003)
-            if control.juliaboxMode {
-                widget.addEntry("Julia X",&control.juliaX,-2,2, 0.1)
-                widget.addEntry("Julia Y",&control.juliaY,-2,2, 0.1)
-                widget.addEntry("Julia Z",&control.juliaZ,-2,2, 0.1)
-            }
+            juliaGroup(2,0.1)
         case EQU_38_ALEK_BULB :
-            control.juliaboxMode = true
             widget.addEntry("Iterations",&control.fMaxSteps,3,30,1)
             widget.addEntry("Power",&control.power,1.5,12,0.02)
             juliaGroup(1.6,0.01)
@@ -1503,7 +2001,13 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             widget.addEntry("Iterations",&control.fMaxSteps,2,60,1)
             widget.addEntry("Power",&control.cy,  0.1,30,0.01)
             widget.addEntry("Angle",&control.angle1,-4,4,0.01)
-            
+            widget.addBoolean("Q: Pre Abs X",&control.preabsx)
+            widget.addBoolean("W: Pre Abs Y",&control.preabsy)
+            widget.addBoolean("E: Pre Abs Z",&control.preabsz)
+            widget.addBoolean("R: Abs X",&control.absx)
+            widget.addBoolean("T: Abs Y",&control.absy)
+            widget.addBoolean("Y: Abs Z",&control.absz)
+            widget.addBoolean("U: Delta DE",&control.UseDeltaDE)
             if control.UseDeltaDE {
                 widget.addEntry("DE Scale",&control.cx, 0,2,0.01)
             }
@@ -1561,62 +2065,35 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             widget.addEntry("Mult",&control.dy, 0.01,2,0.01)
         default : break  // zorro
         }
-        
+
+        // ----------------------------
+        widget.addLegend("")
+        widget.addBoolean("P: Texture",&control.txtOnOff)
+        if control.txtOnOff {
+            widget.addEntry("   X",&control.tCenterX,0.01,1,0.02)
+            widget.addEntry("   Y",&control.tCenterY,0.01,1,0.02)
+            widget.addEntry("   Scale",&control.tScale,0.01,1,0.02)
+        }
+        // ----------------------------
+        widget.addLegend("")
+        widget.addBoolean("I: Spherical Inversion",&control.doInversion)
+
+        if control.doInversion {
+            widget.addEntry("   X",&control.InvCx,-5,5,0.002)
+            widget.addEntry("   Y",&control.InvCy,-5,5,0.002)
+            widget.addEntry("   Z",&control.InvCz,-5,5,0.002)
+            widget.addEntry("   Radius",&control.InvRadius,0.01,10,0.01)
+            widget.addEntry("   Angle",&control.InvAngle,-10,10,0.01)
+        }
+        // ----------------------------
+
         displayWidgets()
         updateWindowTitle()
     }
     
     func displayWidgets() {
         let str = NSMutableAttributedString()
-        
-        func booleanEntry(_ onoff:Bool, _ legend:String) { str.normal(legend + (onoff ? " = true" : " = false")) }
-        func juliaEntry() {
-            booleanEntry(control.juliaboxMode,"J: Julia Mode")
-            str.normal("")
-        }
-        
-        switch Int(control.equation) {
-        case EQU_04_KLEINIAN :
-            booleanEntry(control.showBalls,"B: ShowBalls")
-            booleanEntry(control.fourGen,"F: FourGen")
-            booleanEntry(control.doInversion,"I: Do Inversion")
-            str.normal("")
-        case EQU_02_APOLLONIAN, EQU_03_APOLLONIAN2 :
-            booleanEntry(control.doInversion,"I: Do Inversion")
-            str.normal("")
-        case EQU_30_KALIBOX, EQU_37_SPIRALBOX :
-            juliaEntry()
-        case EQU_27_FRAGM :
-            booleanEntry(control.AlternateVersion,"K: Alternate Version")
-            juliaEntry()
-        case EQU_32_MPOLY :
-            booleanEntry(control.polygonate,"Q: polygonate")
-            booleanEntry(control.polyhedronate,"W: polyhedronate")
-            booleanEntry(control.TotallyTubular,"E: TotallyTubular")
-            booleanEntry(control.Sphere,"R: Sphere")
-            booleanEntry(control.HoleSphere,"T: HoleSphere")
-            booleanEntry(control.unSphere,"Y: unSphere")
-            booleanEntry(control.gravity,"U: gravity")
-        case EQU_33_MHELIX :
-            booleanEntry(control.gravity,"U: Moebius")
-            str.normal("")
-        case EQU_05_MANDELBOX :
-            booleanEntry(control.doInversion,"I: Box Fold both sides")
-            juliaEntry()
-        case EQU_44_BUFFALO :
-            booleanEntry(control.preabsx,"Q: Pre Abs X")
-            booleanEntry(control.preabsy,"W: Pre Abs Y")
-            booleanEntry(control.preabsz,"E: Pre Abs Z")
-            booleanEntry(control.absx,"R: Abs X")
-            booleanEntry(control.absy,"T: Abs Y")
-            booleanEntry(control.absz,"Y: Abs Z")
-            booleanEntry(control.UseDeltaDE,"U: Delta DE")
-            juliaEntry()
-        default : break
-        }
-        
         widget.addinstructionEntries(str)
-        
         instructions.attributedStringValue = str
     }
     

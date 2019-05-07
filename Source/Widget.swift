@@ -4,7 +4,7 @@ protocol WidgetDelegate {
     func displayWidgets()
 }
 
-enum WidgetKind { case integer,float,dash }
+enum WidgetKind { case integer,float,legend,boolean }
 
 var alterationSpeed:Float = 1
 
@@ -33,6 +33,11 @@ struct WidgetData {
     }
     
     func valueString() -> String {
+        if kind == .boolean {
+            let value:Bool = valuePtr.load(as:Bool.self)
+            return value ? "Yes" : "No"
+        }
+
         let value:Float = valuePtr.load(as:Float.self)
         if kind == .integer { return String(format:"%d", Int(value)) }
         return value.debugDescription
@@ -77,10 +82,19 @@ class Widget {
         data.append(w)
     }
 
-    func addDash(_ legend:String = "") {
+    func addLegend(_ legend:String = "") {
         var w = WidgetData()
-        w.kind = .dash
+        w.kind = .legend
         w.legend = legend
+        data.append(w)
+    }
+    
+    func addBoolean(_ legend:String, _ nValuePtr:UnsafeMutableRawPointer) {
+        var w = WidgetData()
+        w.legend = legend
+        w.valuePtr = nValuePtr
+        w.kind = .boolean
+        w.showValue = true
         data.append(w)
     }
     
@@ -90,7 +104,7 @@ class Widget {
             if focus < 0 { focus = data.count-1 }
             if focus >= data.count { focus = 0 }
             
-            if data[focus].kind == .dash { moveFocus(direction) }
+            if data[focus].kind == .legend || data[focus].kind == .boolean { moveFocus(direction) }
             
             delegate?.displayWidgets()
             vc.updateWindowTitle()
@@ -142,10 +156,11 @@ class Widget {
         for i in 0 ..< data.count {
             switch data[i].kind {
             case .integer, .float :
-            str.colored(data[i].displayString(), i == focus ? .red : .white)
-            case .dash :
-                if data[i].legend != "" { str.normal(data[i].legend + " ---------") }
-                else { str.normal("-------------") }
+                str.colored(data[i].displayString(), i == focus ? .red : .white)
+            case .legend :
+                str.normal(data[i].legend != "" ? data[i].legend : "-------------")
+            case .boolean :
+                str.normal(data[i].displayString())
             }
         }
     }

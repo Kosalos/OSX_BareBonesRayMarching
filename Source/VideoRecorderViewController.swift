@@ -381,7 +381,7 @@ class VideoRecorderViewController: NSViewController, NSTableViewDataSource, NSTa
         vc.control.InvCx = smoothed(vc.control.InvCx,interpolate(c1.InvCx, c2.InvCx))
         vc.control.InvCy = smoothed(vc.control.InvCy,interpolate(c1.InvCy, c2.InvCy))
         vc.control.InvCz = smoothed(vc.control.InvCz,interpolate(c1.InvCz, c2.InvCz))
-        vc.control.DeltaAngle = smoothed(vc.control.DeltaAngle,interpolate(c1.DeltaAngle, c2.DeltaAngle))
+        vc.control.InvAngle = smoothed(vc.control.InvAngle,interpolate(c1.InvAngle, c2.InvAngle))
         vc.control.InvRadius = smoothed(vc.control.InvRadius,interpolate(c1.InvRadius, c2.InvRadius))
         vc.control.juliaX = smoothed(vc.control.juliaX,interpolate(c1.juliaX, c2.juliaX))
         vc.control.juliaY = smoothed(vc.control.juliaY,interpolate(c1.juliaY, c2.juliaY))

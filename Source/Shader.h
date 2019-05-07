@@ -72,7 +72,7 @@ struct Control {
     float KleinI;
     vector_float3 InvCenter;
     float InvCx,InvCy,InvCz;
-    float DeltaAngle;
+    float InvAngle;
     float InvRadius;
     
     // mandelbox
