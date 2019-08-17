@@ -101,8 +101,8 @@
                                 <rect key="frame" x="20" y="136" width="150" height="154"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             </customView>
-                            <textField autoresizesSubviews="NO" verticalHuggingPriority="750" textCompletion="NO" id="fCH-5f-ISd">
-                                <rect key="frame" x="18" y="20" width="121" height="88"/>
+                            <textField autoresizesSubviews="NO" wantsLayer="YES" verticalHuggingPriority="750" textCompletion="NO" id="fCH-5f-ISd">
+                                <rect key="frame" x="99" y="20" width="121" height="88"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <shadow key="shadow" blurRadius="2">
                                     <size key="offset" width="1" height="-2"/>
@@ -114,10 +114,15 @@
                                     <color key="backgroundColor" name="windowBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
+                            <customView autoresizesSubviews="NO" wantsLayer="YES" id="yHc-Iz-xFz" customClass="InstructionsG" customModule="OSX_BareBonesRayMarching" customModuleProvider="target">
+                                <rect key="frame" x="20" y="20" width="46" height="108"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                            </customView>
                         </subviews>
                     </customView>
                     <connections>
                         <outlet property="instructions" destination="fCH-5f-ISd" id="IvK-F8-G9k"/>
+                        <outlet property="instructionsG" destination="yHc-Iz-xFz" id="haR-tP-Vej"/>
                         <outlet property="metalView" destination="8Wz-X6-zxw" id="sa0-xK-ddj"/>
                     </connections>
                 </viewController>

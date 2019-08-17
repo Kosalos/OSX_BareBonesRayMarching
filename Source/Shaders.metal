@@ -2136,15 +2136,15 @@ kernel void rayMarchShader
         float centerY = c.ySize/2;
         float dx = float(p.x - centerX);
         float dy = float(p.y - centerY);
-        
+
         float angle = fabs(atan2(dy,dx));
-        
+
         float dRatio = 0.01 + c.radialAngle;
         while(angle > dRatio) angle -= dRatio;
         if(angle > dRatio/2) angle = dRatio - angle;
-        
+
         float dist = sqrt(dx * dx + dy * dy);
-        
+
         srcP.x = uint(centerX + cos(angle) * dist);
         srcP.y = uint(centerY + sin(angle) * dist);
     }
@@ -2260,6 +2260,17 @@ kernel void rayMarchShader
         
         float3 light = getBlinnShading(normal, direction, c.nlight, c);
         color = mix(light, color, 0.8);
+        
+        float3 diff = c.viewVector * dist.y / 10;
+        float d1 = DE(position - diff,c);
+        float d2 = DE(position + diff,c);
+        float d3 = d1-d2;
+        color *= (1 + (1-d3) * c.enhance);
+        
+        float3 c2 = color;
+        color.x = mix(c2.x,c2.y, c.colorRoll);
+        color.y = mix(c2.y,c2.z, c.colorRoll);
+        color.z = mix(c2.z,c2.x, c.colorRoll);
 
         color *= c.bright;
         color = 0.5 + (color - 0.5) * c.contrast * 2;

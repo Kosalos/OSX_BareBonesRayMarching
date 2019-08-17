@@ -126,6 +126,8 @@ struct Control {
     float parallax;
     float colorParam;
     float radialAngle;
+    float enhance;
+    float colorRoll;
 };
 
 // 3D window ---------------------------------

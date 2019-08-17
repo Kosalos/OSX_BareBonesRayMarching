@@ -21,6 +21,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     var lightAngle:Float = 0
 
     @IBOutlet var instructions: NSTextField!
+    @IBOutlet var instructionsG: InstructionsG!
     @IBOutlet var metalView: MetalView!
     
     let PIPELINE_FRACTAL = 0
@@ -1184,7 +1185,6 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     
     /// call shader to update 2D fractal window(s), and 3D vertex data
     func computeTexture(_ drawable:CAMetalDrawable) {
-        
         // this appears to stop beachball delays if I cause key roll-over?
         Thread.sleep(forTimeInterval: timeInterval)
         
@@ -1314,6 +1314,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         }
         
         if let vr = vr { vr.saveVideoFrame(drawable.texture) }
+        instructionsG.refresh()
     }
     
     //MARK: -
@@ -1454,7 +1455,9 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
                 loadImageFile()
             }
             
-        case " " : instructions.isHidden = !instructions.isHidden
+        case " " :
+            instructions.isHidden = !instructions.isHidden
+            instructionsG.isHidden = !instructionsG.isHidden
         case "H" : setControlParametersToRandomValues(); flagViewToRecalcFractal()
         case "V" : displayControlParametersInConsoleWindow()
         case "Q" :
@@ -1697,7 +1700,9 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             widget.addEntry("Color Boost",&control.colorParam,1,1200000,200)
         }
         
+        widget.addEntry("Enhance",&control.enhance,0,30,0.03)
         widget.addEntry("Contrast",&control.contrast,0.1,0.7,0.02)
+        widget.addEntry("ColorRoll",&control.colorRoll,0,30,0.03)
         widget.addEntry("Specular",&control.specular,0,2,0.1)
         widget.addEntry("Light Position",&lightAngle,-3,3,0.3)
 
@@ -2094,7 +2099,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     func displayWidgets() {
         let str = NSMutableAttributedString()
         widget.addinstructionEntries(str)
-        instructions.attributedStringValue = str
+        instructions.attributedStringValue = str        
+        instructionsG.refresh()
     }
     
     //MARK: -
@@ -2179,11 +2185,15 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             metalView.frame = CGRect(x:1, y:1, width:r.size.width-2, height:r.size.height-2)
         }
         
-        instructions.frame = CGRect(x:5, y:30, width:500, height:700)
+        instructionsG.frame = CGRect(x:5, y:5, width:45, height:700)
+        instructionsG.bringToFront()
+        instructionsG.refresh()
+        
+        instructions.frame = CGRect(x:50, y:5, width:500, height:700)
         instructions.textColor = .white
         instructions.backgroundColor = .black
         instructions.bringToFront()
-        
+
         updateThreadGroupsAccordingToWindowSize()
         flagViewToRecalcFractal()
     }

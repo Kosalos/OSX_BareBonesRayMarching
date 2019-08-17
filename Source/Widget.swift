@@ -48,6 +48,11 @@ struct WidgetData {
         if showValue { s = s + " : " + valueString() }
         return s
     }
+
+    func valuePercent() -> Int {
+        let value:Float = valuePtr.load(as:Float.self)
+        return Int((value - range.x) * 100 / (range.y - range.x));
+    }
 }
 
 class Widget {
@@ -108,6 +113,8 @@ class Widget {
             
             delegate?.displayWidgets()
             vc.updateWindowTitle()
+            
+            vc.instructionsG.refresh()
         }
     }
 
