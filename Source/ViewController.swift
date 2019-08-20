@@ -1331,12 +1331,41 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     var pt1 = NSPoint()
     var pt2 = NSPoint()
     
-    override func mouseDown     (with event: NSEvent) { pt1 = event.locationInWindow }
-    override func mouseDragged  (with event: NSEvent) { pt2 = event.locationInWindow }
+    override func mouseDown(with event: NSEvent) { pt1 = event.locationInWindow }
+    override func rightMouseDown(with event: NSEvent) { pt1 = event.locationInWindow }
+
+    func mouseDrag2DImage(_ rightMouse:Bool) {
+        if control.win3DFlag == 0 { // no 3D window active = mouse dragging pans 2D image
+            var dx:Int = 0
+            var dy:Int = 0
+            let px = pt2.x - pt1.x
+            let py = pt2.y - pt1.y
+            if abs(px) > 4 { if px > 0 { dx = 1 } else if px < 0 { dx = -1 }}
+            if abs(py) > 4 { if py > 0 { dy = 1 } else if py < 0 { dy = -1 }}
+            alterationSpeed = -3
+            
+            if !rightMouse {
+                jogCameraAndFocusPosition(dx,dy,0)
+            }
+            else {
+                jogCameraAndFocusPosition(dx,0,dy)
+            }
+        }
+    }
+    
+    override func mouseDragged(with event: NSEvent) {
+        pt2 = event.locationInWindow
+        mouseDrag2DImage(false)
+    }
+    
+    override func rightMouseDragged(with event: NSEvent) {
+        pt2 = event.locationInWindow
+        mouseDrag2DImage(true)
+    }
     
     // if 3D window is active: user has dragged a 3D region of interest (ROI) with left mouse button
     override func mouseUp(with event: NSEvent) {
-        if vc3D != nil {
+        if control.win3DFlag != 0 {
             control.xmin3D = uint(min(pt1.x,pt2.x) * 2)
             control.xmax3D = uint(max(pt1.x,pt2.x) * 2)
             control.ymax3D = uint(control.ySize - Int32(min(pt1.y,pt2.y) * 2))
@@ -1355,6 +1384,15 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             ensureSizeAndBounds(&control.xmin3D,&control.xmax3D,control.xSize)
             ensureSizeAndBounds(&control.ymin3D,&control.ymax3D,control.ySize)
             flagViewToRecalcFractal()
+        }
+        else {
+            jogRelease(1,1,1)
+        }
+    }
+
+    override func rightMouseUp(with event: NSEvent) {
+        if control.win3DFlag == 0 {
+            jogRelease(1,1,1)
         }
     }
 

@@ -62,8 +62,12 @@ Press ']' to hit <Add Keyframe to end> button on recorder window.
 Mouse commands -------------------------------
 
 When 3D window is active :
-Click/Drag with left mouse button to define the 3D Window
-Region of Interest
+   Click/Drag with left mouse button to define the 3D Window
+   Region of Interest
+
+When 3D window is inActive :
+   Click/Drag with left mouse button to pan image X,Y
+   Click/Drag with right mouse button to pan image X,Z
 
 Radial Symmetry ------------------------------
 
