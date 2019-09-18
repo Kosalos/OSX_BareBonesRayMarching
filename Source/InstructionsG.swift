@@ -12,7 +12,6 @@ class InstructionsG: NSView {
         
         var y = YTOP
         var r:NSRect = NSMakeRect(0,0,40,CGFloat(YS))
-        //let path = CGMutablePath()
 
         for i in 0 ..< vc.widget.data.count {
             if vc.widget.data[i].kind == .float {
@@ -33,8 +32,16 @@ class InstructionsG: NSView {
     }
     
     func refresh() {
-        setNeedsDisplay(NSMakeRect(-30,0,140,700))
+        setNeedsDisplay(NSMakeRect(-30,0,140,800))
     }
 
+    override func mouseDown(with event: NSEvent) {
+        var pt:NSPoint = event.locationInWindow
+        pt.y = vc.view.frame.height - pt.y
+        let index = Int(pt.y - 5)/18
+        
+        vc.widget.focusDirect(index)
+    }
+    
     override var isFlipped: Bool { return true }
 }

@@ -103,6 +103,13 @@ class Widget {
         data.append(w)
     }
     
+    func focusChanged() {
+        delegate?.displayWidgets()
+        vc.updateWindowTitle()
+        
+        vc.instructionsG.refresh()
+    }
+    
     func moveFocus(_ direction:Int) {
         if data.count > 1 {
             focus += direction
@@ -111,10 +118,15 @@ class Widget {
             
             if data[focus].kind == .legend || data[focus].kind == .boolean { moveFocus(direction) }
             
-            delegate?.displayWidgets()
-            vc.updateWindowTitle()
-            
-            vc.instructionsG.refresh()
+            focusChanged()
+        }
+    }
+    
+    func focusDirect(_ index:Int) {
+        if index < 0 || index >= data.count { return }
+        if data[index].kind == .float {
+            focus = index
+            focusChanged()
         }
     }
 

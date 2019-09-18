@@ -13,6 +13,8 @@ Lt/Rt Arrows : Alter value of focused widget
 Up/Dn Arrows : Move widget focus
 Spacebar     : Toggle instructions Display
 
+Note:  mouse click on widget to move focus directly
+
 Keyboard commands ----------------------------
 
 1,2 : Change Equation (previous, next)
@@ -30,6 +32,22 @@ Add <shift + option> for very fast jog
 
 Add <control> to rotate the view direction rather than jog
 (shift & option can be added during rotation to control speed)
+===============================================
+OrbitTraping
+All of these algorithms are 'escape-time Fractals',
+and by tracking certain variables as the escape is determined
+we learn information that can be used to enhance the fractal coloring.
+
+New widgets have been added:
+
+Cycles:     how many times the trap controls are repeated
+Strength:   relative brightness of trap coloring, from 0% to 100%
+x Color:    assign Color to channel 'x' (252 colors)
+x Weight:   specify how much channel 'x' adds to color, from -3 to +3
+
+... the same 2 widgets for channels 'y' - 'r'
+
+Note: Press key 'C' to cycle through 4 palettes of colors for trap effect
 ===============================================
 
 0   : Toggle Full Screen
@@ -50,7 +68,7 @@ P   : Load Picture for texturing
 
 home      : Launch Save/Load dialog.
 end       : Load next saved image.
-      Once you have multiple images saved this cycles them.
+            Once you have multiple images saved: this cycles them.
 page up   : Show this dialog
 page down : Toggle display of companion 3D window
 

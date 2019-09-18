@@ -128,6 +128,13 @@ struct Control {
     float radialAngle;
     float enhance;
     float colorRoll;
+
+    // orbit Trap -----------
+    float Cycles;
+    float OrbitStrength;
+    vector_float4 X,Y,Z,R;
+    float xIndex,yIndex,zIndex,rIndex;
+    float xWeight,yWeight,zWeight,rWeight;
 };
 
 // 3D window ---------------------------------

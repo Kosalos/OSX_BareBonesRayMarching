@@ -19,7 +19,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     var threadsPerGrid:[MTLSize] = []
     var isFullScreen:Bool = false
     var lightAngle:Float = 0
-
+    var palletteIndex:Int = 0
+    
     @IBOutlet var instructions: NSTextField!
     @IBOutlet var instructionsG: InstructionsG!
     @IBOutlet var metalView: MetalView!
@@ -1179,10 +1180,12 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         updateWindowTitle()
     }
     
-    //MARK: -
-    
     var timeInterval:Double = 0.1
     
+    //MARK: -
+    //MARK: -
+    //MARK: -
+
     /// call shader to update 2D fractal window(s), and 3D vertex data
     func computeTexture(_ drawable:CAMetalDrawable) {
         // this appears to stop beachball delays if I cause key roll-over?
@@ -1205,6 +1208,23 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         c.Box_Iterations = Int32(control.fBox_Iterations)
 
         c.InvCenter = float3(c.InvCx, c.InvCy, c.InvCz)
+
+        //-----------------------------------------------
+        let colMap = [ colorMap1,colorMap2,colorMap3,colorMap4 ]
+        
+        func getColor(_ fIndex:Float, _ weight:Float) -> float4 {
+            let cm = colMap[palletteIndex]
+            let index = max(Int(fIndex),4)  // 1st 4 entries are black
+            let cc = cm[index]
+            
+            return float4(cc.x,cc.y,cc.z,weight)
+        }
+        
+        c.X = getColor(control.xIndex,control.xWeight)
+        c.Y = getColor(control.yIndex,control.yWeight)
+        c.Z = getColor(control.zIndex,control.zWeight)
+        c.R = getColor(control.rIndex,control.rWeight)
+        //-----------------------------------------------
 
         switch Int(control.equation) {
         case EQU_04_KLEINIAN, EQU_02_APOLLONIAN, EQU_03_APOLLONIAN2 :
@@ -1318,6 +1338,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     }
     
     //MARK: -
+    //MARK: -
+    //MARK: -
 
     func toggleInversion() {
         control.doInversion = !control.doInversion
@@ -1345,7 +1367,9 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             alterationSpeed = -3
             
             if !rightMouse {
-                jogCameraAndFocusPosition(dx,dy,0)
+                if instructionsG.isHidden || pt1.x > 75 { // not if over the instructions panel
+                    jogCameraAndFocusPosition(dx,dy,0)
+                }
             }
             else {
                 jogCameraAndFocusPosition(dx,0,dy)
@@ -1478,6 +1502,11 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         case "9","(" : jogCameraAndFocusPosition(0,0,+1)
         case "?","/" : fastRenderEnabled = !fastRenderEnabled
             
+        case "C" :
+            palletteIndex += 1
+            if(palletteIndex > 3) { palletteIndex = 0 }
+            flagViewToRecalcFractal()
+
         case "B" : control.showBalls = !control.showBalls; toggle2()
         case "F" : control.fourGen = !control.fourGen; toggle2()
         case "I" : toggleInversion()
@@ -1745,7 +1774,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         widget.addEntry("Light Position",&lightAngle,-3,3,0.3)
 
         widget.addEntry("Radial Symmetry",&control.radialAngle,0,Float.pi,0.03)
-
+    
         switch Int(control.equation) {
         case EQU_01_MANDELBULB :
             widget.addEntry("Iterations",&control.fMaxSteps,3,30,1)
@@ -2129,6 +2158,20 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             widget.addEntry("   Angle",&control.InvAngle,-10,10,0.01)
         }
         // ----------------------------
+        
+        widget.addLegend("-- OrbitTrap --")
+        widget.addEntry("Cycles",&control.Cycles,0,100,0.5)
+        widget.addEntry("O Strength",&control.OrbitStrength,0,1,0.1)
+        widget.addEntry("x Color",&control.xIndex,0,255,10)
+        widget.addEntry("x Weight",&control.xWeight,-5,5,0.1)
+        widget.addEntry("y Color",&control.yIndex,0,255,10)
+        widget.addEntry("y Weight",&control.yWeight,-5,5,0.1)
+        widget.addEntry("z Color",&control.zIndex,0,255,10)
+        widget.addEntry("z Weight",&control.zWeight,-5,5,0.1)
+        widget.addEntry("r Color",&control.rIndex,0,255,10)
+        widget.addEntry("r Weight",&control.rWeight,-5,5,0.1)
+        
+        // ----------------------------
 
         displayWidgets()
         updateWindowTitle()
@@ -2223,11 +2266,11 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             metalView.frame = CGRect(x:1, y:1, width:r.size.width-2, height:r.size.height-2)
         }
         
-        instructionsG.frame = CGRect(x:5, y:5, width:45, height:700)
+        instructionsG.frame = CGRect(x:5, y:5, width:75, height:800)
         instructionsG.bringToFront()
         instructionsG.refresh()
         
-        instructions.frame = CGRect(x:50, y:5, width:500, height:700)
+        instructions.frame = CGRect(x:50, y:5, width:500, height:800)
         instructions.textColor = .white
         instructions.backgroundColor = .black
         instructions.bringToFront()
