@@ -29,6 +29,8 @@ Includes equations for fifty 3D fractals : \
  DarkBeam Surfbox , Buffalo Bulb , Ancient Temple , Kali 3D  \
  Klienian Sponge, Floral Hybrid, Torus Knot, Donuts 
 
+Update: Finally added OrbitTrapping colorizing effects
+
 ![Screenshot](screenshot4.png)
 
 ![Screenshot](screenshot3.png)
