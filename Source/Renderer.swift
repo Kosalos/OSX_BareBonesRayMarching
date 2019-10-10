@@ -152,7 +152,7 @@ class Renderer: NSObject, MTKViewDelegate {
             uniforms[0].mvp =
                 projectionMatrix
                 * translate(camera.x,camera.y,camera.z)
-                * rotate(stereoAngle,float3(0,1,0))
+                * rotate(stereoAngle,SIMD3<Float>(0,1,0))
                 * arcBall.transformMatrix
         }
         else {
@@ -217,7 +217,7 @@ func radians_from_degrees(_ degrees: Float) -> Float {
     return (degrees / 180) * .pi
 }
 
-func translate(_ t: float3) -> float4x4 {
+func translate(_ t: SIMD3<Float>) -> float4x4 {
     var M = matrix_identity_float4x4
     
     M.columns.3.x = t.x
@@ -228,10 +228,10 @@ func translate(_ t: float3) -> float4x4 {
 }
 
 func translate(_ x: Float, _ y: Float, _ z: Float) -> float4x4 {
-    return translate(float3(x: x, y: y, z: z))
+    return translate(SIMD3<Float>(x: x, y: y, z: z))
 }
 
-func rotate(_ a: Float, _ r: float3) -> float4x4 {
+func rotate(_ a: Float, _ r: SIMD3<Float>) -> float4x4 {
     var c: Float = 0.0
     var s: Float = 0.0
     
@@ -245,28 +245,28 @@ func rotate(_ a: Float, _ r: float3) -> float4x4 {
     let v = s * u
     let w = k * u
     
-    let P = float4(
+    let P = SIMD4<Float>(
         x: w.x * u.x + c,
         y: w.x * u.y + v.z,
         z: w.x * u.z - v.y,
         w: 0.0
     )
     
-    let Q = float4(
+    let Q = SIMD4<Float>(
         x: w.x * u.y - v.z,
         y: w.y * u.y + c,
         z: w.y * u.z + v.x,
         w: 0.0
     )
     
-    let R = float4(
+    let R = SIMD4<Float>(
         x: w.x * u.z + v.y,
         y: w.y * u.z - v.x,
         z: w.z * u.z + c,
         w: 0.0
     )
     
-    let S = float4(
+    let S = SIMD4<Float>(
         x: 0.0,
         y: 0.0,
         z: 0.0,
@@ -277,7 +277,7 @@ func rotate(_ a: Float, _ r: float3) -> float4x4 {
 }
 
 func rotate(_ angle: Float, _ x: Float, _ y: Float, _ z: Float) -> float4x4 {
-    return rotate(angle, float3(x: x, y: y, z: z))
+    return rotate(angle, SIMD3<Float>(x: x, y: y, z: z))
 }
 
 
