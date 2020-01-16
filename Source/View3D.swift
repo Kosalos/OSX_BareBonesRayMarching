@@ -25,7 +25,7 @@ class View3D {
                 
                 v.texture.x = Float(x) / fSize
                 v.texture.y = Float(1) - Float(z) / fSize
-                v.color = SIMD4<Float>( Float(z) / fSize, Float(x) / fSize,1,1)
+                v.color = simd_float4( Float(z) / fSize, Float(x) / fSize,1,1)
                 
                 vData[index] = v
                 index += 1

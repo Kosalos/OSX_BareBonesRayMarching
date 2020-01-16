@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="15705" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14490.70"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="15705"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -97,11 +97,11 @@
                         <rect key="frame" x="0.0" y="0.0" width="252" height="300"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <customView id="8Wz-X6-zxw" customClass="MetalView" customModule="OSX_BareBonesRayMarching" customModuleProvider="target">
+                            <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8Wz-X6-zxw" customClass="MetalView" customModule="OSX_BareBonesRayMarching" customModuleProvider="target">
                                 <rect key="frame" x="20" y="136" width="150" height="154"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             </customView>
-                            <textField autoresizesSubviews="NO" wantsLayer="YES" verticalHuggingPriority="750" textCompletion="NO" id="fCH-5f-ISd">
+                            <textField autoresizesSubviews="NO" wantsLayer="YES" verticalHuggingPriority="750" fixedFrame="YES" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fCH-5f-ISd">
                                 <rect key="frame" x="99" y="20" width="121" height="88"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <shadow key="shadow" blurRadius="2">
@@ -114,7 +114,7 @@
                                     <color key="backgroundColor" name="windowBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <customView autoresizesSubviews="NO" wantsLayer="YES" id="yHc-Iz-xFz" customClass="InstructionsG" customModule="OSX_BareBonesRayMarching" customModuleProvider="target">
+                            <customView autoresizesSubviews="NO" wantsLayer="YES" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="yHc-Iz-xFz" customClass="InstructionsG" customModule="OSX_BareBonesRayMarching" customModuleProvider="target">
                                 <rect key="frame" x="20" y="20" width="46" height="108"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                             </customView>
@@ -138,7 +138,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="381" height="470"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="xOV-DN-5Jd" userLabel="Legend">
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xOV-DN-5Jd" userLabel="Legend">
                                 <rect key="frame" x="18" y="433" width="345" height="17"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" title="Save/Load Settings" id="IFb-oF-vJ5">
@@ -150,10 +150,10 @@
                                     <outlet property="delegate" destination="5u1-Pe-ug6" id="toh-Z5-6lz"/>
                                 </connections>
                             </textField>
-                            <scrollView autohidesScrollers="YES" horizontalLineScroll="30" horizontalPageScroll="10" verticalLineScroll="30" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="8wg-Zk-k8i">
+                            <scrollView fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="30" horizontalPageScroll="10" verticalLineScroll="30" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8wg-Zk-k8i">
                                 <rect key="frame" x="20" y="20" width="341" height="405"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <clipView key="contentView" id="kT9-vk-v50">
+                                <clipView key="contentView" ambiguous="YES" id="kT9-vk-v50">
                                     <rect key="frame" x="1" y="1" width="339" height="403"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
@@ -180,7 +180,7 @@
                                                             <rect key="frame" x="0.0" y="0.0" width="325" height="30"/>
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <subviews>
-                                                                <button verticalHuggingPriority="750" tag="1" id="o7u-4s-0qZ">
+                                                                <button verticalHuggingPriority="750" fixedFrame="YES" tag="1" translatesAutoresizingMaskIntoConstraints="NO" id="o7u-4s-0qZ">
                                                                     <rect key="frame" x="256" y="-3" width="70" height="32"/>
                                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                     <buttonCell key="cell" type="push" title="Save" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="oYR-j5-QC0">
@@ -191,7 +191,7 @@
                                                                         <action selector="saveTapped:" target="xEJ-TS-j0i" id="j2Q-0H-ago"/>
                                                                     </connections>
                                                                 </button>
-                                                                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="Evv-ZC-PSF">
+                                                                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Evv-ZC-PSF">
                                                                     <rect key="frame" x="11" y="9" width="245" height="14"/>
                                                                     <autoresizingMask key="autoresizingMask"/>
                                                                     <textFieldCell key="cell" lineBreakMode="clipping" id="vL5-90-Jeu">
@@ -238,21 +238,21 @@
             <objects>
                 <viewController storyboardIdentifier="HelpVC" id="sV0-5i-UiF" userLabel="HelpVC" customClass="HelpViewController" customModule="OSX_BareBonesRayMarching" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" appearanceType="aqua" id="17m-bx-P4L">
-                        <rect key="frame" x="0.0" y="0.0" width="410" height="551"/>
+                        <rect key="frame" x="0.0" y="0.0" width="472" height="551"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <scrollView borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" id="0Y0-tw-K88">
-                                <rect key="frame" x="20" y="20" width="370" height="511"/>
+                            <scrollView fixedFrame="YES" borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0Y0-tw-K88">
+                                <rect key="frame" x="20" y="20" width="432" height="511"/>
                                 <autoresizingMask key="autoresizingMask"/>
-                                <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="3Wn-US-Zn3">
-                                    <rect key="frame" x="0.0" y="0.0" width="355" height="511"/>
+                                <clipView key="contentView" ambiguous="YES" drawsBackground="NO" copiesOnScroll="NO" id="3Wn-US-Zn3">
+                                    <rect key="frame" x="0.0" y="0.0" width="417" height="511"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <textView editable="NO" selectable="NO" importsGraphics="NO" richText="NO" verticallyResizable="YES" findStyle="bar" allowsCharacterPickerTouchBarItem="NO" textCompletion="NO" id="Lyj-kM-q1d">
-                                            <rect key="frame" x="0.0" y="0.0" width="355" height="511"/>
+                                        <textView ambiguous="YES" editable="NO" selectable="NO" importsGraphics="NO" richText="NO" verticallyResizable="YES" findStyle="bar" allowsCharacterPickerTouchBarItem="NO" textCompletion="NO" id="Lyj-kM-q1d">
+                                            <rect key="frame" x="0.0" y="0.0" width="417" height="511"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                            <size key="minSize" width="355" height="511"/>
+                                            <size key="minSize" width="417" height="511"/>
                                             <size key="maxSize" width="566" height="10000000"/>
                                             <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                         </textView>
@@ -263,7 +263,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="cVa-8Y-UkL">
-                                    <rect key="frame" x="355" y="0.0" width="15" height="511"/>
+                                    <rect key="frame" x="417" y="0.0" width="15" height="511"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                             </scrollView>
@@ -275,7 +275,7 @@
                 </viewController>
                 <customObject id="sfn-lW-W4t" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-3582" y="625"/>
+            <point key="canvasLocation" x="-3551" y="624.5"/>
         </scene>
         <!--Win3D-->
         <scene sceneID="XC6-O9-I3h">
@@ -306,15 +306,15 @@
                         <rect key="frame" x="0.0" y="0.0" width="392" height="300"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <customView id="xqP-WP-jqk" customClass="MetalView3D" customModule="OSX_BareBonesRayMarching" customModuleProvider="target">
+                            <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xqP-WP-jqk" customClass="MetalView3D" customModule="OSX_BareBonesRayMarching" customModuleProvider="target">
                                 <rect key="frame" x="20" y="141" width="125" height="139"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             </customView>
-                            <customView id="N8K-PO-WSt" customClass="MetalView3D" customModule="OSX_BareBonesRayMarching" customModuleProvider="target">
+                            <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="N8K-PO-WSt" customClass="MetalView3D" customModule="OSX_BareBonesRayMarching" customModuleProvider="target">
                                 <rect key="frame" x="161" y="141" width="125" height="139"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             </customView>
-                            <textField autoresizesSubviews="NO" verticalHuggingPriority="750" textCompletion="NO" id="2HE-cz-qoV" userLabel="Instructions">
+                            <textField autoresizesSubviews="NO" verticalHuggingPriority="750" fixedFrame="YES" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2HE-cz-qoV" userLabel="Instructions">
                                 <rect key="frame" x="18" y="32" width="96" height="88"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" enabled="NO" refusesFirstResponder="YES" allowsUndo="NO" sendsActionOnEndEditing="YES" alignment="left" id="RM7-4u-6EC">
@@ -343,10 +343,10 @@
                         <rect key="frame" x="0.0" y="0.0" width="253" height="672"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <scrollView autohidesScrollers="YES" horizontalLineScroll="30" horizontalPageScroll="10" verticalLineScroll="30" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="6xh-t0-dWg">
+                            <scrollView fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="30" horizontalPageScroll="10" verticalLineScroll="30" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6xh-t0-dWg">
                                 <rect key="frame" x="20" y="20" width="213" height="602"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <clipView key="contentView" id="sLI-HG-0aD">
+                                <clipView key="contentView" ambiguous="YES" id="sLI-HG-0aD">
                                     <rect key="frame" x="1" y="1" width="211" height="600"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
@@ -388,7 +388,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                             </scrollView>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="WQl-tU-ixd" userLabel="Legend">
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="WQl-tU-ixd" userLabel="Legend">
                                 <rect key="frame" x="18" y="635" width="217" height="17"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" title="Select Fracal Equation" id="rpU-Wn-iQc">
@@ -439,10 +439,10 @@
                         <rect key="frame" x="0.0" y="0.0" width="373" height="552"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <scrollView autohidesScrollers="YES" horizontalLineScroll="30" horizontalPageScroll="10" verticalLineScroll="30" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="zad-mL-OXY">
+                            <scrollView fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="30" horizontalPageScroll="10" verticalLineScroll="30" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zad-mL-OXY">
                                 <rect key="frame" x="20" y="232" width="83" height="263"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <clipView key="contentView" id="1i8-Ck-Om7">
+                                <clipView key="contentView" ambiguous="YES" id="1i8-Ck-Om7">
                                     <rect key="frame" x="1" y="1" width="81" height="261"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
@@ -484,7 +484,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                             </scrollView>
-                            <button verticalHuggingPriority="750" id="fYR-Hm-s20">
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fYR-Hm-s20">
                                 <rect key="frame" x="14" y="184" width="242" height="32"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="push" title="Add Keyframe to end" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cUJ-eT-pOr">
@@ -495,7 +495,7 @@
                                     <action selector="addKeyframePressed:" target="KhK-EP-Yax" id="cVM-1l-BQc"/>
                                 </connections>
                             </button>
-                            <button verticalHuggingPriority="750" id="9bk-0u-Yoy">
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9bk-0u-Yoy">
                                 <rect key="frame" x="14" y="117" width="242" height="32"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="push" title="Update Selected Keyframe" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="mkV-tY-muK">
@@ -506,7 +506,7 @@
                                     <action selector="updateKeyframePressed:" target="KhK-EP-Yax" id="U4g-d1-Vv8"/>
                                 </connections>
                             </button>
-                            <button verticalHuggingPriority="750" id="Jni-xR-GsF">
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Jni-xR-GsF">
                                 <rect key="frame" x="14" y="93" width="242" height="32"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="push" title="Delete Selected Keyframe" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Sws-rV-uMq">
@@ -517,7 +517,7 @@
                                     <action selector="deleteKeyframePressed:" target="KhK-EP-Yax" id="rIe-nE-c0I"/>
                                 </connections>
                             </button>
-                            <button verticalHuggingPriority="750" id="58X-L3-haD">
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="58X-L3-haD">
                                 <rect key="frame" x="14" y="157" width="242" height="32"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="push" title="Insert Above Selected Keyframe" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="CiL-LX-zUw">
@@ -528,7 +528,7 @@
                                     <action selector="insertKeyframePressed:" target="KhK-EP-Yax" id="RXw-cu-AkQ"/>
                                 </connections>
                             </button>
-                            <button verticalHuggingPriority="750" id="Yv3-Y8-wUy">
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Yv3-Y8-wUy">
                                 <rect key="frame" x="260" y="93" width="99" height="32"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="push" title="Reset" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="G0M-qp-KSa">
@@ -539,7 +539,7 @@
                                     <action selector="resetPressed:" target="KhK-EP-Yax" id="mXu-1a-ZDf"/>
                                 </connections>
                             </button>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="neM-ha-ivG">
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="neM-ha-ivG">
                                 <rect key="frame" x="18" y="501" width="95" height="17"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" title="Keyframe List" id="Yfb-tM-fni">
@@ -548,7 +548,7 @@
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <segmentedControl verticalHuggingPriority="750" id="FpY-ag-NAE">
+                            <segmentedControl verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FpY-ag-NAE">
                                 <rect key="frame" x="123" y="472" width="131" height="24"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <segmentedCell key="cell" borderStyle="border" alignment="left" style="rounded" trackingMode="selectOne" id="rNL-ZG-dGh">
@@ -563,7 +563,7 @@
                                     <action selector="framesPerKeyframeChanged:" target="KhK-EP-Yax" id="F9w-qa-dmy"/>
                                 </connections>
                             </segmentedControl>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="4bX-YP-eSE">
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4bX-YP-eSE">
                                 <rect key="frame" x="123" y="501" width="174" height="17"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" title="Video frames per keyframe" id="aFf-eC-qkJ">
@@ -572,7 +572,7 @@
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <segmentedControl verticalHuggingPriority="750" id="dwH-6J-uDu">
+                            <segmentedControl verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dwH-6J-uDu">
                                 <rect key="frame" x="123" y="409" width="193" height="24"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <segmentedCell key="cell" borderStyle="border" alignment="left" segmentDistribution="fill" style="rounded" trackingMode="selectOne" id="2Pl-wq-Iza">
@@ -589,7 +589,7 @@
                                     <action selector="smoothingFactorChanged:" target="KhK-EP-Yax" id="7Y1-za-8Ya"/>
                                 </connections>
                             </segmentedControl>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="dDG-Ck-lLB">
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dDG-Ck-lLB">
                                 <rect key="frame" x="123" y="435" width="174" height="17"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <textFieldCell key="cell" lineBreakMode="clipping" title="Smoothing Factor" id="7FP-ge-cCF">
@@ -598,7 +598,7 @@
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <button verticalHuggingPriority="750" id="Cpd-MC-yJ7">
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Cpd-MC-yJ7">
                                 <rect key="frame" x="123" y="362" width="92" height="18"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="check" title="Ease In/Out" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="vGo-7p-n1n">
@@ -609,7 +609,7 @@
                                     <action selector="easeInOutChanged:" target="KhK-EP-Yax" id="6m3-sh-j0s"/>
                                 </connections>
                             </button>
-                            <textField verticalHuggingPriority="750" id="vDB-gl-9eo">
+                            <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="vDB-gl-9eo">
                                 <rect key="frame" x="20" y="11" width="333" height="81"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <textFieldCell key="cell" lineBreakMode="truncatingTail" refusesFirstResponder="YES" sendsActionOnEndEditing="YES" borderStyle="border" drawsBackground="YES" id="sqe-Ia-gLJ">
@@ -618,7 +618,7 @@
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <button verticalHuggingPriority="750" id="bgN-ji-icr">
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bgN-ji-icr">
                                 <rect key="frame" x="330" y="130" width="25" height="25"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="help" bezelStyle="helpButton" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="OxQ-KA-glU">
@@ -629,7 +629,7 @@
                                     <action selector="helpPressed:" target="KhK-EP-Yax" id="ixn-xx-yOq"/>
                                 </connections>
                             </button>
-                            <button verticalHuggingPriority="750" id="QMR-np-Wgc">
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="QMR-np-Wgc">
                                 <rect key="frame" x="119" y="270" width="147" height="32"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="push" title="Create Video" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="bam-mu-zzw">

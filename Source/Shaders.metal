@@ -2209,11 +2209,16 @@ float DE(float3 pos,device Control &control,thread float4 &orbitTrap) {
 float3 shortest_dist(float3 eye, float3 marchingDirection,device Control &control,thread float4 &orbitTrap) {
     float dist,hop = 0;
     float3 ans = float3(MIN_DIST,0,0);
+    float secondSurface = control.secondSurface;
     int i = 0;
     
     for(; i < MAX_MARCHING_STEPS; ++i) {
         dist = DE(eye + ans.x * marchingDirection,control,orbitTrap);
-        if(dist < MIN_DIST) break;
+        if(dist < MIN_DIST) {
+            if(secondSurface == 0.0) break;     // secondSurface is disabled (equals 0), or has 2already been used
+            ans.x += secondSurface;             // move along ray, and start looking for 2nd surface
+            secondSurface = 0;                  // set to zero as 'already been used' marker
+        }
 
         ans.x += dist;
         if(ans.x >= MAX_DIST) break;
@@ -2455,11 +2460,6 @@ kernel void rayMarchShader
         float d3 = d1-d2;
         color *= (1 + (1-d3) * c.enhance);
         
-        float3 c2 = color;
-        color.x = mix(c2.x,c2.y, c.colorRoll);
-        color.y = mix(c2.y,c2.z, c.colorRoll);
-        color.z = mix(c2.z,c2.x, c.colorRoll);
-
         color *= c.bright;
         color = 0.5 + (color - 0.5) * c.contrast * 2;
 

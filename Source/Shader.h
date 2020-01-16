@@ -127,7 +127,7 @@ struct Control {
     float colorParam;
     float radialAngle;
     float enhance;
-    float colorRoll;
+    float secondSurface;
 
     // orbit Trap -----------
     float Cycles;

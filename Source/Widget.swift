@@ -13,7 +13,7 @@ struct WidgetData {
     var legend:String = ""
     var valuePtr:UnsafeMutableRawPointer! = nil
     var delta:Float = 0
-    var range = SIMD2<Float>()
+    var range = simd_float2()
     var showValue:Bool = false
     
     func alterValue(_ direction:Int) -> Bool {
