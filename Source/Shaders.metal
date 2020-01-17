@@ -199,6 +199,10 @@ float DE_MANDELBULB(float3 pos,device Control &control,thread float4 &orbitTrap)
 float DE_APOLLONIAN(float3 pos,device Control &control,thread float4 &orbitTrap) {
     float k,t = control.foam2 + 0.25 * cos(control.bend * PI * control.multiplier * (pos.z - pos.x));
     float scale = 1;
+    float3 ot;
+    
+    float3 trap = pos + control.julia;
+    
     
     for(int i=0; i< control.maxSteps; ++i) {
         pos = -1.0 + 2.0 * fract(0.5 * pos + 0.5);
@@ -206,7 +210,8 @@ float DE_APOLLONIAN(float3 pos,device Control &control,thread float4 &orbitTrap)
         pos *= k * control.foam;
         scale *= k * control.foam;
         
-        orbitTrap = min(orbitTrap, float4(abs(pos), dot(pos,pos)));
+        ot = pos - trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
     return 1.5 * (0.25 * abs(pos.y) / scale);

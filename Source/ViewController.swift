@@ -136,7 +136,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         let ss = sph.x * sin(sph.z);
         return simd_float3( ss * cos(sph.y), ss * sin(sph.y), sph.x * cos(sph.z))
     }
-
+    
     func toSpherical(_ rec:simd_float3) -> simd_float3 { return simd_float3(length(rec), atan2(rec.y,rec.x), atan2(sqrt(rec.x*rec.x+rec.y*rec.y), rec.z)) }
     
     func updateShaderDirectionVector(_ v:simd_float3) {
@@ -195,7 +195,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         control.secondSurface = 0
         control.OrbitStrength = 0
         control.Cycles = 0
-
+        
         switch Int(control.equation) {
         case EQU_01_MANDELBULB :
             updateShaderDirectionVector(simd_float3(0.010000015, 0.41950363, 0.64503753))
@@ -211,7 +211,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
                 control.InvRadius =  2.14
                 control.InvAngle =  0.9100002
             }
-
+            
         case EQU_02_APOLLONIAN, EQU_03_APOLLONIAN2 :
             control.camera = simd_float3(0.42461035, 10.847559, 2.5749633)
             control.foam = 1.05265248
@@ -312,7 +312,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.cz = 1
             control.cw = 1.3
             control.fMaxSteps = 10
-
+            
             if control.doInversion {
                 control.camera = simd_float3( 0.0012031387 , -0.106357165 , -1.1865364 )
                 updateShaderDirectionVector(simd_float3( 0.0 , 0.09950372 , 0.9950372 ))
@@ -346,7 +346,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.cz = 2.899998
             control.cw = 3.0999982
             control.dx = 5
-
+            
             if control.doInversion {
                 control.camera = simd_float3( 0.62953156 , 0.51310825 , -5.1899557 )
                 updateShaderDirectionVector(simd_float3( 0.0 , 0.09950372 , 0.9950372 ))
@@ -367,7 +367,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.dy = 0.6
             control.dz = 0
             control.fMaxSteps = 15
-
+            
             if control.doInversion {
                 control.camera = simd_float3( 0.042072453 , -0.99094355 , -1.6142143 )
                 updateShaderDirectionVector(simd_float3( 0.012995181 , 0.54515177 , 0.83823675 ))
@@ -1192,7 +1192,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     //MARK: -
     //MARK: -
     //MARK: -
-
+    
     /// call shader to update 2D fractal window(s), and 3D vertex data
     func computeTexture(_ drawable:CAMetalDrawable) {
         // this appears to stop beachball delays if I cause key roll-over?
@@ -1213,9 +1213,9 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         c.nlight = normalize(c.light)
         c.maxSteps = Int32(control.fMaxSteps);
         c.Box_Iterations = Int32(control.fBox_Iterations)
-
+        
         c.InvCenter = simd_float3(c.InvCx, c.InvCy, c.InvCz)
-
+        
         //-----------------------------------------------
         let colMap = [ colorMap1,colorMap2,colorMap3,colorMap4 ]
         
@@ -1232,7 +1232,9 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         c.Z = getColor(control.zIndex,control.zWeight)
         c.R = getColor(control.rIndex,control.rWeight)
         //-----------------------------------------------
-
+        
+        prepareJulia()
+        
         switch Int(control.equation) {
         case EQU_04_KLEINIAN, EQU_02_APOLLONIAN, EQU_03_APOLLONIAN2 :
             c.Final_Iterations = Int32(control.fFinal_Iterations)
@@ -1347,7 +1349,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     //MARK: -
     //MARK: -
     //MARK: -
-
+    
     func toggleInversion() {
         control.doInversion = !control.doInversion
         defineWidgetsForCurrentEquation()
@@ -1362,7 +1364,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     
     override func mouseDown(with event: NSEvent) { pt1 = event.locationInWindow }
     override func rightMouseDown(with event: NSEvent) { pt1 = event.locationInWindow }
-
+    
     func mouseDrag2DImage(_ rightMouse:Bool) {
         if control.win3DFlag == 0 { // no 3D window active = mouse dragging pans 2D image
             var dx:Int = 0
@@ -1394,6 +1396,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         mouseDrag2DImage(true)
     }
     
+    var control2 = Control()
+    
     // if 3D window is active: user has dragged a 3D region of interest (ROI) with left mouse button
     override func mouseUp(with event: NSEvent) {
         if control.win3DFlag != 0 {
@@ -1402,7 +1406,9 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.ymax3D = uint(control.ySize - Int32(min(pt1.y,pt2.y) * 2))
             control.ymin3D = uint(control.ySize - Int32(max(pt1.y,pt2.y) * 2))
             
-            func ensureSizeAndBounds(_ v1:inout uint, _ v2:inout uint, _ sz:Int32) {
+            func ensureSizeAndBounds(_ v1:uint, _ v2:uint, _ sz:Int32) -> (min:uint, max:uint) {
+                var v1 = v1
+                var v2 = v2
                 if v2 - v1 < SIZE3D {
                     v2 = v1 + uint(SIZE3D)
                     if v2 >= sz {
@@ -1410,23 +1416,30 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
                         v2 = v1 + uint(SIZE3D)
                     }
                 }
+                
+                return (v1,v2)
             }
             
-            ensureSizeAndBounds(&control.xmin3D,&control.xmax3D,control.xSize)
-            ensureSizeAndBounds(&control.ymin3D,&control.ymax3D,control.ySize)
+            let x = ensureSizeAndBounds(control.xmin3D,control.xmax3D,control.xSize)
+            control.xmin3D = x.min
+            control.xmax3D = x.max
+            let y = ensureSizeAndBounds(control.ymin3D,control.ymax3D,control.ySize)
+            control.ymin3D = y.min
+            control.ymax3D = y.max
+            
             flagViewToRecalcFractal()
         }
         else {
             jogRelease(1,1,1)
         }
     }
-
+    
     override func rightMouseUp(with event: NSEvent) {
         if control.win3DFlag == 0 {
             jogRelease(1,1,1)
         }
     }
-
+    
     //MARK: -
     
     func presentPopover(_ name:String) {
@@ -1436,12 +1449,12 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     }
     
     var ctrlKeyDown:Bool = false
-
+    
     func updateModifierKeyFlags(_ ev:NSEvent) {
         let rv = ev.modifierFlags.intersection(.deviceIndependentFlagsMask).rawValue
         ctrlKeyDown   = rv & (1 << 18) != 0
     }
-
+    
     override func keyDown(with event: NSEvent) {
         func toggle2() {
             defineWidgetsForCurrentEquation()
@@ -1451,10 +1464,10 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
                 reset()
             default : break
             }
-
+            
             flagViewToRecalcFractal()
         }
-
+        
         updateModifierKeyFlags(event)
         
         super.keyDown(with: event)
@@ -1513,7 +1526,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             palletteIndex += 1
             if(palletteIndex > 3) { palletteIndex = 0 }
             flagViewToRecalcFractal()
-
+            
         case "B" : control.showBalls = !control.showBalls; toggle2()
         case "F" : control.fourGen = !control.fourGen; toggle2()
         case "I" : toggleInversion()
@@ -1579,7 +1592,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     
     override func keyUp(with event: NSEvent) {
         super.keyUp(with: event)
-
+        
         switch event.charactersIgnoringModifiers!.uppercased() {
         case "4","$","5","%" : jogRelease(1,0,0)
         case "6","^","7","&" : jogRelease(0,1,0)
@@ -1603,7 +1616,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         if dy != 0 { jogAmount.y = 0 }
         if dz != 0 { jogAmount.z = 0 }
     }
-
+    
     func performJog() -> Bool {
         if jogAmount.x == 0 && jogAmount.y == 0 && jogAmount.z == 0 { return false}
         
@@ -1619,7 +1632,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         setShaderToFastRender()
         return true
     }
-
+    
     /// toggle display of companion 3D window
     func toggleDisplayOfCompanion3DView() {
         control.win3DFlag = control.win3DFlag > 0 ? 0 : 1
@@ -1642,7 +1655,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         
         flagViewToRecalcFractal() // redraw 2D so that ROI rectangle is drawn (or erased)
     }
-
+    
     /// toggle display of video recorder window
     func launchVideoRecorder() {
         if videoRecorderWindow == nil {
@@ -1697,7 +1710,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         print("control.contrast =",control.contrast)
         print("control.specular =",control.specular)
         print("control.colorParam =",control.colorParam)
-
+        
         print("updateShaderDirectionVector(",control.viewVector.debugDescription,")")
         
         //----------------------------------
@@ -1757,7 +1770,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         func juliaGroup(_ range:Float = 10, _ delta:Float = 1) {
             widget.addLegend("")
             widget.addBoolean("J: Julia Mode",&control.juliaboxMode)
-
+            
             if control.juliaboxMode {
                 widget.addEntry("  X",&control.juliaX,-range,range, delta)
                 widget.addEntry("  Y",&control.juliaY,-range,range, delta)
@@ -1769,7 +1782,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         
         if control.isStereo { widget.addEntry("Parallax",&control.parallax,0.001,1,0.01) }
         widget.addEntry("Bright",&control.bright,0.01,10,0.02)
-
+        
         if control.colorScheme == 6 || control.colorScheme == 7 {
             widget.addEntry("Color Boost",&control.colorParam,1,1200000,200)
         }
@@ -1778,10 +1791,10 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         widget.addEntry("Contrast",&control.contrast,0.1,0.7,0.02)
         widget.addEntry("Specular",&control.specular,0,2,0.1)
         widget.addEntry("Light Position",&lightAngle,-3,3,0.3)
-
+        
         widget.addEntry("Second Surface",&control.secondSurface,0,2,0.0003)
         widget.addEntry("Radial Symmetry",&control.radialAngle,0,Float.pi,0.03)
-    
+        
         switch Int(control.equation) {
         case EQU_01_MANDELBULB :
             widget.addEntry("Iterations",&control.fMaxSteps,3,30,1)
@@ -1792,6 +1805,10 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             widget.addEntry("Foam",&control.foam,0.1,3,0.02)
             widget.addEntry("Foam2",&control.foam2,0.1,3,0.02)
             widget.addEntry("Bend",&control.bend,0.01,0.03,0.0001)
+            
+            control.juliaboxMode = true
+            juliaGroup(10,0.01)
+            
         case EQU_04_KLEINIAN :
             widget.addBoolean("B: ShowBalls",&control.showBalls)
             widget.addBoolean("F: FourGen",&control.fourGen)
@@ -2144,7 +2161,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             widget.addEntry("Mult",&control.dy, 0.01,2,0.01)
         default : break  // zorro
         }
-
+        
         // ----------------------------
         widget.addLegend("")
         widget.addBoolean("P: Texture",&control.txtOnOff)
@@ -2156,7 +2173,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         // ----------------------------
         widget.addLegend("")
         widget.addBoolean("I: Spherical Inversion",&control.doInversion)
-
+        
         if control.doInversion {
             widget.addEntry("   X",&control.InvCx,-5,5,0.002)
             widget.addEntry("   Y",&control.InvCy,-5,5,0.002)
@@ -2179,7 +2196,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         widget.addEntry("r Color",&control.rIndex,0,255,10)
         
         // ----------------------------
-
+        
         displayWidgets()
         updateWindowTitle()
     }
@@ -2281,7 +2298,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         instructions.textColor = .white
         instructions.backgroundColor = .black
         instructions.bringToFront()
-
+        
         updateThreadGroupsAccordingToWindowSize()
         flagViewToRecalcFractal()
     }
