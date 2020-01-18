@@ -200,7 +200,7 @@ class Win3DViewController: NSViewController, NSWindowDelegate, WidgetDelegate {
         }
 
         switch event.charactersIgnoringModifiers!.uppercased() {
-        case "\\" : // set focus to Fractal window
+        case "\\" : // set focus to next window
             vc.view.window?.makeMain()
             vc.view.window?.makeKey()
         case " " :

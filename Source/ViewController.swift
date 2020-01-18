@@ -109,7 +109,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         control.win3DFlag = 0
         flagViewToRecalcFractal() // to erase bounding box
     }
-    
+        
     //MARK: -
     
     @objc func timerHandler() {
@@ -195,6 +195,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         control.secondSurface = 0
         control.OrbitStrength = 0
         control.Cycles = 0
+        control.orbitStyle = 0
         
         switch Int(control.equation) {
         case EQU_01_MANDELBULB :
@@ -1234,6 +1235,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         //-----------------------------------------------
         
         prepareJulia()
+        control.otFixed = simd_float3(control.otFixedX,control.otFixedY,control.otFixedZ)
         
         switch Int(control.equation) {
         case EQU_04_KLEINIAN, EQU_02_APOLLONIAN, EQU_03_APOLLONIAN2 :
@@ -1498,7 +1500,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         case "O" :
             presentPopover("EquationPickerVC")
             return
-        case "\\" : // set focus to 3D window
+        case "\\" : // set focus to child window
             if vc3D != nil {
                 vc3D.view.window?.makeMain()
                 vc3D.view.window?.makeKey()
@@ -2170,6 +2172,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             widget.addEntry("   Y",&control.tCenterY,0.01,1,0.02)
             widget.addEntry("   Scale",&control.tScale,0.01,1,0.02)
         }
+
         // ----------------------------
         widget.addLegend("")
         widget.addBoolean("I: Spherical Inversion",&control.doInversion)
@@ -2181,22 +2184,25 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             widget.addEntry("   Radius",&control.InvRadius,0.01,10,0.01)
             widget.addEntry("   Angle",&control.InvAngle,-10,10,0.01)
         }
-        // ----------------------------
-        
-        widget.addLegend("-- OrbitTrap --")
-        widget.addEntry("Cycles",&control.Cycles,0,100,0.5)
-        widget.addEntry("O Strength",&control.OrbitStrength,0,1,0.1)
-        widget.addEntry("x Weight",&control.xWeight,-5,5,0.1)
-        widget.addEntry("y Weight",&control.yWeight,-5,5,0.1)
-        widget.addEntry("z Weight",&control.zWeight,-5,5,0.1)
-        widget.addEntry("r Weight",&control.rWeight,-5,5,0.1)
-        widget.addEntry("x Color",&control.xIndex,0,255,10)
-        widget.addEntry("y Color",&control.yIndex,0,255,10)
-        widget.addEntry("z Color",&control.zIndex,0,255,10)
-        widget.addEntry("r Color",&control.rIndex,0,255,10)
         
         // ----------------------------
-        
+        widget.addLegend("")
+        widget.addLegend("Orbit Trap --")
+        widget.addEntry("O Strength",&vc.control.OrbitStrength,0,1,0.1)
+        widget.addEntry("Cycles",&vc.control.Cycles,0,100,0.5)
+        widget.addEntry("X Weight",&vc.control.xWeight,-5,5,0.1)
+        widget.addEntry("Y",&vc.control.yWeight,-5,5,0.1)
+        widget.addEntry("Z",&vc.control.zWeight,-5,5,0.1)
+        widget.addEntry("R",&vc.control.rWeight,-5,5,0.1)
+        widget.addEntry("X Color",&vc.control.xIndex,0,255,10)
+        widget.addEntry("Y",&vc.control.yIndex,0,255,10)
+        widget.addEntry("Z",&vc.control.zIndex,0,255,10)
+        widget.addEntry("R",&vc.control.rIndex,0,255,10)
+        widget.addEntry("Fixed Trap",&control.orbitStyle,0,2,1,.integer,true)
+        widget.addEntry("X",&vc.control.otFixedX,-10,10,0.1)
+        widget.addEntry("Y",&vc.control.otFixedY,-10,10,0.1)
+        widget.addEntry("Z",&vc.control.otFixedZ,-10,10,0.1)
+
         displayWidgets()
         updateWindowTitle()
     }

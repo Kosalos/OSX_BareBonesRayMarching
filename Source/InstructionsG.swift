@@ -17,10 +17,15 @@ class InstructionsG: NSView {
             if vc.widget.data[i].kind == .float {
                 r = NSMakeRect(3,CGFloat(y),36,CGFloat(YS))
                 context?.setStrokeColor(i == vc.widget.focus ? NSColor.red.cgColor : NSColor.white.cgColor)
+                
+                // green when at limits
+                let p = vc.widget.data[i].valuePercent()
+                if(p == 0 || p == 100) { context?.setStrokeColor(NSColor.green.cgColor) }
+                
                 context?.setLineWidth(1.0)
                 context?.stroke(r)
                 
-                let xp = CGFloat(3 + vc.widget.data[i].valuePercent() * 36 / 100)
+                let xp = CGFloat(3 + p * 36 / 100)
 
                 r = NSMakeRect(xp,CGFloat(y),2,CGFloat(YS))
                 context?.setLineWidth(2.0)

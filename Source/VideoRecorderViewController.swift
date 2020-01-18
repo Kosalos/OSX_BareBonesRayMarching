@@ -425,7 +425,7 @@ class VideoRecorderViewController: NSViewController, NSTableViewDataSource, NSTa
 
 class BackgroundView: NSView {
     override func draw(_ rect: NSRect) {
-        NSColor(red:0.6, green:0.6, blue:0.8, alpha:1).set()
+        NSColor(red:0.6, green:0.6, blue:0.6, alpha:1).set()
         NSBezierPath(rect:bounds).fill()
     }
 }

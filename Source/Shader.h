@@ -132,9 +132,12 @@ struct Control {
     // orbit Trap -----------
     float Cycles;
     float OrbitStrength;
-    vector_float4 X,Y,Z,R;
-    float xIndex,yIndex,zIndex,rIndex;
-    float xWeight,yWeight,zWeight,rWeight;
+    vector_float4 X,Y,Z,R;  // color RGB from lookup table
+    float xIndex,yIndex,zIndex,rIndex; // color palette index
+    float xWeight,yWeight,zWeight,rWeight; // color weight
+    float orbitStyle;
+    float otFixedX,otFixedY,otFixedZ;
+    vector_float3 otFixed;
 };
 
 // 3D window ---------------------------------

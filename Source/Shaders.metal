@@ -173,6 +173,9 @@ float DE_MANDELBULB(float3 pos,device Control &control,thread float4 &orbitTrap)
     float dr = 1;
     float r,theta,phi,pwr,ss;
 
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     for(int i=0; i < control.maxSteps; ++i) {
         r = length(pos);
         if(r > 2) break;
@@ -188,7 +191,9 @@ float DE_MANDELBULB(float3 pos,device Control &control,thread float4 &orbitTrap)
 
         dr = (pow(r, control.power - 1.0) * control.power * dr ) + 1.0;
         
-        float4 hk = float4(pos,r);
+        ot = pos;
+        if(control.orbitStyle > 0) ot -= trap;
+        float4 hk = float4(ot,r);
         orbitTrap = min(orbitTrap, dot(hk,hk));
     }
 
@@ -199,10 +204,9 @@ float DE_MANDELBULB(float3 pos,device Control &control,thread float4 &orbitTrap)
 float DE_APOLLONIAN(float3 pos,device Control &control,thread float4 &orbitTrap) {
     float k,t = control.foam2 + 0.25 * cos(control.bend * PI * control.multiplier * (pos.z - pos.x));
     float scale = 1;
-    float3 ot;
-    
-    float3 trap = pos + control.julia;
-    
+
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
     
     for(int i=0; i< control.maxSteps; ++i) {
         pos = -1.0 + 2.0 * fract(0.5 * pos + 0.5);
@@ -210,7 +214,8 @@ float DE_APOLLONIAN(float3 pos,device Control &control,thread float4 &orbitTrap)
         pos *= k * control.foam;
         scale *= k * control.foam;
         
-        ot = pos - trap;
+        ot = pos;
+        if(control.orbitStyle > 0) ot -= trap;
         orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
@@ -222,6 +227,9 @@ float DE_APOLLONIAN2(float3 pos,device Control &control,thread float4 &orbitTrap
     float t = control.foam2 + 0.25 * cos(control.bend * PI * control.multiplier * (pos.z - pos.x));
     float scale = 1;
     
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     for(int i=0; i< control.maxSteps; ++i) {
         pos = -1.0 + 2.0 * fract(0.5 * pos + 0.5);
         pos -= sign(pos) * control.foam / 20;
@@ -230,7 +238,9 @@ float DE_APOLLONIAN2(float3 pos,device Control &control,thread float4 &orbitTrap
         pos *= k;
         scale *= k;
         
-        orbitTrap = min(orbitTrap, float4(abs(pos), dot(pos,pos)));
+        ot = pos;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
     float d1 = sqrt( min( min( dot(pos.xy,pos.xy), dot(pos.yz,pos.yz) ), dot(pos.zx,pos.zx) ) ) - 0.02;
@@ -266,6 +276,10 @@ float JosKleinian(float3 z,device Control &control,thread float4 &orbitTrap) {
     float DF = 1.0;
     float a = control.KleinR, b = control.KleinI;
     float f = sign(b) ;
+
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= z;
+    
     for (int i = 0; i < control.Box_Iterations; i++) {
         z.x=z.x+b/a*z.y;
         if (control.fourGen)
@@ -290,8 +304,9 @@ float JosKleinian(float3 z,device Control &control,thread float4 &orbitTrap) {
         //Store previous iterates
         llz=lz; lz=z;
         
-        orbitTrap = min(orbitTrap, float4(abs(z), dot(z,z)));
-
+        ot = z;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
     //WIP: Push the iterated point left or right depending on the sign of KleinI
@@ -342,6 +357,9 @@ float DE_MANDELBOX(float3 pos,device Control &control,thread float4 &orbitTrap) 
     float fR2 = control.cz * control.cz;
     float mR2 = control.cw * control.cw;
 
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     for(int i = 0; i < control.maxSteps; ++i) {
         if(control.doInversion) {
             pos.x = boxFold(pos.x,control.cx);
@@ -370,7 +388,9 @@ float DE_MANDELBOX(float3 pos,device Control &control,thread float4 &orbitTrap) 
         pos = pos * control.power + c;
         dr *= control.power;
         
-        orbitTrap = min(orbitTrap, float4(abs(pos), dot(pos,pos)));
+        ot = pos;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
 
     return length(pos)/abs(dr);
@@ -384,6 +404,9 @@ float DE_QUATJULIA(float3 pos,device Control &control,thread float4 &orbitTrap) 
     float4 z = float4(pos,0);
     float mz2 = dot(z,z);
     
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     for(int i=0;i < control.maxSteps; ++i) {
         md2 *= 4.0 * mz2;
         nz.x = z.x * z.x - dot(z.yzw,z.yzw);
@@ -392,8 +415,10 @@ float DE_QUATJULIA(float3 pos,device Control &control,thread float4 &orbitTrap) 
         
         mz2 = dot(z,z);
         if(mz2 > 12.0) break;
-        
-        orbitTrap = min(orbitTrap, float4(abs(z.xyz), mz2));
+
+        ot = z.xyz;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), mz2));
     }
     
     return 0.3 * sqrt(mz2/md2) * log(mz2);
@@ -427,6 +452,9 @@ float DE_MONSTER(float3 pos,device Control &control,thread float4 &orbitTrap) {
         control.mm[3].xyz = float3( 0.15, 0.05, -0.07 ) + 0.05*sin(float3(0.0,1.0,2.0) + 0.2*float3(0.31,0.24,0.42)*time1);
     }
     
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     for( int i=0; i < control.maxSteps; i++ ) {
         m = min( m, dot(pos,pos) /(k*k) );
         pos = (control.mm * float4((abs(pos)),1.0)).xyz;
@@ -435,8 +463,10 @@ float DE_MONSTER(float3 pos,device Control &control,thread float4 &orbitTrap) {
         if(r > 1) break;
         
         k *= control.cw;
-        
-        orbitTrap = min(orbitTrap, float4(abs(pos), r));
+
+        ot = pos;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
     float d = (length(pos)-0.5)/k;
@@ -465,13 +495,18 @@ float DE_KALI_TOWER(float3 pos,device Control &control,thread float4 &orbitTrap)
     p.y -= control.cy * 0.25;
     p.y = abs(3.-fract((p.y - control.cy) / 2));
     
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     for (int i=0; i < control.maxSteps; i++) {
         p.xyz = abs(p.xyz) - float3(.0,control.cx,.0);
         p = p * 2./clamp(dot(p.xyz,p.xyz),.3,1.) - float4(0.5,1.5,0.5,0.);
         
         p = rotateXZ(p,aa * control.cz);
         
-        orbitTrap = min(orbitTrap, abs(p));
+        ot = p.xyz;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
 
     float fl = pos.y-3.7 - length(sin(pos.xz * 60))*.01;
@@ -529,6 +564,9 @@ float DE_POLY_MENGER(float3 p,device Control &control,thread float4 &orbitTrap) 
     p.z += 0.6 * (1. + b.z);
     p.xy /= 1. - control.cz * p.z;
 
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= p;
+    
     for (float n = 0.; n < nIt; n ++) {
         p = abs (p);
         p.xy = (p.x > p.y) ? p.xy : p.yx;
@@ -537,7 +575,9 @@ float DE_POLY_MENGER(float3 p,device Control &control,thread float4 &orbitTrap) 
         p = sclFac * p - b;
         p.z += b.z * step (p.z, -0.5 * b.z);
         
-        orbitTrap = min(orbitTrap, float4(abs(p), dot(p,p)));
+        ot = p;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
 
     return 0.8 * PrBoxDf (p, float3 (1.)) / pow (sclFac, nIt);
@@ -550,11 +590,16 @@ float DE_GOLD(float3 p,device Control &control,thread float4 &orbitTrap) {
     float3 offset1 = float3(control.cx, control.cy, control.cz);
     float4 offset2 = float4(control.cw, control.dx, control.dy, control.dz);
 
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= p;
+    
     for(int n = 0; n < control.maxSteps; ++n) {
         q.xyz = abs(q.xyz) - offset1;
         q = 2.0*q/clamp(dot(q.xyz, q.xyz), 0.4, 1.0) - offset2;
         
-        orbitTrap = min(orbitTrap, abs(q));
+        ot = q.xyz;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
     return length(q.xyz)/q.w;
@@ -571,13 +616,18 @@ float DE_SPIDER(float3 p,device Control &control,thread float4 &orbitTrap) {
     float t = length(p.xy);
     float s = 1.0;
     
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= p;
+    
     for(int i = 0; i < 2; ++i) {
         float m = dot(p,p);
         p = abs(fract(p/m)-0.5);
         p = rotatePosition(p,0,q);
         s *= m;
 
-        orbitTrap = min(orbitTrap, float4(abs(p),dot(p,p)));
+        ot = p;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
     float d = (length(p.xz) - control.cz) * s;
@@ -588,13 +638,18 @@ float DE_SPIDER(float3 p,device Control &control,thread float4 &orbitTrap) {
 float DE_KLEINIAN2(float3 pos,device Control &control,thread float4 &orbitTrap) {
     float k, scale = 1;
 
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     for(int i=0; i < 7; ++i) {
         pos = 2 * clamp(pos, control.mins.xyz, control.maxs.xyz) - pos;
         k = max(control.mins.w / dot(pos,pos), control.power);
         pos *= k;
         scale *= k;
 
-        orbitTrap = min(orbitTrap, float4(abs(pos),dot(pos,pos)));
+        ot = pos;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
 
     float rxy = length(pos.xy);
@@ -608,6 +663,9 @@ float DE_KIFS(float3 pos,device Control &control,thread float4 &orbitTrap) {
     float scale = control.cy;
     float q;
     
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     for(int n = 0; n < control.maxSteps; ++n) {
         z = abs(z);
         if (z.x<z.y)z.xy = z.yx;
@@ -620,7 +678,9 @@ float DE_KIFS(float3 pos,device Control &control,thread float4 &orbitTrap) {
         if(z.z < -0.5 * q)
             z.z += q;
 
-        orbitTrap = min(orbitTrap, abs(z));
+        ot = z.xyz;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
     return(length(max(abs(z.xyz)-float3(1.0),0.0))-0.05)/z.w;
@@ -629,6 +689,10 @@ float DE_KIFS(float3 pos,device Control &control,thread float4 &orbitTrap) {
 //MARK: - 14
 float DE_IFS_TETRA(float3 pos,device Control &control,thread float4 &orbitTrap) {
     int n = 0;
+
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     while(n < 25) {
         pos = rotatePosition(pos,0,control.angle1);
         
@@ -639,7 +703,9 @@ float DE_IFS_TETRA(float3 pos,device Control &control,thread float4 &orbitTrap) 
         pos = pos * control.cx - float3(1,1,1) * (control.cx - 1.0);
         pos = rotatePosition(pos,1,control.angle2);
         
-        orbitTrap = min(orbitTrap, float4(abs(pos),dot(pos,pos)));
+        ot = pos;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
 
         n++;
     }
@@ -650,7 +716,11 @@ float DE_IFS_TETRA(float3 pos,device Control &control,thread float4 &orbitTrap) 
 //MARK: - 15
 float DE_IFS_OCTA(float3 pos,device Control &control,thread float4 &orbitTrap) {
     int n = 0;
-    while(n < 18) { 
+
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
+    while(n < 18) {
         pos = rotatePosition(pos,0,control.angle1);
         
         if(pos.x+pos.y < 0.0) pos.xy = -pos.yx;
@@ -661,7 +731,9 @@ float DE_IFS_OCTA(float3 pos,device Control &control,thread float4 &orbitTrap) {
         pos = pos * control.cx - float3(1,0,0) * (control.cx - 1.0);
         pos = rotatePosition(pos,1,control.angle2);
 
-        orbitTrap = min(orbitTrap, float4(abs(pos),dot(pos,pos)));
+        ot = pos;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
 
         n++;
     }
@@ -673,6 +745,10 @@ float DE_IFS_OCTA(float3 pos,device Control &control,thread float4 &orbitTrap) {
 float DE_IFS_DODEC(float3 pos,device Control &control,thread float4 &orbitTrap) {
     int n = 0;
     float d;
+
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     while(n < 30) {
         pos = rotatePosition(pos,0,control.angle1);
         
@@ -692,7 +768,9 @@ float DE_IFS_DODEC(float3 pos,device Control &control,thread float4 &orbitTrap) 
         d = dot(pos,pos);
         if(d > 12) break;
         
-        orbitTrap = min(orbitTrap, float4(abs(pos),d));
+        ot = pos;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), d));
 
         n++;
     }
@@ -708,6 +786,9 @@ float DE_IFS_MENGER(float3 pos,device Control &control,thread float4 &orbitTrap)
     float d1 = max(pp.x,max(pp.y,pp.z));
     float d = d1;
     
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     for(int i = 0; i < control.maxSteps; ++i) {
         float3 posa = mod(3.0 * pos * k, 3.0);
         k *= control.cx;
@@ -717,7 +798,9 @@ float DE_IFS_MENGER(float3 pos,device Control &control,thread float4 &orbitTrap)
         d1 = min(max(pp.x,pp.z),min(max(pp.x,pp.y),max(pp.y,pp.z)))/k;
         d = max(d,d1);
         
-        orbitTrap = min(orbitTrap, float4(abs(pp),dot(pp,pp)));
+        ot = pp;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
     return d;
@@ -727,6 +810,9 @@ float DE_IFS_MENGER(float3 pos,device Control &control,thread float4 &orbitTrap)
 float DE_SIERPINSKI_T(float3 pos,device Control &control,thread float4 &orbitTrap) {
     int i;
 
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     for(i=0;i < control.maxSteps; ++i) {
         pos = rotatePosition(pos,0,control.angle1);
 
@@ -738,7 +824,9 @@ float DE_SIERPINSKI_T(float3 pos,device Control &control,thread float4 &orbitTra
         pos = pos * control.cx - control.n1 * (control.cx - 1.0);
         if(length(pos) > 4) break;
         
-        orbitTrap = min(orbitTrap, float4(abs(pos),dot(pos,pos)));
+        ot = pos;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
     return (length(pos) - 2) * pow(control.cx, -float(i));
@@ -747,6 +835,9 @@ float DE_SIERPINSKI_T(float3 pos,device Control &control,thread float4 &orbitTra
 //MARK: - 19
 float DE_HALF_TETRA(float3 pos,device Control &control,thread float4 &orbitTrap) {
     int i;
+    
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
     
     for(i=0;i < control.maxSteps; ++i) {
         pos = rotatePosition(pos,0,control.angle1);
@@ -759,7 +850,9 @@ float DE_HALF_TETRA(float3 pos,device Control &control,thread float4 &orbitTrap)
         pos = pos * control.cx - control.n1 * (control.cx - 1.0);
         if(length(pos) > 4) break;
 
-        orbitTrap = min(orbitTrap, float4(abs(pos),dot(pos,pos)));
+        ot = pos;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
     return (length(pos) - 2) * pow(control.cx, -float(i));
@@ -768,6 +861,9 @@ float DE_HALF_TETRA(float3 pos,device Control &control,thread float4 &orbitTrap)
 //MARK: - 20
 float DE_FULL_TETRA(float3 pos,device Control &control,thread float4 &orbitTrap) {
     int i;
+    
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
     
     for(i=0;i < control.maxSteps; ++i) {
         pos = rotatePosition(pos,0,control.angle1);
@@ -783,7 +879,9 @@ float DE_FULL_TETRA(float3 pos,device Control &control,thread float4 &orbitTrap)
         pos = pos * control.cx - control.n1 * (control.cx - 1.0);
         if(length(pos) > 4) break;
 
-        orbitTrap = min(orbitTrap, float4(abs(pos),dot(pos,pos)));
+        ot = pos;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
     return (length(pos) - 2) * pow(control.cx, -float(i));
@@ -792,6 +890,9 @@ float DE_FULL_TETRA(float3 pos,device Control &control,thread float4 &orbitTrap)
 //MARK: - 21
 float DE_CUBIC(float3 pos,device Control &control,thread float4 &orbitTrap) {
     int i;
+    
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
     
     for(i=0;i < control.maxSteps; ++i) {
         pos = rotatePosition(pos,0,control.angle1);
@@ -802,7 +903,9 @@ float DE_CUBIC(float3 pos,device Control &control,thread float4 &orbitTrap) {
         pos = pos * control.cx - control.n1 * (control.cx - 1.0);
         if(length(pos) > 4) break;
 
-        orbitTrap = min(orbitTrap, float4(abs(pos),dot(pos,pos)));
+        ot = pos;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
     return (length(pos) - 2) * pow(control.cx, -float(i));
@@ -811,6 +914,9 @@ float DE_CUBIC(float3 pos,device Control &control,thread float4 &orbitTrap) {
 //MARK: - 22
 float DE_HALF_OCTA(float3 pos,device Control &control,thread float4 &orbitTrap) {
     int i;
+    
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
     
     for(i=0;i < control.maxSteps; ++i) {
         pos = rotatePosition(pos,0,control.angle1);
@@ -824,7 +930,9 @@ float DE_HALF_OCTA(float3 pos,device Control &control,thread float4 &orbitTrap) 
         pos = pos * control.cx - control.n1 * (control.cx - 1.0);
         if(length(pos) > 4) break;
 
-        orbitTrap = min(orbitTrap, float4(abs(pos),dot(pos,pos)));
+        ot = pos;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
     return (length(pos) - 2) * pow(control.cx, -float(i));
@@ -833,6 +941,9 @@ float DE_HALF_OCTA(float3 pos,device Control &control,thread float4 &orbitTrap) 
 //MARK: - 23
 float DE_FULL_OCTA(float3 pos,device Control &control,thread float4 &orbitTrap) {
     int i;
+    
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
     
     for(i=0;i < control.maxSteps; ++i) {
         pos = rotatePosition(pos,0,control.angle1);
@@ -846,7 +957,9 @@ float DE_FULL_OCTA(float3 pos,device Control &control,thread float4 &orbitTrap) 
         pos = pos * control.cx - control.n1 * (control.cx - 1.0);
         if(length(pos) > 4) break;
 
-        orbitTrap = min(orbitTrap, float4(abs(pos),dot(pos,pos)));
+        ot = pos;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
     return (length(pos) - 2) * pow(control.cx, -float(i));
@@ -855,6 +968,9 @@ float DE_FULL_OCTA(float3 pos,device Control &control,thread float4 &orbitTrap) 
 //MARK: - 24
 float DE_KALEIDO(float3 pos,device Control &control,thread float4 &orbitTrap) {
     int i;
+    
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
     
     for(i=0;i < control.maxSteps; ++i) {
         pos = rotatePosition(pos,0,control.angle1);
@@ -872,7 +988,9 @@ float DE_KALEIDO(float3 pos,device Control &control,thread float4 &orbitTrap) {
         pos = pos * control.cx - control.n1 * (control.cx - 1.0);
         if(length(pos) > 4) break;
 
-        orbitTrap = min(orbitTrap, float4(abs(pos),dot(pos,pos)));
+        ot = pos;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
     return (length(pos) - 2) * pow(control.cx, -float(i));
@@ -950,7 +1068,12 @@ float DE_POLYCHORA(float3 pos,device Control &control,thread float4 &orbitTrap) 
     z4=Rotate(z4,control);//z4.xyw=rot*z4.xyw;
     z4=fold(z4,control);//fold it
     
-    orbitTrap = min(orbitTrap, abs(z4));
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
+    ot = z4.xyz;
+    if(control.orbitStyle > 0) ot -= trap;
+    orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
 
     return min(dist2Vertex(z4,r,control),dist2Segments(z4,r,control));
 }
@@ -967,6 +1090,9 @@ float DE_QUADRAY(float3 pos,device Control &control,thread float4 &orbitTrap) {
     cp *= control.cy;
     matrix_float4x4 j = matrix_float4x4(1.);
     
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     for(i=0; i < control.maxSteps && r < 12; ++i) {
         j = 2.0 *
         matrix_float4x4
@@ -980,7 +1106,9 @@ float DE_QUADRAY(float3 pos,device Control &control,thread float4 &orbitTrap) {
         z = tmp0-tmp0.yxwz + tmp1.xxyy + cp;
         r=length(z.xyz);
         
-        orbitTrap = min(orbitTrap, abs(z));
+        ot = z.xyz;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
 
     j[0]=abs(j[0]); j[1]=abs(j[1]); j[2]=abs(j[2]); j[3]=abs(j[3]);
@@ -1029,6 +1157,10 @@ float mandelDE(float3 pos,device Control &control,thread float4 &orbitTrap) {
     float dr=1.0;
     int i=0;
     r=length(z);
+
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+
     while(r < 8 && (i < control.maxSteps)) {
         if(control.AlternateVersion) {
             z = powN2(z,r,dr,control);
@@ -1040,7 +1172,9 @@ float mandelDE(float3 pos,device Control &control,thread float4 &orbitTrap) {
         r=length(z);
         z = rotatePosition(z,0,control.angle1);
         
-        orbitTrap = min(orbitTrap, float4(abs(z),dot(z,z)));
+        ot = z;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
 
         i++;
     }
@@ -1058,6 +1192,9 @@ float mengersDE(float3 pos,device Control &control,thread float4 &orbitTrap) {
     float dd = multiplier; // * 1.6;//to correct the DE. Found by try and error. there should be better formula.
     float r2 = dot(pos,pos);
 
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     for(int i = 0; i < control.msIterations && r2 < 100.;++i) {
         pos = abs(pos);
         if(pos.y > pos.x) pos.xy = pos.yx;
@@ -1069,7 +1206,9 @@ float mengersDE(float3 pos,device Control &control,thread float4 &orbitTrap) {
         pos = rotatePosition(pos,0,control.angle2);
         r2 = dot(pos,pos);
         
-        orbitTrap = min(orbitTrap, float4(abs(pos),r2));
+        ot = pos;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
 
     return (sqrt(r2) - control.sr)/dd;//bounding volume is a sphere
@@ -1077,6 +1216,9 @@ float mengersDE(float3 pos,device Control &control,thread float4 &orbitTrap) {
 
 float mandelboxDE(float3 pos,device Control &control,thread float4 &orbitTrap) {
     float4 p = float4(pos,1.), p0 = p;  // p.w is the distance estimate
+    
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
     
     for(int i=0; i < control.mbIterations; ++i) {
         float3 temp = p.xyz;
@@ -1087,7 +1229,9 @@ float mandelboxDE(float3 pos,device Control &control,thread float4 &orbitTrap) {
         p = p * control.mbScale + p0;
         if( r2>1000.0) break;
         
-        orbitTrap = min(orbitTrap, abs(p));
+        ot = p.xyz;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
     return ((length(p.xyz) - control.absScalem1) / p.w - control.AbsScaleRaisedTo1mIters);
@@ -1120,6 +1264,9 @@ float DE_QUATJULIA2(float3 pos,device Control &control,thread float4 &orbitTrap)
     float dp = 1.0;
     float d;
     
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     for (int i = 0; i < control.maxSteps; ++i) {
         dp = 2.0 * length(p) * dp + 1.0;
         p = complexMul(p,p) + c;
@@ -1127,7 +1274,9 @@ float DE_QUATJULIA2(float3 pos,device Control &control,thread float4 &orbitTrap)
         d = dot(p,p);
         if(d > 10) break;
         
-        orbitTrap = min(orbitTrap, float4(abs(p),d));
+        ot = float3(p,1);
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
     float r = length(p);
@@ -1143,6 +1292,9 @@ float DE_MBROT(float3 pos,device Control &control,thread float4 &orbitTrap) {
     p.yzw = rotatePosition(p.yzw,1,control.julia.y);
     p.yzw = rotatePosition(p.yzw,2,control.julia.z);
     
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     for (int i = 0; i < control.maxSteps;++i) {
         dp = 2.0 * float4(p.x * dp.x-dot(p.yzw, dp.yzw), p.x*dp.yzw+dp.x*p.yzw + cross(p.yzw, dp.yzw));
         p = float4(p.x * p.x - dot(p.yzw, p.yzw), float3(2.0 *p.x * p.yzw)) + float4(pos, 0.0);
@@ -1150,7 +1302,9 @@ float DE_MBROT(float3 pos,device Control &control,thread float4 &orbitTrap) {
         float p2 = dot(p,p);
         if(p2 > 10) break;
 
-        orbitTrap = min(orbitTrap, abs(p));
+        ot = p.xyz;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
     float r = length(p);
@@ -1160,6 +1314,9 @@ float DE_MBROT(float3 pos,device Control &control,thread float4 &orbitTrap) {
 //MARK: - 30
 float DE_KALIBOX(float3 pos,device Control &control,thread float4 &orbitTrap) {
     float4 p = float4(pos,1), p0 = float4(control.julia,1);  // p.w is the distance estimate
+    
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
     
     for (int i = 0; i < control.maxSteps;++i) {
         
@@ -1172,7 +1329,9 @@ float DE_KALIBOX(float3 pos,device Control &control,thread float4 &orbitTrap) {
         p *= clamp(max(control.cy/r2, control.cy), 0.0, 1.0);  // dp3,div,max.sat,mul
         p = p * control.mins + (control.juliaboxMode ? p0 : float4(0.0));
         
-        orbitTrap = min(orbitTrap, abs(p));
+        ot = p.xyz;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
     return ((length(p.xyz) - control.absScalem1) / p.w - control.AbsScaleRaisedTo1mIters);
@@ -1216,6 +1375,9 @@ float DE_SPUDS(float3 pos,device Control &control,thread float4 &orbitTrap) {
     float dz = 1.0;
     float r = length(pos);
     
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     while(r < 10 && n < control.maxSteps) {
         if (n < 6) {
             spudsBoxFold(pos,dz,control);
@@ -1232,7 +1394,9 @@ float DE_SPUDS(float3 pos,device Control &control,thread float4 &orbitTrap) {
         
         r = length(pos);
         
-        orbitTrap = min(orbitTrap, float4(abs(pos),dot(pos,pos)));
+        ot = pos;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
 
         n++;
     }
@@ -1328,6 +1492,9 @@ float DE_MPOLY(float3 pos,device Control &control,thread float4 &orbitTrap) {
     if(control.unSphere) unSpheric(pos);
     if (control.gravity) gravitate(pos,control);
     
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     for (int i = 0; i < control.maxSteps; ++i) {
         pos = float3(sqrt(pos.x * pos.x + control.dx), sqrt(pos.y * pos.y + control.dx), sqrt(pos.z * pos.z + control.dx));
 
@@ -1356,7 +1523,9 @@ float DE_MPOLY(float3 pos,device Control &control,thread float4 &orbitTrap) {
         pos.y = sc * pos.y -C.y * sc1;
         pos.z = sc * pos.z;
         
-        orbitTrap = min(orbitTrap, float4(abs(pos),dot(pos,pos)));
+        ot = pos;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
 
         w = w * sc;
     }
@@ -1396,6 +1565,9 @@ float DE_MHELIX(float3 pos,device Control &control,thread float4 &orbitTrap) {
     else
         pos.yz = Rot2D (pos.yz, PI * a);
 
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     for (float n = 0.; n < control.fMaxSteps; n++) {
         pos = abs(pos);
         pos.xy = (pos.x > pos.y) ? pos.xy : pos.yx;
@@ -1404,7 +1576,9 @@ float DE_MHELIX(float3 pos,device Control &control,thread float4 &orbitTrap) {
         pos = sclFac * pos - b;
         pos.z += b.z * step(pos.z, -0.5 * b.z);
         
-        orbitTrap = min(orbitTrap, float4(abs(pos),dot(pos,pos)));
+        ot = pos;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
     return 0.8 * mHelixPrBoxDf(pos, float3(1.)) / pow(sclFac, nIt);
@@ -1415,6 +1589,9 @@ float DE_FLOWER(float3 pos,device Control &control,thread float4 &orbitTrap) {
     float4 q = float4(pos, 1);
     float4 juliaOffset = float4(control.julia,0);
     
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     for(int i = 0; i < control.maxSteps; ++i) { //kaliset fractal with no mirroring offset
         q.xyz = abs(q.xyz);
         float r = dot(q.xyz, q.xyz);
@@ -1422,7 +1599,9 @@ float DE_FLOWER(float3 pos,device Control &control,thread float4 &orbitTrap) {
         
         q = 2.0 * q - juliaOffset;
         
-        orbitTrap = min(orbitTrap, abs(q));
+        ot = q.xyz;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
     return (length(q.xy)/q.w - 0.003); // cylinder primative instead of a sphere primative.
@@ -1457,6 +1636,9 @@ float DE_JUNGLE(float3 pos,device Control &control,thread float4 &orbitTrap) {
     pos = sabs(mod(pos, c * control.cw) - c);
     float de = 100.;
     
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     for(int i=0; i< control.maxSteps; ++i) {
         pos = sabs(pos);
         pos *= s;
@@ -1464,7 +1646,9 @@ float DE_JUNGLE(float3 pos,device Control &control,thread float4 &orbitTrap) {
         de = abs(length(pos * amp) - 0.2) ;
         amp /= s;
         
-        orbitTrap = min(orbitTrap, float4(abs(pos),dot(pos,pos)));
+        ot = pos;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
     return de + boxmap(pos * control.cz) * 0.02 - 0.01;
@@ -1488,42 +1672,6 @@ float shBox(float3 p, float3 b,float thickness) {
     return dist;
 }
 
-
-//float dr = 1.0;
-//float3 w = pos;
-//float wo,wi,wr,orbitTrap = 1;
-//float pwr2 = control.power - 1;
-//
-//w = rotatePosition(w,2,control.angle1);
-//
-//for(int i=0; i< control.maxSteps; ++i) {
-//    wr = length(w);
-//    if(wr*wr > 2) {
-//        orbitTrap = float(i);
-//        break;
-//    }
-//    dr = control.power * pow(wr,pwr2) * dr + 1;
-//
-//    wo = acos(w.y/wr) * pwr2;
-//    wi = atan2(w.x,w.z) * pwr2;
-//
-//    wr = pow(wr, pwr2);
-//
-//    w.x = wr * sin(wo)*sin(wi);
-//    w.y = wr * cos(wo);
-//    w.z = wr * sin(wo)*cos(wi);
-//
-//    w += pos;
-//}
-//
-//if(wr*wr <= 14) {
-//    float bboy1 = shBox(w, float3(control.cx),control.cy) * pow(20.0,-orbitTrap);
-//    float bboy2 = 0.5 * log(wr)*wr/dr;
-//
-//    if(bboy1 < bboy2) return bboy1;
-//    return bboy2;
-//}
-
 float DE_PRISONER(float3 pos,device Control &control,thread float4 &orbitTrap) {
     float dr = 1.0;
     float3 w = pos;
@@ -1532,6 +1680,9 @@ float DE_PRISONER(float3 pos,device Control &control,thread float4 &orbitTrap) {
     
     w = rotatePosition(w,2,control.angle1);
 
+    float3 ott,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     for(int i=0; i< control.maxSteps; ++i) {
         wr = length(w);
         if(wr*wr > 2) {
@@ -1552,7 +1703,9 @@ float DE_PRISONER(float3 pos,device Control &control,thread float4 &orbitTrap) {
         
         w += pos;
         
-        orbitTrap = min(orbitTrap, float4(abs(w),dot(w,w)));
+        ott = w;
+        if(control.orbitStyle > 0) ott -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ott), dot(ott,ott)));
     }
     
     if(wr*wr <= 14) {
@@ -1572,6 +1725,9 @@ float DE_SPIRALBOX(float3 pos,device Control &control,thread float4 &orbitTrap) 
     float r,DF = 1.0;
     float3 offset = (control.juliaboxMode ? control.julia/10 : pos);
     
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     for(int i=0; i < control.maxSteps; ++i) {
         z.xyz = clamp(z.xyz, -control.cx, control.cx)*2. - z.xyz;
         
@@ -1583,7 +1739,9 @@ float DE_SPIRALBOX(float3 pos,device Control &control,thread float4 &orbitTrap) 
         z.xz *= -1.;
         z += offset;
         
-        orbitTrap = min(orbitTrap, float4(abs(z),dot(z,z)));
+        ot = z;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
     r = length(z);
@@ -1594,6 +1752,9 @@ float DE_SPIRALBOX(float3 pos,device Control &control,thread float4 &orbitTrap) 
 float DE_ALEK_BULB(float3 pos,device Control &control,thread float4 &orbitTrap) {
     float dr = 1;
     float r,mcangle,theta,pwr;
+    
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
     
     for(int i=0; i < control.maxSteps; ++i) {
         r = length(pos);
@@ -1614,7 +1775,9 @@ float DE_ALEK_BULB(float3 pos,device Control &control,thread float4 &orbitTrap) 
 
         dr = (pow(r, control.power - 1.0) * control.power * dr ) + 1.0;
         
-        orbitTrap = min(orbitTrap, float4(abs(pos),dot(pos,pos)));
+        ot = pos;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
     return 0.5 * log(r) * r/dr;
@@ -1637,6 +1800,9 @@ float DE_SURFBOX(float3 pos,device Control &control,thread float4 &orbitTrap) {
     float fR2 = control.cz * control.cz;
     float mR2 = control.cw * control.cw;
     
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     for(int i = 0; i < control.maxSteps; ++i) {
         pos.x = surfBoxFold(pos.x,control.cx,control.dx);
         pos.y = surfBoxFold(pos.y,control.cx,control.dx);
@@ -1658,7 +1824,9 @@ float DE_SURFBOX(float3 pos,device Control &control,thread float4 &orbitTrap) {
         pos = pos * control.power + c;
         dr *= control.power;
         
-        orbitTrap = min(orbitTrap, float4(abs(pos),dot(pos,pos)));
+        ot = pos;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
     return length(pos)/abs(dr);
@@ -1668,6 +1836,9 @@ float DE_SURFBOX(float3 pos,device Control &control,thread float4 &orbitTrap) {
 float DE_TWISTBOX(float3 pos,device Control &control,thread float4 &orbitTrap) {
     float3 c = control.juliaboxMode ? control.julia : pos;
     float r,DF = control.power;
+    
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
     
     for(int i = 0; i < control.maxSteps; ++i) {
         pos = clamp(pos, -control.cx,control.cx)*2 - pos;
@@ -1679,7 +1850,9 @@ float DE_TWISTBOX(float3 pos,device Control &control,thread float4 &orbitTrap) {
         pos.xz *= -1;
         pos += c;
         
-        orbitTrap = min(orbitTrap, float4(abs(pos),r));
+        ot = pos;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
     r = length(pos);
@@ -1692,6 +1865,9 @@ float DE_KALI_RONTGEN(float3 pos,device Control &control,thread float4 &orbitTra
     float4 p = float4(pos, 1.);
     float3 param = float3(control.cx,control.cy,control.cz);
     
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     for(int i = 0; i < control.maxSteps; ++i) {
         p = abs(p) / dot(p.xyz, p.xyz);
         
@@ -1701,7 +1877,9 @@ float DE_KALI_RONTGEN(float3 pos,device Control &control,thread float4 &orbitTra
         p.xyz -= param;
         p.xyz = rotatePosition(p.xyz,1,control.angle1);
         
-        orbitTrap = min(orbitTrap, abs(p));
+        ot = p.xyz;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
 
     return d;
@@ -1727,6 +1905,9 @@ float DE_VERTEBRAE(float3 pos,device Control &control,thread float4 &orbitTrap) 
     float4 z = float4(pos,0);
     float mz2 = dot(z,z);
     
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     for(int i=0;i < control.maxSteps; ++i) {
         md2 *= 4.0 * mz2;
         nz.x = z.x * z.x - dot(z.yzw,z.yzw);
@@ -1743,7 +1924,9 @@ float DE_VERTEBRAE(float3 pos,device Control &control,thread float4 &orbitTrap) 
         mz2 = dot(z,z);
         if(mz2 > 12.0) break;
         
-        orbitTrap = min(orbitTrap, abs(z));
+        ot = z.xyz;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
     return 0.3 * sqrt(mz2/md2) * log(mz2);
@@ -1760,6 +1943,9 @@ float DE_DARKSURF(float3 pos,device Control &control,thread float4 &orbitTrap) {
     float AbsScaleRaisedTo1mIters = pow(abs(Scale_43), float(1-control.maxSteps));
     
     float4 p = float4(pos,1), p0 = p;  // p.w is the distance estimate
+    
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
     
     for(int i=0;i < control.maxSteps; ++i) {
         p.xyz = rotatePosition(p.xyz,0,control.angle1);
@@ -1794,7 +1980,9 @@ float DE_DARKSURF(float3 pos,device Control &control,thread float4 &orbitTrap) {
         p = p * scale_43 + p0;
         if ( r2>1000.0) break;
         
-        orbitTrap = min(orbitTrap, abs(p));
+        ot = p.xyz;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
 
     return ((length(p.xyz) - absScalem1) / p.w - AbsScaleRaisedTo1mIters);
@@ -1831,6 +2019,9 @@ float3 DE1(float3 pos,device Control &control,thread float4 &orbitTrap) {
     float dr=1.0;
     int i=0;
     
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     while(r<Bailout && (i<control.maxSteps)) {
         BuffaloIteration(z,r,dr,control);
         z+=(control.juliaboxMode ? control.julia : pos);
@@ -1839,7 +2030,9 @@ float3 DE1(float3 pos,device Control &control,thread float4 &orbitTrap) {
         z = rotatePosition(z,1,control.angle1);
         z = rotatePosition(z,2,control.angle1);
         
-        orbitTrap = min(orbitTrap, float4(abs(z),dot(z,z)));
+        ot = z;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
 
         i++;
     }
@@ -1883,6 +2076,9 @@ float DE_BUFFALO(float3 pos,device Control &control,thread float4 &orbitTrap) {
     float dr=1.0;
     int i=0;
     
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     while(r<Bailout && (i<control.maxSteps)) {
         BuffaloIteration(z,r,dr,control);
         z+=(control.juliaboxMode ? control.julia : pos);
@@ -1891,8 +2087,10 @@ float DE_BUFFALO(float3 pos,device Control &control,thread float4 &orbitTrap) {
         z = rotatePosition(z,1,control.angle1);
         z = rotatePosition(z,2,control.angle1);
         
-        orbitTrap = min(orbitTrap, float4(abs(z),dot(z,z)));
-        
+        ot = z;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
+
         i++;
     }
     
@@ -1909,6 +2107,9 @@ float DE_TEMPLE(float3 pos,device Control &control,thread float4 &orbitTrap) {
     p.xz=abs(.5-mod(pos.xz,1.))+.01;
     float DEfactor=1.;
 
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     for (int i=0; i<control.maxSteps; i++) {
         p = abs(p)-float3(0.,control.cy,0.);
         float r2 = dot(p, p);
@@ -1920,7 +2121,9 @@ float DE_TEMPLE(float3 pos,device Control &control,thread float4 &orbitTrap) {
         p = rotatePosition(p,0,control.angle1);
         p = rotatePosition(p,1,control.angle2);
         
-        orbitTrap = min(orbitTrap, float4(abs(p),dot(p,p)));
+        ot = p;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
 
     float rr=length(pos+float3(0.,-3.03,1.85-tt))-.017;
@@ -1938,6 +2141,9 @@ float DE_KALI3(float3 pos,device Control &control,thread float4 &orbitTrap) {
     float dr = 1.0;
     float r2;
     
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     for (int i=0; i<control.maxSteps; i++) {
         r2 = dot(pos,pos);
         if(r2>100.)continue;
@@ -1946,7 +2152,9 @@ float DE_KALI3(float3 pos,device Control &control,thread float4 &orbitTrap) {
         
         dr = dr / r2 * g46;
         
-        orbitTrap = min(orbitTrap, float4(abs(pos),r2));
+        ot = pos;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
     //return .1*(abs(pos.x)+abs(pos.y))*length(pos)/dr;
@@ -1982,6 +2190,10 @@ float DE_SPONGE(float3 pos,device Control &control,thread float4 &orbitTrap) {
 #define param_max control.maxs
     float k, r2;
     float scale = 1.0;
+
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     for (int i=0; i < control.maxSteps; i++) {
         pos = 2.0 * clamp(pos, param_min.xyz, param_max.xyz) - pos;
         r2 = dot(pos, pos);
@@ -1989,7 +2201,9 @@ float DE_SPONGE(float3 pos,device Control &control,thread float4 &orbitTrap) {
         pos *= k;
         scale *= k;
 
-        orbitTrap = min(orbitTrap, float4(abs(pos),r2));
+        ot = pos;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     pos /= scale;
     pos *= param_max.w * control.ex;
@@ -2013,6 +2227,9 @@ float DE_FLORAL(float3 pos,device Control &control,thread float4 &orbitTrap) {
 #define offset48 control.n3
     float scale = 1.0;
     
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     for (int i=0; i < control.maxSteps; i++) {
         
         //BoxFold
@@ -2033,7 +2250,9 @@ float DE_FLORAL(float3 pos,device Control &control,thread float4 &orbitTrap) {
         pos = tsqr(pos) - offset48;  //talt(tsqr(p))-.6;//
         scale *= 2.*(length(pos));      //??? was intended to be before previous line
         
-        orbitTrap = min(orbitTrap, float4(abs(pos),r2));
+        ot = pos;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
 
     return .85*length(pos)/scale;
@@ -2065,6 +2284,10 @@ float deTorusKnot(float3 p,device Control &control,thread float4 &orbitTrap) {
     float pitch = 1.0;
     float t = 0.5;
     float de = 1e10;
+
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= p;
+    
     for(int j=0; j<2; j++) {
         float t0 = t-pitch*0.5;
         pitch /= ITR;
@@ -2076,7 +2299,9 @@ float deTorusKnot(float3 p,device Control &control,thread float4 &orbitTrap) {
                 t = t0;
             }
             
-            orbitTrap = min(orbitTrap, float4(de0,de0,de0,de0));
+            ot = float3(de0,t0,pitch);
+            if(control.orbitStyle > 0) ot -= trap;
+            orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
         }
     }
     
@@ -2104,6 +2329,9 @@ float DE_DONUTS(float3 pos,device Control &control,thread float4 &orbitTrap) {
     float newdis,s = 1.;
     float2 q;
     
+    float3 ot,trap = control.otFixed;
+    if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
+    
     for (int i=0; i < control.maxSteps; i++) {
         q = float2(length(pos.xz) - MAJOR_RADIUS,pos.y);
 
@@ -2125,7 +2353,9 @@ float DE_DONUTS(float3 pos,device Control &control,thread float4 &orbitTrap) {
         pos *= SCALE;
         s /= SCALE;
         
-        orbitTrap = min(orbitTrap, float4(abs(pos),dot(pos,pos)));
+        ot = pos;
+        if(control.orbitStyle > 0) ot -= trap;
+        orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     }
     
     return dis;

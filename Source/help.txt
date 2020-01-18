@@ -47,6 +47,11 @@ x Weight:   specify how much channel 'x' adds to color, from -3 to +3
 
 ... the same 2 widgets for channels 'y' - 'r'
 
+Fixed Trap has three values:
+0: Orbit Trap calculated from ray point position
+1: Orbit Trap calculated using distance of point from fixed point
+2: fixed point is a relative distance from first ray point position
+
 Note: Press key 'C' to cycle through 4 palettes of colors for trap effect
 ===============================================
 
