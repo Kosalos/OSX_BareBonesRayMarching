@@ -37,7 +37,7 @@ class InstructionsG: NSView {
     }
     
     func refresh() {
-        setNeedsDisplay(NSMakeRect(-30,0,140,800))
+        setNeedsDisplay(NSMakeRect(-30,0,140,frame.height))
     }
 
     override func mouseDown(with event: NSEvent) {
