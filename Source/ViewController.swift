@@ -39,6 +39,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     override func viewDidAppear() {
         super.viewWillAppear()
         widget = Widget(0,self)
+        instructionsG.initialize(widget)
         
         metalView.window?.delegate = self
         (metalView).delegate2 = self
@@ -87,7 +88,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     /// direct shader to sparsely calculate, and copy results to neighboring pixels, for faster fractal rendering
     func setShaderToFastRender() {
         if fastRenderEnabled {
-            control.skip = max(control.xSize / 250, 6)
+            control.skip = max(control.xSize / 250, 8)
             slowRenderCountDown = 20 // 30 = 1 second
         }
     }
@@ -1444,7 +1445,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     
     //MARK: -
     
-    func presentPopover(_ name:String) {
+     func presentPopover(_ name:String) {
         let mvc = NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil)
         let vc = mvc.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(name)) as! NSViewController
         self.present(vc, asPopoverRelativeTo: view.bounds, of: view, preferredEdge: .minX, behavior: .transient)
@@ -1472,9 +1473,14 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         
         updateModifierKeyFlags(event)
         
-        super.keyDown(with: event)
+//      super.keyDown(with: event)   // comment out to prevent dull tone for every press, auto repeat
         widget.updateAlterationSpeed(event)
-        
+     
+        if widget.keyPress(event) {
+            setShaderToFastRender()
+            return
+        }
+
         switch event.keyCode {
         case 115 : // home
             presentPopover("SaveLoadVC")
@@ -1588,8 +1594,6 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         case "]" : if let vr = vr { vr.addKeyFrame() }
         default : break
         }
-        
-        if widget.keyPress(event) { setShaderToFastRender() }
     }
     
     override func keyUp(with event: NSEvent) {

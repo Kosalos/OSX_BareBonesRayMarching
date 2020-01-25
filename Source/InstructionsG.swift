@@ -1,11 +1,15 @@
 import Cocoa
 
 class InstructionsG: NSView {
+    var parent:Widget! = nil
     let YTOP = 5
     let YHOP = 18
     let YS = 10
 
+    func initialize(_ parentPtr:Widget) { parent = parentPtr }
+    
     override func draw(_ rect: NSRect) {
+        if parent == nil { print("Need to initialzr instructionsG");  exit(0) }
         let context = NSGraphicsContext.current?.cgContext
         context?.setFillColor(NSColor.clear.cgColor)
         context?.fill(rect)
@@ -13,13 +17,13 @@ class InstructionsG: NSView {
         var y = YTOP
         var r:NSRect = NSMakeRect(0,0,40,CGFloat(YS))
 
-        for i in 0 ..< vc.widget.data.count {
-            if vc.widget.data[i].kind == .float {
+        for i in 0 ..< parent.data.count {
+            if parent.data[i].kind == .float {
                 r = NSMakeRect(3,CGFloat(y),36,CGFloat(YS))
-                context?.setStrokeColor(i == vc.widget.focus ? NSColor.red.cgColor : NSColor.white.cgColor)
+                context?.setStrokeColor(i == parent.focus ? NSColor.red.cgColor : NSColor.white.cgColor)
                 
                 // green when at limits
-                let p = vc.widget.data[i].valuePercent()
+                let p = parent.data[i].valuePercent()
                 if(p == 0 || p == 100) { context?.setStrokeColor(NSColor.green.cgColor) }
                 
                 context?.setLineWidth(1.0)
@@ -45,7 +49,7 @@ class InstructionsG: NSView {
         pt.y = vc.view.frame.height - pt.y
         let index = Int(pt.y - 5)/18
         
-        vc.widget.focusDirect(index)
+        parent.focusDirect(index)
     }
     
     override var isFlipped: Bool { return true }

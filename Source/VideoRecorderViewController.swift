@@ -133,8 +133,8 @@ class VideoRecorderViewController: NSViewController, NSTableViewDataSource, NSTa
     }
     
     override func keyDown(with event: NSEvent) {
-        super.keyDown(with: event)
-        
+        //      super.keyDown(with: event)   // comment out to prevent dull tone for every press, auto repeat
+
         switch event.charactersIgnoringModifiers!.uppercased() {
         case " " : if isRecording { stopRecording() }
         case "[" :  // move focus back to Main window

@@ -183,8 +183,8 @@ class Win3DViewController: NSViewController, NSWindowDelegate, WidgetDelegate {
     }
     
     override func keyDown(with event: NSEvent) {
-        super.keyDown(with: event)
-        
+        //      super.keyDown(with: event)   // comment out to prevent dull tone for every press, auto repeat
+
         updateModifierKeyFlags(event)
         _ = widget.keyPress(event)
         

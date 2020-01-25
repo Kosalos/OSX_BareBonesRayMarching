@@ -32,6 +32,20 @@ struct WidgetData {
         return false
     }
     
+    func setValue(_ v:Float) {
+        if valuePtr != nil {
+            valuePtr.storeBytes(of:v, as:Float.self)
+        }
+    }
+    
+    func ensureValueIsInRange() {
+        if valuePtr != nil {
+            var value:Float = valuePtr.load(as:Float.self)
+            value = max( min(value, range.y), range.x)
+            valuePtr.storeBytes(of:value, as:Float.self)
+        }
+    }
+    
     func valueString() -> String {
         if kind == .boolean {
             let value:Bool = valuePtr.load(as:Bool.self)
@@ -84,6 +98,7 @@ class Widget {
         w.delta = nDelta
         w.kind = nKind
         w.showValue = nShowValue
+        w.ensureValueIsInRange()
         data.append(w)
     }
 
