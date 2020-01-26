@@ -2700,6 +2700,12 @@ kernel void rayMarchShader
 
         float3 oColor = getOrbitColor(c,orbitTrap);
         color = mix(color, 3.0 * oColor, c.OrbitStrength);
+        
+        // fog ---------------------
+        if(c.fog > 0) {
+            float3 backColor = float3(c.fogR,c.fogG,c.fogB);
+            color = mix(color, backColor, 1.0-exp(-pow(c.fog,4.0) * dist.x * dist.x));
+        }
 
     } // hit object
     else {

@@ -88,7 +88,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     /// direct shader to sparsely calculate, and copy results to neighboring pixels, for faster fractal rendering
     func setShaderToFastRender() {
         if fastRenderEnabled {
-            control.skip = max(control.xSize / 250, 8)
+            control.skip = max(control.xSize / 150, 8)
             slowRenderCountDown = 20 // 30 = 1 second
         }
     }
@@ -197,6 +197,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         control.OrbitStrength = 0
         control.Cycles = 0
         control.orbitStyle = 0
+        control.fog = 0
         
         switch Int(control.equation) {
         case EQU_01_MANDELBULB :
@@ -984,7 +985,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             control.cx = 7.1999893
             control.cy = 0.34999707
             control.cz = -4.549979
-            control.dx = -10.0
+            control.dx = 0
             control.dy = 0.549999
             control.dz = 0.88503367
             control.ex = 0.99998015
@@ -1811,10 +1812,6 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             widget.addEntry("Foam",&control.foam,0.1,3,0.02)
             widget.addEntry("Foam2",&control.foam2,0.1,3,0.02)
             widget.addEntry("Bend",&control.bend,0.01,0.03,0.0001)
-            
-            control.juliaboxMode = true
-            juliaGroup(10,0.01)
-            
         case EQU_04_KLEINIAN :
             widget.addBoolean("B: ShowBalls",&control.showBalls)
             widget.addBoolean("F: FourGen",&control.fourGen)
@@ -1828,10 +1825,10 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             widget.addEntry("Clamp DF",&control.Clamp_DF, 0.001,2,0.03)
         case EQU_05_MANDELBOX :
             widget.addEntry("Iterations",&control.fMaxSteps,3,60,1)
-            widget.addEntry("Scale Factor",&control.power,0.6,10,0.02)
-            widget.addEntry("Box",&control.cx, 0,10,0.001)
-            widget.addEntry("Sphere 1",&control.cz, 0,4,0.01)
-            widget.addEntry("Sphere 2",&control.cw, 0,4,0.01)
+            widget.addEntry("Scale Factor",&control.power,0.6,10,0.04)
+            widget.addEntry("Box",&control.cx, 0,10,0.02)
+            widget.addEntry("Sphere 1",&control.cz, 0,4,0.02)
+            widget.addEntry("Sphere 2",&control.cw, 0,4,0.02)
             juliaGroup(10,0.01)
         case EQU_06_QUATJULIA :
             widget.addEntry("Iterations",&control.fMaxSteps,3,10,1)
@@ -1842,9 +1839,9 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         case EQU_07_MONSTER :
             widget.addEntry("Iterations",&control.fMaxSteps,3,30,1)
             widget.addEntry("X",&control.cx,-500,500,0.5)
-            widget.addEntry("Y",&control.cy,3.5,7,0.03)
-            widget.addEntry("Z",&control.cz,0.45,2.8,0.01)
-            widget.addEntry("Scale",&control.cw,1,1.6,0.003)
+            widget.addEntry("Y",&control.cy,3.5,7,0.1)
+            widget.addEntry("Z",&control.cz,0.45,2.8,0.05)
+            widget.addEntry("Scale",&control.cw,1,1.6,0.02)
         case EQU_08_KALI_TOWER :
             widget.addEntry("Iterations",&control.fMaxSteps,2,7,1)
             widget.addEntry("X",&control.cx,0.01,10,0.05)
@@ -1859,13 +1856,13 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             widget.addEntry("Shape",&control.dx, 0.1,50,0.2)
         case EQU_10_GOLD :
             widget.addEntry("Iterations",&control.fMaxSteps,2,20,1)
-            widget.addEntry("T",&control.cx,-5,5,0.01)
-            widget.addEntry("U",&control.cy,-5,5,0.01)
-            widget.addEntry("V",&control.cz,-5,5,0.01)
-            widget.addEntry("W",&control.cw,-5,5,0.01)
-            widget.addEntry("X",&control.dx,-5,5,0.01)
-            widget.addEntry("Y",&control.dy,-5,5,0.01)
-            widget.addEntry("Z",&control.dz,-5,5,0.01)
+            widget.addEntry("T",&control.cx,-5,5,0.02)
+            widget.addEntry("U",&control.cy,-5,5,0.02)
+            widget.addEntry("V",&control.cz,-5,5,0.02)
+            widget.addEntry("W",&control.cw,-5,5,0.02)
+            widget.addEntry("X",&control.dx,-5,5,0.05)
+            widget.addEntry("Y",&control.dy,-5,5,0.05)
+            widget.addEntry("Z",&control.dz,-5,5,0.05)
         case EQU_11_SPIDER :
             widget.addEntry("X",&control.cx,0.001,5,0.01)
             widget.addEntry("Y",&control.cy,0.001,5,0.01)
@@ -1912,7 +1909,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         case EQU_19_HALF_TETRA :
             widget.addEntry("Iterations",&control.fMaxSteps,9,50,1)
             widget.addEntry("Scale",&control.cx,1.12,1.5,0.02)
-            widget.addEntry("Y",&control.cy,2,10,0.1)
+            widget.addEntry("Y",&control.cy,2,10,0.3)
             widget.addEntry("Angle1",&control.angle1,-4,4,0.01)
             widget.addEntry("Angle2",&control.angle2,-4,4,0.01)
         case EQU_20_FULL_TETRA :
@@ -1985,12 +1982,12 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             widget.addEntry("Rotate Z",&control.juliaZ,-15,15,0.1)
         case EQU_30_KALIBOX :
             widget.addEntry("Iterations",&control.fMaxSteps,3,30,1)
-            widget.addEntry("Scale",&control.cx,-5,5,0.05)
-            widget.addEntry("MinRad2",&control.cy,-5,5,0.05)
-            widget.addEntry("Trans X",&control.dx,-15,15,0.01)
-            widget.addEntry("Trans Y",&control.dy,-15,15,0.01)
-            widget.addEntry("Trans Z",&control.dz,-1,5,0.01)
-            widget.addEntry("Angle",&control.angle1,-4,4,0.02)
+            widget.addEntry("Scale",&control.cx,-5,5,0.1)
+            widget.addEntry("MinRad2",&control.cy,-5,5,0.1)
+            widget.addEntry("Trans X",&control.dx,-15,15,0.05)
+            widget.addEntry("Trans Y",&control.dy,-15,15,0.05)
+            widget.addEntry("Trans Z",&control.dz,-1,5,0.05)
+            widget.addEntry("Angle",&control.angle1,-4,4,0.05)
             juliaGroup()
         case EQU_31_SPUDS :
             widget.addEntry("Iterations",&control.fMaxSteps,3,30,1)
@@ -2049,19 +2046,19 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         case EQU_38_ALEK_BULB :
             widget.addEntry("Iterations",&control.fMaxSteps,3,30,1)
             widget.addEntry("Power",&control.power,1.5,12,0.02)
-            juliaGroup(1.6,0.01)
+            juliaGroup(1.6,0.1)
         case EQU_39_SURFBOX :
             widget.addEntry("Iterations",&control.fMaxSteps,3,20,1)
-            widget.addEntry("Scale Factor",&control.power,0.6,3,0.02)
-            widget.addEntry("Box 1",&control.cx, 0,3,0.002)
-            widget.addEntry("Box 2",&control.cy, 4,5.6,0.002)
-            widget.addEntry("Sphere 1",&control.cz, 0,4,0.01)
-            widget.addEntry("Sphere 2",&control.cw, 0,4,0.01)
+            widget.addEntry("Scale Factor",&control.power,0.6,3,0.05)
+            widget.addEntry("Box 1",&control.cx, 0,3,0.02)
+            widget.addEntry("Box 2",&control.cy, 4,5.6,0.02)
+            widget.addEntry("Sphere 1",&control.cz, 0,4,0.05)
+            widget.addEntry("Sphere 2",&control.cw, 0,4,0.05)
             juliaGroup(10,0.01)
         case EQU_40_TWISTBOX :
             widget.addEntry("Iterations",&control.fMaxSteps,3,60,1)
-            widget.addEntry("Scale Factor",&control.power,0.6,10,0.02)
-            widget.addEntry("Box",&control.cx, 0,10,0.0001)
+            widget.addEntry("Scale Factor",&control.power,0.6,10,0.2)
+            widget.addEntry("Box",&control.cx, 0,10,0.001)
             juliaGroup(10,0.0001)
         case EQU_41_KALI_RONTGEN :
             widget.addEntry("Iterations",&control.fMaxSteps,1,30,1)
@@ -2071,10 +2068,10 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             widget.addEntry("Angle",&control.angle1,-4,4,0.02)
         case EQU_42_VERTEBRAE :
             widget.addEntry("Iterations",&control.fMaxSteps,1,50,1)
-            widget.addEntry("X",&control.cx,       -10,10,0.05)
-            widget.addEntry("Y",&control.cy,       -10,10,0.05)
-            widget.addEntry("Z",&control.cz,       -10,10,0.05)
-            widget.addEntry("W",&control.cw,       -10,10,0.05)
+            widget.addEntry("X",&control.cx,       -10,10,0.1)
+            widget.addEntry("Y",&control.cy,       -10,10,0.1)
+            widget.addEntry("Z",&control.cz,       -10,10,0.1)
+            widget.addEntry("W",&control.cw,       -10,10,0.1)
             widget.addEntry("ScaleX",&control.dx,  -10,10,0.05)
             widget.addEntry("Sine X",&control.dw,  -10,10,0.05)
             widget.addEntry("Offset X",&control.ez,-10,10,0.05)
@@ -2089,16 +2086,16 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             widget.addEntry("Slope Z",&control.fw, -10,10,0.05)
         case EQU_43_DARKSURF :
             widget.addEntry("Iterations",&control.fMaxSteps,2,10,1)
-            widget.addEntry("scale",&control.cx,    -10,10,0.002)
-            widget.addEntry("MinRad",&control.cy,   -10,10,0.002)
-            widget.addEntry("Scale",&control.cz,    -10,10,0.002)
-            widget.addEntry("Fold X",&control.dx,   -10,10,0.002)
-            widget.addEntry("Fold Y",&control.dy,   -10,10,0.002)
-            widget.addEntry("Fold Z",&control.dz,   -10,10,0.002)
-            widget.addEntry("FoldMod X",&control.ex,-10,10,0.002)
-            widget.addEntry("FoldMod Y",&control.ey,-10,10,0.002)
-            widget.addEntry("FoldMod Z",&control.ez,-10,10,0.002)
-            widget.addEntry("Angle",&control.angle1,-4,4,0.002)
+            widget.addEntry("scale",&control.cx,    -10,10,0.05)
+            widget.addEntry("MinRad",&control.cy,   -10,10,0.05)
+            widget.addEntry("Scale",&control.cz,    -10,10,0.5)
+            widget.addEntry("Fold X",&control.dx,   -10,10,0.05)
+            widget.addEntry("Fold Y",&control.dy,   -10,10,0.05)
+            widget.addEntry("Fold Z",&control.dz,   -10,10,0.05)
+            widget.addEntry("FoldMod X",&control.ex,-10,10,0.05)
+            widget.addEntry("FoldMod Y",&control.ey,-10,10,0.05)
+            widget.addEntry("FoldMod Z",&control.ez,-10,10,0.05)
+            widget.addEntry("Angle",&control.angle1,-4,4,0.05)
         case EQU_44_BUFFALO :
             widget.addEntry("Iterations",&control.fMaxSteps,2,60,1)
             widget.addEntry("Power",&control.cy,  0.1,30,0.01)
@@ -2116,12 +2113,12 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             juliaGroup(10,0.01)
         case EQU_45_TEMPLE :
             widget.addEntry("Iterations",&control.fMaxSteps,1,16,1)
-            widget.addEntry("X",&control.cx,        -10,10,0.01)
-            widget.addEntry("Y",&control.cy,        -10,10,0.01)
-            widget.addEntry("Z",&control.dx,        -4,4,0.01)
-            widget.addEntry("W",&control.dy,        -4,4,0.01)
-            widget.addEntry("A1",&control.angle1,   -10,10,0.01)
-            widget.addEntry("A2",&control.angle2,   -10,10,0.01)
+            widget.addEntry("X",&control.cx,        -10,10,0.02)
+            widget.addEntry("Y",&control.cy,        -10,10,0.02)
+            widget.addEntry("Z",&control.dx,        -4,4,0.02)
+            widget.addEntry("W",&control.dy,        -4,4,0.02)
+            widget.addEntry("A1",&control.angle1,   -10,10,0.03)
+            widget.addEntry("A2",&control.angle2,   -10,10,0.03)
             widget.addEntry("Ceiling",&control.cw,  -2,1,0.01)
             widget.addEntry("Floor",&control.cz,    -2,1,0.01)
         case EQU_46_KALI3 :
@@ -2142,17 +2139,17 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             widget.addEntry("Shape",&control.ey,-10,10,0.1)
         case EQU_48_FLORAL :
             widget.addEntry("Iterations",&control.fMaxSteps,2,20,1)
-            widget.addEntry("X",&control.cx,        -20,20,0.005)
-            widget.addEntry("Y",&control.cy,        -20,20,0.005)
-            widget.addEntry("CSize X",&control.dx,  -20,20,0.005)
-            widget.addEntry("CSize Y",&control.dy,  -20,20,0.005)
-            widget.addEntry("CSize Z",&control.dz,  -20,20,0.005)
-            widget.addEntry("C1    X",&control.ex,  -20,20,0.005)
-            widget.addEntry("C1    Y",&control.ey,  -20,20,0.005)
-            widget.addEntry("C1    Z",&control.ez,  -20,20,0.005)
-            widget.addEntry("Offset X",&control.fx, -20,20,0.005)
-            widget.addEntry("Offset Y",&control.fy, -20,20,0.005)
-            widget.addEntry("Offset Z",&control.fz, -20,20,0.005)
+            widget.addEntry("X",&control.cx,        -20,20,0.05)
+            widget.addEntry("Y",&control.cy,        -20,20,0.05)
+            widget.addEntry("CSize X",&control.dx,  -20,20,0.05)
+            widget.addEntry("CSize Y",&control.dy,  -20,20,0.05)
+            widget.addEntry("CSize Z",&control.dz,  -20,20,0.05)
+            widget.addEntry("C1    X",&control.ex,  -20,20,0.05)
+            widget.addEntry("C1    Y",&control.ey,  -20,20,0.05)
+            widget.addEntry("C1    Z",&control.ez,  -20,20,0.05)
+            widget.addEntry("Offset X",&control.fx, -20,20,0.05)
+            widget.addEntry("Offset Y",&control.fy, -20,20,0.05)
+            widget.addEntry("Offset Z",&control.fz, -20,20,0.05)
         case EQU_49_KNOT :
             widget.addEntry("Iterations",&control.fMaxSteps,2,50,1)
             widget.addEntry("Length",&control.cx, 0.1,10,0.05)
@@ -2189,6 +2186,13 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             widget.addEntry("   Angle",&control.InvAngle,-10,10,0.01)
         }
         
+        // ----------------------------
+        widget.addLegend("")
+        widget.addEntry("Fog Amount",&control.fog,0,3,0.1)
+        widget.addEntry("R",&control.fogR,0,1,0.1)
+        widget.addEntry("G",&control.fogG,0,1,0.1)
+        widget.addEntry("B",&control.fogB,0,1,0.1)
+
         // ----------------------------
         widget.addLegend("")
         widget.addLegend("Orbit Trap --")

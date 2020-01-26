@@ -138,6 +138,8 @@ struct Control {
     float orbitStyle;
     float otFixedX,otFixedY,otFixedZ;
     vector_float3 otFixed;
+    
+    float fog,fogR,fogG,fogB;
 };
 
 // 3D window ---------------------------------
