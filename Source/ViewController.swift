@@ -2304,11 +2304,12 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             metalView.frame = CGRect(x:1, y:1, width:r.size.width-2, height:r.size.height-2)
         }
         
-        instructionsG.frame = CGRect(x:5, y:5, width:75, height:900)
+        let widgetPanelHeight:Int = 1000
+        instructionsG.frame = CGRect(x:5, y:5, width:75, height:widgetPanelHeight)
         instructionsG.bringToFront()
         instructionsG.refresh()
         
-        instructions.frame = CGRect(x:50, y:5, width:500, height:900)
+        instructions.frame = CGRect(x:50, y:5, width:500, height:widgetPanelHeight)
         instructions.textColor = .white
         instructions.backgroundColor = .black
         instructions.bringToFront()
