@@ -1449,7 +1449,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
      func presentPopover(_ name:String) {
         let mvc = NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil)
         let vc = mvc.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(name)) as! NSViewController
-        self.present(vc, asPopoverRelativeTo: view.bounds, of: view, preferredEdge: .minX, behavior: .transient)
+        self.present(vc, asPopoverRelativeTo: view.bounds, of: view, preferredEdge: .minX, behavior: .semitransient) 
     }
     
     var ctrlKeyDown:Bool = false
@@ -1868,6 +1868,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             widget.addEntry("Y",&control.cy,0.001,5,0.01)
             widget.addEntry("Z",&control.cz,0.001,5,0.01)
         case EQU_12_KLEINIAN2 :
+            widget.addEntry("Iterations",&control.fMaxSteps,1,12,1)
             widget.addEntry("Shape",&control.power,0.01,2,0.005)
             widget.addEntry("minX",&control.cx,-5,5,0.01)
             widget.addEntry("minY",&control.cy,-5,5,0.01)
@@ -2188,7 +2189,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         
         // ----------------------------
         widget.addLegend("")
-        widget.addEntry("Fog Amount",&control.fog,0,3,0.1)
+        widget.addEntry("Fog Amount",&control.fog,0,12,0.1)
         widget.addEntry("R",&control.fogR,0,1,0.1)
         widget.addEntry("G",&control.fogG,0,1,0.1)
         widget.addEntry("B",&control.fogB,0,1,0.1)

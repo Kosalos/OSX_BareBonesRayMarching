@@ -641,7 +641,7 @@ float DE_KLEINIAN2(float3 pos,device Control &control,thread float4 &orbitTrap) 
     float3 ot,trap = control.otFixed;
     if(int(control.orbitStyle + 0.5) == 2) trap -= pos;
     
-    for(int i=0; i < 7; ++i) {
+    for(int i=0; i < control.maxSteps; ++i) {
         pos = 2 * clamp(pos, control.mins.xyz, control.maxs.xyz) - pos;
         k = max(control.mins.w / dot(pos,pos), control.power);
         pos *= k;

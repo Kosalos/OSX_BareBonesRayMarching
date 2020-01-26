@@ -89,7 +89,7 @@ class SaveLoadViewController: NSViewController,NSTableViewDataSource, NSTableVie
         alert.informativeText = "Confirm overwrite of Settings storage"
         alert.addButton(withTitle: "NO")
         alert.addButton(withTitle: "YES")
-        alert.beginSheetModal(for: vc.view.window!) {( returnCode: NSApplication.ModalResponse) -> Void in
+        alert.beginSheetModal(for: self.view.window!) {( returnCode: NSApplication.ModalResponse) -> Void in
             if returnCode.rawValue == 1001 {
                 do {
                     self.determineURL(index)
@@ -100,6 +100,8 @@ class SaveLoadViewController: NSViewController,NSTableViewDataSource, NSTableVie
                     print(error)
                 }
             }
+
+            self.dismiss(self)
         }
     }
     

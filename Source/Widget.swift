@@ -65,7 +65,12 @@ struct WidgetData {
 
     func valuePercent() -> Int {
         let value:Float = valuePtr.load(as:Float.self)
-        return Int((value - range.x) * 100 / (range.y - range.x));
+        return Int((value - range.x) * 100 / (range.y - range.x))
+    }
+    
+    func isAtLimit() -> Bool {
+        let value:Float = valuePtr.load(as:Float.self)
+        return value == range.x || value == range.y
     }
 }
 

@@ -23,12 +23,12 @@ class InstructionsG: NSView {
                 context?.setStrokeColor(i == parent.focus ? NSColor.red.cgColor : NSColor.white.cgColor)
                 
                 // green when at limits
-                let p = parent.data[i].valuePercent()
-                if(p == 0 || p == 100) { context?.setStrokeColor(NSColor.green.cgColor) }
+                if parent.data[i].isAtLimit() { context?.setStrokeColor(NSColor.green.cgColor) }
                 
                 context?.setLineWidth(1.0)
                 context?.stroke(r)
                 
+                let p = parent.data[i].valuePercent()
                 let xp = CGFloat(3 + p * 36 / 100)
 
                 r = NSMakeRect(xp,CGFloat(y),2,CGFloat(YS))
