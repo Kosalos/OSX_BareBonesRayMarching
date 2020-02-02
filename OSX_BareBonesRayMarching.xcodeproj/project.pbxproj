@@ -22,6 +22,9 @@
 		1D88BAB0233135D300362BA9 /* ColorMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D88BAAF233135D300362BA9 /* ColorMap.swift */; };
 		1D95FCFC2308613F00C99D8D /* InstructionsG.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D95FCFB2308613F00C99D8D /* InstructionsG.swift */; };
 		1DAF37B721EAA112000DC9E5 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DAF37B521EAA112000DC9E5 /* ViewController.swift */; };
+		1DFFB87C23E2A3910093C78C /* WinLightViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DFFB87B23E2A3900093C78C /* WinLightViewController.swift */; };
+		1DFFB87E23E39A380093C78C /* Shader.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DFFB87D23E39A380093C78C /* Shader.m */; };
+		1DFFB88023E501DC0093C78C /* help4.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1DFFB87F23E501DC0093C78C /* help4.txt */; };
 		CFD49CC62115B92300B4C5EB /* MetalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFD49CC52115B92300B4C5EB /* MetalView.swift */; };
 		CFD49CCA2115C6DC00B4C5EB /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = CFD49CC92115C6DC00B4C5EB /* Shaders.metal */; };
 		CFEA3DEB211463D800C7DBD3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFEA3DEA211463D800C7DBD3 /* AppDelegate.swift */; };
@@ -46,6 +49,9 @@
 		1D95FCFB2308613F00C99D8D /* InstructionsG.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstructionsG.swift; sourceTree = "<group>"; };
 		1DAF37B521EAA112000DC9E5 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		1DAF37B921EAD662000DC9E5 /* Shader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Shader.h; sourceTree = "<group>"; };
+		1DFFB87B23E2A3900093C78C /* WinLightViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WinLightViewController.swift; sourceTree = "<group>"; };
+		1DFFB87D23E39A380093C78C /* Shader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Shader.m; sourceTree = "<group>"; };
+		1DFFB87F23E501DC0093C78C /* help4.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = help4.txt; sourceTree = "<group>"; };
 		CFD49CC52115B92300B4C5EB /* MetalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalView.swift; sourceTree = "<group>"; };
 		CFD49CC92115C6DC00B4C5EB /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
 		CFEA3DE7211463D800C7DBD3 /* OSX_BareBonesRayMarching.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OSX_BareBonesRayMarching.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -88,11 +94,13 @@
 			children = (
 				1DAF37B521EAA112000DC9E5 /* ViewController.swift */,
 				1D0DDCD6222F148500D916F6 /* Win3DViewController.swift */,
+				1DFFB87B23E2A3900093C78C /* WinLightViewController.swift */,
 				1D3FB46F225519240027DFDF /* VideoRecorderViewController.swift */,
 				1D40CB4C21F1015F009C73A3 /* Widget.swift */,
 				1D95FCFB2308613F00C99D8D /* InstructionsG.swift */,
 				CFD49CC92115C6DC00B4C5EB /* Shaders.metal */,
 				1DAF37B921EAD662000DC9E5 /* Shader.h */,
+				1DFFB87D23E39A380093C78C /* Shader.m */,
 				1D0DDCDC222F173600D916F6 /* Renderer.swift */,
 				1D0DDCD8222F14E000D916F6 /* View3D.swift */,
 				CFD49CC52115B92300B4C5EB /* MetalView.swift */,
@@ -107,6 +115,7 @@
 				1D46500B2221B0C400D14A94 /* help.txt */,
 				1D0DDCDA222F14F300D916F6 /* help2.txt */,
 				1D3FB4732256C7890027DFDF /* help3.txt */,
+				1DFFB87F23E501DC0093C78C /* help4.txt */,
 				CFEA3DF3211463D900C7DBD3 /* Info.plist */,
 				CFEA3DF4211463D900C7DBD3 /* Entitlements.entitlements */,
 			);
@@ -145,7 +154,7 @@
 				TargetAttributes = {
 					CFEA3DE6211463D800C7DBD3 = {
 						CreatedOnToolsVersion = 9.4.1;
-						LastSwiftMigration = 1010;
+						LastSwiftMigration = 1130;
 					};
 				};
 			};
@@ -176,6 +185,7 @@
 				1D46500C2221B0C400D14A94 /* help.txt in Resources */,
 				1D0DDCDB222F14F300D916F6 /* help2.txt in Resources */,
 				CFEA3DF2211463D900C7DBD3 /* Main.storyboard in Resources */,
+				1DFFB88023E501DC0093C78C /* help4.txt in Resources */,
 				1D3FB4742256C78A0027DFDF /* help3.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -199,6 +209,8 @@
 				1D40CB4D21F1015F009C73A3 /* Widget.swift in Sources */,
 				1DAF37B721EAA112000DC9E5 /* ViewController.swift in Sources */,
 				1D09268C223C1248005BC5FC /* EquationPickerViewController.swift in Sources */,
+				1DFFB87C23E2A3910093C78C /* WinLightViewController.swift in Sources */,
+				1DFFB87E23E39A380093C78C /* Shader.m in Sources */,
 				CFEA3DEB211463D800C7DBD3 /* AppDelegate.swift in Sources */,
 				1D0DDCDD222F173600D916F6 /* Renderer.swift in Sources */,
 				1D465008221E88DA00D14A94 /* SaveLoadViewController.swift in Sources */,

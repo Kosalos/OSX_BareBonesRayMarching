@@ -1,0 +1,9 @@
+Lights Window
+
+Three light sources are provided.
+
+Set <Bright> to zero (full left on widget) to skip a light source.
+
+<Spread> controls the "spot light" vs. "diffuse" characteristic.
+
+Press <L> to toggle keyboard focus between the two windows.

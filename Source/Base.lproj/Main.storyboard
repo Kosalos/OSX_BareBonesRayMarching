@@ -3,6 +3,7 @@
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="15705"/>
+        <capability name="System colors introduced in macOS 10.13" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -430,6 +431,64 @@
                 <customObject id="0jF-Pc-AM0" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-3204" y="-188"/>
+        </scene>
+        <!--Win Light-->
+        <scene sceneID="Jit-r6-ZPI">
+            <objects>
+                <windowController storyboardIdentifier="Lights" id="vso-m8-sBu" userLabel="Win Light" sceneMemberID="viewController">
+                    <window key="window" title="Lights" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="qLb-ST-m8P">
+                        <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+                        <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+                        <rect key="contentRect" x="425" y="461" width="200" height="300"/>
+                        <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
+                        <connections>
+                            <outlet property="delegate" destination="vso-m8-sBu" id="xLm-bf-48d"/>
+                        </connections>
+                    </window>
+                    <connections>
+                        <segue destination="gHu-Um-Aer" kind="relationship" relationship="window.shadowedContentViewController" id="YYo-Hv-Wxp"/>
+                    </connections>
+                </windowController>
+                <customObject id="4dq-yV-GgL" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-2831.5" y="-102"/>
+        </scene>
+        <!--Win Light-->
+        <scene sceneID="dma-jW-h1U">
+            <objects>
+                <viewController title="Win Light" id="gHu-Um-Aer" customClass="WinLightViewController" customModule="OSX_BareBonesRayMarching" customModuleProvider="target" sceneMemberID="viewController">
+                    <customView key="view" id="0iU-at-3Qh" customClass="BaseNSView2" customModule="OSX_BareBonesRayMarching" customModuleProvider="target">
+                        <rect key="frame" x="0.0" y="0.0" width="200" height="300"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <subviews>
+                            <customView autoresizesSubviews="NO" wantsLayer="YES" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ELG-wo-29M" customClass="InstructionsG" customModule="OSX_BareBonesRayMarching" customModuleProvider="target">
+                                <rect key="frame" x="16" y="182" width="46" height="108"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                            </customView>
+                            <textField autoresizesSubviews="NO" wantsLayer="YES" verticalHuggingPriority="750" fixedFrame="YES" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="R40-DA-Wbt">
+                                <rect key="frame" x="72" y="192" width="121" height="88"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <shadow key="shadow" blurRadius="2">
+                                    <size key="offset" width="1" height="-2"/>
+                                    <color key="color" name="windowFrameTextColor" catalog="System" colorSpace="catalog"/>
+                                </shadow>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" enabled="NO" refusesFirstResponder="YES" allowsUndo="NO" sendsActionOnEndEditing="YES" alignment="left" id="4Ct-ie-AoE">
+                                    <font key="font" metaFont="system" size="14"/>
+                                    <color key="textColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="findHighlightColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                        </subviews>
+                    </customView>
+                    <connections>
+                        <outlet property="instructions" destination="R40-DA-Wbt" id="Uw5-26-q5w"/>
+                        <outlet property="instructionsG" destination="ELG-wo-29M" id="Jpn-vd-Kix"/>
+                        <outlet property="view" destination="0iU-at-3Qh" id="j7c-Jh-OgO"/>
+                    </connections>
+                </viewController>
+                <customObject id="Lt1-DR-bMr" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-2580" y="53.5"/>
         </scene>
         <!--Video Recorder View Controller-->
         <scene sceneID="FMk-8g-sDL">

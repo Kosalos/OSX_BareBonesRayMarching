@@ -151,6 +151,10 @@ class Win3DViewController: NSViewController, NSWindowDelegate, WidgetDelegate {
         instructions.attributedStringValue = str
     }
     
+    func hasFocus() -> Bool {
+        return view.window!.isKeyWindow
+    }
+
     /// toggling stereo viewing automatically adjusts window size to accomodate (unless we are already full screen)
     func adjustWindowSizeForStereo() {
         var r:CGRect = (view.window?.frame)!
@@ -160,15 +164,6 @@ class Win3DViewController: NSViewController, NSWindowDelegate, WidgetDelegate {
     
     //MARK: -
  
-    var shiftKeyDown:Bool = false
-    var optionKeyDown:Bool = false
-    
-    func updateModifierKeyFlags(_ ev:NSEvent) {
-        let rv = ev.modifierFlags.intersection(.deviceIndependentFlagsMask).rawValue
-        shiftKeyDown   = rv & (1 << 17) != 0
-        optionKeyDown  = rv & (1 << 19) != 0
-    }
-    
     func showHelpDialog() {
         if !isHelpVisible {
             helpIndex = 1
@@ -183,16 +178,12 @@ class Win3DViewController: NSViewController, NSWindowDelegate, WidgetDelegate {
     }
     
     override func keyDown(with event: NSEvent) {
-        //      super.keyDown(with: event)   // comment out to prevent dull tone for every press, auto repeat
 
-        updateModifierKeyFlags(event)
-        _ = widget.keyPress(event)
-        
-        switch event.keyCode {
-        case 116 : // page up
+        switch Int32(event.keyCode) {
+        case PAGE_UP :
             showHelpDialog()
             return
-        case 121 : // page down close this window
+        case PAGE_DOWN : // close this window
             win3D.close()
             vc.flagViewToRecalcFractal()
             return
@@ -203,20 +194,20 @@ class Win3DViewController: NSViewController, NSWindowDelegate, WidgetDelegate {
         case "\\" : // set focus to next window
             vc.view.window?.makeMain()
             vc.view.window?.makeKey()
+            return
         case " " :
             instructions.isHidden = !instructions.isHidden
             updateLayoutOfChildViews()
+            return
         case "3" :
             isStereo = !isStereo
             adjustWindowSizeForStereo()
             updateLayoutOfChildViews()
+            return
         default : break
         }
-    }
-    
-    override func keyUp(with event: NSEvent) {
-        super.keyUp(with: event)
-        updateModifierKeyFlags(event)
+
+        _ = widget.keyPress(event)
     }
     
     //MARK: -
@@ -232,19 +223,18 @@ class Win3DViewController: NSViewController, NSWindowDelegate, WidgetDelegate {
     override func mouseDown(with event: NSEvent) {
         pt = flippedYCoord(event.locationInWindow)
         
-        if optionKeyDown {      // optionKey + mouse click = stop rotation
+        if widget.optionKeyDown {      // optionKey + mouse click = stop rotation
             paceRotate = CGPoint()
         }
     }
     
     override func mouseDragged(with event: NSEvent) {
-        updateModifierKeyFlags(event)
-        
         var npt = flippedYCoord(event.locationInWindow)
         npt.x -= pt.x
         npt.y -= pt.y
         
-        if optionKeyDown {      // optionKey + mouse drag = set rotation speed & direction
+        widget.updateAlterationSpeed(event)        
+        if widget.optionKeyDown {      // optionKey + mouse drag = set rotation speed & direction
             updateRotationSpeedAndDirection(npt)
             return
         }

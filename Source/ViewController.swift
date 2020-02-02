@@ -4,6 +4,7 @@ import MetalKit
 
 var vc:ViewController! = nil
 var win3D:NSWindowController! = nil
+var winLight:NSWindowController! = nil
 var videoRecorderWindow:NSWindowController! = nil
 var controlBuffer:MTLBuffer! = nil
 var coloringTexture:MTLTexture! = nil
@@ -34,6 +35,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     override func viewDidLoad() {
         super.viewDidLoad()
         vc = self
+        setControlPointer(&control)
     }
     
     override func viewDidAppear() {
@@ -78,8 +80,28 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         reset()
         ensureWindowSizeIsNotTooSmall()
         
+        showLightWindow(true)
+
         Timer.scheduledTimer(withTimeInterval:0.033, repeats:true) { timer in self.timerHandler() }
+        
+        helpIndex = 0
         presentPopover("HelpVC")
+    }
+    
+    func showLightWindow(_ onoff:Bool) {
+        if onoff {
+            if winLight == nil {
+                let mainStoryboard = NSStoryboard.init(name: NSStoryboard.Name("Main"), bundle: nil)
+                winLight = mainStoryboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier("Lights")) as? NSWindowController
+            }
+            winLight.showWindow(self)
+        }
+        else {
+            if winLight != nil {
+                winLight.close()
+                winLight = nil
+            }
+        }
     }
     
     var fastRenderEnabled:Bool = true
@@ -101,6 +123,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     /// ensure companion 3D window is also closed
     func windowWillClose(_ aNotification: Notification) {
         if let w = win3D { w.close() }
+        if let l = winLight { l.close() }
         if let v = videoRecorderWindow { v.close() }
     }
     
@@ -198,6 +221,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         control.Cycles = 0
         control.orbitStyle = 0
         control.fog = 0
+        flightReset()
         
         switch Int(control.equation) {
         case EQU_01_MANDELBULB :
@@ -1218,6 +1242,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         c.Box_Iterations = Int32(control.fBox_Iterations)
         
         c.InvCenter = simd_float3(c.InvCx, c.InvCy, c.InvCz)
+        flightEncode()
         
         //-----------------------------------------------
         let colMap = [ colorMap1,colorMap2,colorMap3,colorMap4 ]
@@ -1482,22 +1507,22 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             return
         }
 
-        switch event.keyCode {
-        case 115 : // home
+        switch Int32(event.keyCode) {
+        case HOME_KEY :
             presentPopover("SaveLoadVC")
             return
-        case 116 : // page up
+        case PAGE_UP :
             if !isHelpVisible {
                 helpIndex = 0
                 presentPopover("HelpVC")
             }
             return
-        case 119 : // end
+        case END_KEY :
             let s = SaveLoadViewController()
             s.loadNext()
             controlJustLoaded()
             return
-        case 121 : // page down
+        case PAGE_DOWN :
             toggleDisplayOfCompanion3DView()
             return
         default : break
@@ -1589,6 +1614,8 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             if control.colorScheme > 7 { control.colorScheme = 0 }
             defineWidgetsForCurrentEquation()
             flagViewToRecalcFractal()
+        case "L" :
+            winLight.window!.makeKeyAndOrderFront(nil)
         case ",","<" : adjustWindowSize(-1)
         case ".",">" : adjustWindowSize(+1)
         case "[" : launchVideoRecorder()
@@ -2212,6 +2239,13 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         widget.addEntry("Y",&vc.control.otFixedY,-10,10,0.1)
         widget.addEntry("Z",&vc.control.otFixedZ,-10,10,0.1)
 
+//        // ----------------------------
+//        widget.addLegend("")
+//        widget.addEntry("Light",lightPower(0),0,1,0.1)
+//        widget.addEntry("X",lightX(0),-20,20,0.2)
+//        widget.addEntry("Y",lightY(0),-20,20,0.2)
+//        widget.addEntry("Z",lightZ(0),-20,20,0.2)
+
         displayWidgets()
         updateWindowTitle()
     }
@@ -2221,6 +2255,10 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         widget.addinstructionEntries(str)
         instructions.attributedStringValue = str        
         instructionsG.refresh()
+    }
+    
+    func hasFocus() -> Bool {
+        return view.window!.isKeyWindow
     }
     
     //MARK: -
@@ -2305,7 +2343,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             metalView.frame = CGRect(x:1, y:1, width:r.size.width-2, height:r.size.height-2)
         }
         
-        let widgetPanelHeight:Int = 1000
+        let widgetPanelHeight:Int = 1200
         instructionsG.frame = CGRect(x:5, y:5, width:75, height:widgetPanelHeight)
         instructionsG.bringToFront()
         instructionsG.refresh()

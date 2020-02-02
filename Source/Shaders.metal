@@ -2706,6 +2706,16 @@ kernel void rayMarchShader
             float3 backColor = float3(c.fogR,c.fogG,c.fogB);
             color = mix(color, backColor, 1.0-exp(-pow(c.fog,4.0) * dist.x * dist.x));
         }
+        
+        // light -------------------
+        for(int i=0;i<NUM_LIGHT;++i) {
+            if(c.flight[i].bright > 0) {
+                float distance = 0.001 + length_squared(c.flight[i].pos - position) * c.flight[i].power;
+                float intensity = max(float(c.flight[i].bright * dot(normal, normalize(c.flight[i].pos)) / distance),float(0));
+                color += c.flight[i].color * intensity;
+                color = saturate(color);
+            }
+        }
 
     } // hit object
     else {

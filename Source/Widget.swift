@@ -2,6 +2,7 @@ import Cocoa
 
 protocol WidgetDelegate {
     func displayWidgets()
+    func hasFocus() -> Bool
 }
 
 enum WidgetKind { case integer,float,legend,boolean }
@@ -80,6 +81,9 @@ class Widget {
     var data:[WidgetData] = []
     var focus:Int = 0
     
+    var shiftKeyDown = Bool()
+    var optionKeyDown = Bool()
+
     init(_ id:Int, _ d:WidgetDelegate) {
         ident = id
         delegate = d
@@ -152,8 +156,8 @@ class Widget {
 
     func updateAlterationSpeed(_ event:NSEvent) {
         let rv = event.modifierFlags.intersection(.deviceIndependentFlagsMask).rawValue
-        let shiftKeyDown:Bool = rv & (1 << 17) != 0
-        let optionKeyDown:Bool = rv & (1 << 19) != 0
+        shiftKeyDown  = rv & (1 << 17) != 0
+        optionKeyDown = rv & (1 << 19) != 0
 
         alterationSpeed = 1
         if shiftKeyDown && optionKeyDown { alterationSpeed = 50 } else
@@ -163,8 +167,10 @@ class Widget {
     func keyPress(_ event:NSEvent) -> Bool {
         updateAlterationSpeed(event)
         
-        switch event.keyCode {
-        case 123: // Left arrow
+        switch Int32(event.keyCode) {
+        case LEFT_ARROW :
+            if !(delegate?.hasFocus())! { return false }
+            
             if data[focus].alterValue(-1) {
                 if ident == 0 {
                     vc.flagViewToRecalcFractal()
@@ -172,7 +178,9 @@ class Widget {
                 }
                 return true
             }
-        case 124: // Right arrow
+        case RIGHT_ARROW :
+            if !(delegate?.hasFocus())! { return false }
+
             if data[focus].alterValue(+1) {
                 if ident == 0 {
                     vc.flagViewToRecalcFractal()
@@ -180,9 +188,8 @@ class Widget {
                 }
                 return true
             }
-        case 125: moveFocus(+1) // Down arrow
-        case 126: moveFocus(-1) // Up arrow
-        //case 53 : NSApplication.shared.terminate(self) // Esc
+        case DOWN_ARROW :   moveFocus(+1); return true
+        case UP_ARROW :     moveFocus(-1); return true
         default : break
         }
         

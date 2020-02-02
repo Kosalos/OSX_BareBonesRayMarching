@@ -1,7 +1,7 @@
 import Cocoa
 
 var helpIndex:Int = 0
-let helpFilename:[String] = [ "help.txt","help2.txt","help3.txt" ]
+let helpFilename:[String] = [ "help.txt","help2.txt","help3.txt","help4.txt" ]
 var isHelpVisible:Bool = false
 
 class HelpViewController: NSViewController {

@@ -9,7 +9,7 @@ class InstructionsG: NSView {
     func initialize(_ parentPtr:Widget) { parent = parentPtr }
     
     override func draw(_ rect: NSRect) {
-        if parent == nil { print("Need to initialzr instructionsG");  exit(0) }
+        if parent == nil { print("Need to initialze instructionsG");  exit(0) }
         let context = NSGraphicsContext.current?.cgContext
         context?.setFillColor(NSColor.clear.cgColor)
         context?.fill(rect)

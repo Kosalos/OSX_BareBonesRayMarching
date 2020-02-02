@@ -21,7 +21,26 @@ enum {
     EQU_41_KALI_RONTGEN, EQU_42_VERTEBRAE, EQU_43_DARKSURF, EQU_44_BUFFALO, EQU_45_TEMPLE,
     EQU_46_KALI3, EQU_47_SPONGE, EQU_48_FLORAL, EQU_49_KNOT, EQU_50_DONUTS, EQU_MAX };
 
-struct Control {
+#define NUM_LIGHT   3
+
+#define HOME_KEY    115
+#define END_KEY     119
+#define PAGE_UP     116
+#define PAGE_DOWN   121
+#define LEFT_ARROW  123
+#define RIGHT_ARROW 124
+#define DOWN_ARROW  125
+#define UP_ARROW    126
+
+typedef struct {
+    float bright,power;
+    float x,y,z;
+    float r,g,b;
+    vector_float3 pos;
+    vector_float3 color;
+} FLightData;
+
+typedef struct {
     int version;
     int xSize,ySize;
     int equation;
@@ -140,7 +159,9 @@ struct Control {
     vector_float3 otFixed;
     
     float fog,fogR,fogG,fogB;
-};
+    
+    FLightData flight[NUM_LIGHT];
+} Control;
 
 // 3D window ---------------------------------
 
@@ -178,4 +199,22 @@ typedef struct {
     
     float yScale3D,ceiling3D,floor3D;
 } Uniforms;
+
+// ----------------------------------------------
+
+#ifndef __METAL_VERSION__
+
+void setControlPointer(Control *ptr);
+void flightReset(void);
+void flightEncode(void);
+float* lightBright(int index);
+float* lightPower(int index);
+float* lightX(int index);
+float* lightY(int index);
+float* lightZ(int index);
+float* lightR(int index);
+float* lightG(int index);
+float* lightB(int index);
+
+#endif
 
