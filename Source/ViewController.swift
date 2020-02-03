@@ -80,7 +80,9 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         reset()
         ensureWindowSizeIsNotTooSmall()
         
+        flightReset()
         showLightWindow(true)
+        vc.view.window!.makeKeyAndOrderFront(nil)  // bring focus back to main window
 
         Timer.scheduledTimer(withTimeInterval:0.033, repeats:true) { timer in self.timerHandler() }
         
@@ -221,7 +223,6 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         control.Cycles = 0
         control.orbitStyle = 0
         control.fog = 0
-        flightReset()
         
         switch Int(control.equation) {
         case EQU_01_MANDELBULB :

@@ -10,6 +10,11 @@ class WinLightViewController: NSViewController, NSWindowDelegate, WidgetDelegate
     @IBOutlet var instructions: NSTextField!
     @IBOutlet var instructionsG: InstructionsG!
     
+    @IBAction func resetButtonPressed(_ sender: NSButton) {
+        flightReset()
+        vc.flagViewToRecalcFractal()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         widget = Widget(2,self)
@@ -45,7 +50,7 @@ class WinLightViewController: NSViewController, NSWindowDelegate, WidgetDelegate
         widget.addEntry("Light#",&lightIndex,1,3,1,.integer,true)
         widget.addLegend(" ")
         widget.addEntry("Bright",lightBright(i),0,10,0.2)
-        widget.addEntry("Spread",lightPower(i),0.1,10,0.2)
+        widget.addEntry("Spread",lightPower(i),0.01,100,0.2)
         widget.addLegend(" ")
         widget.addEntry("X Position",lightX(i),-20,20,0.2)
         widget.addEntry("Y",lightY(i),-20,20,0.2)
