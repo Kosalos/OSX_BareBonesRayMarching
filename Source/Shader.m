@@ -36,9 +36,9 @@ void flightEncode(void) {
         cPtr->flight[i].color.z = cPtr->flight[i].b;
     }
 
-    int i = 0;
-    printf("Light %d: B %5.3f, P %5.3f, Pos %5.3f,%5.3f,%5.3f\n",i,cPtr->flight[i].bright,cPtr->flight[i].power,cPtr->flight[i].pos.x,
-           cPtr->flight[i].pos.y,cPtr->flight[i].pos.z);
+//    int i = 0;
+//    printf("Light %d: B %5.3f, P %5.3f, Pos %5.3f,%5.3f,%5.3f\n",i,cPtr->flight[i].bright,cPtr->flight[i].power,cPtr->flight[i].pos.x,
+//           cPtr->flight[i].pos.y,cPtr->flight[i].pos.z);
 }
 
 float* lightBright(int index)   { return &cPtr->flight[index].bright; }
