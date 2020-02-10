@@ -46,7 +46,7 @@ class InstructionsG: NSView {
 
     override func mouseDown(with event: NSEvent) {
         var pt:NSPoint = event.locationInWindow
-        pt.y = vc.view.frame.height - pt.y
+        pt.y = (parent.delegate as! NSViewController).view.frame.height - pt.y
         let index = Int(pt.y - 5)/18
         
         parent.focusDirect(index)

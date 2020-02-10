@@ -80,32 +80,54 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         reset()
         ensureWindowSizeIsNotTooSmall()
         
-        flightReset()
-        showLightWindow(true)
-        vc.view.window!.makeKeyAndOrderFront(nil)  // bring focus back to main window
-
+        resetAllLights()
+        showLightWindow()
+        setWindowFocusToMainWindow(true)
+        
         Timer.scheduledTimer(withTimeInterval:0.033, repeats:true) { timer in self.timerHandler() }
         
         helpIndex = 0
         presentPopover("HelpVC")
     }
     
-    func showLightWindow(_ onoff:Bool) {
-        if onoff {
-            if winLight == nil {
-                let mainStoryboard = NSStoryboard.init(name: NSStoryboard.Name("Main"), bundle: nil)
-                winLight = mainStoryboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier("Lights")) as? NSWindowController
-            }
-            winLight.showWindow(self)
+    func showLightWindow() {
+        if winLight == nil {
+            let mainStoryboard = NSStoryboard.init(name: NSStoryboard.Name("Main"), bundle: nil)
+            winLight = mainStoryboard.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier("Lights")) as? NSWindowController
         }
-        else {
-            if winLight != nil {
-                winLight.close()
-                winLight = nil
-            }
-        }
+        
+        winLight.showWindow(self)
     }
     
+    //MARK: -
+
+    var isMainWindowFocus:Bool = false
+    
+    func setWindowFocusToMainWindow(_ onoff:Bool) {
+        isMainWindowFocus = onoff
+        
+        if !isMainWindowFocus {
+            winLight.window!.makeKeyAndOrderFront(nil)
+            vcLight.widget.gainFocus()
+            widget.loseFocus()
+        }
+        else {
+            view.window!.makeKeyAndOrderFront(nil)
+            vcLight.widget.loseFocus()
+            widget.gainFocus()
+        }
+
+        displayWidgets()
+        vcLight.displayWidgets()
+    }
+    
+    func toggleWindowFocus() {
+        isMainWindowFocus = !isMainWindowFocus
+        setWindowFocusToMainWindow(isMainWindowFocus)
+    }
+
+    //MARK: -
+
     var fastRenderEnabled:Bool = true
     var slowRenderCountDown:Int = 0
     
@@ -1243,7 +1265,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         c.Box_Iterations = Int32(control.fBox_Iterations)
         
         c.InvCenter = simd_float3(c.InvCx, c.InvCy, c.InvCz)
-        flightEncode()
+        encodeWidgetDataForAllLights()
         
         //-----------------------------------------------
         let colMap = [ colorMap1,colorMap2,colorMap3,colorMap4 ]
@@ -1616,6 +1638,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             defineWidgetsForCurrentEquation()
             flagViewToRecalcFractal()
         case "L" :
+            toggleWindowFocus()
             winLight.window!.makeKeyAndOrderFront(nil)
         case ",","<" : adjustWindowSize(-1)
         case ".",">" : adjustWindowSize(+1)
@@ -2359,6 +2382,10 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     }
     
     func windowDidResize(_ notification: Notification) { updateLayoutOfChildViews() }
+    
+    func windowDidBecomeKey(_ notification: Notification) {
+        setWindowFocusToMainWindow(true)
+    }
     
     //MARK: -
     

@@ -2711,7 +2711,7 @@ kernel void rayMarchShader
         for(int i=0;i<NUM_LIGHT;++i) {
             if(c.flight[i].bright > 0) {
                 float distance = 0.001 + length_squared(c.flight[i].pos - position) * c.flight[i].power;
-                float intensity = max(float(c.flight[i].bright * dot(normal, normalize(c.flight[i].pos)) / distance),float(0));
+                float intensity = max(float(c.flight[i].bright * dot(normal, c.flight[i].nrmPos) / distance),float(0));
                 color += c.flight[i].color * intensity;
                 color = saturate(color);
             }

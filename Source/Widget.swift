@@ -80,18 +80,32 @@ class Widget {
     var ident:Int = 0
     var data:[WidgetData] = []
     var focus:Int = 0
-    
+    var previousFocus:Int = 0
+
     var shiftKeyDown = Bool()
     var optionKeyDown = Bool()
 
     init(_ id:Int, _ d:WidgetDelegate) {
         ident = id
         delegate = d
+        reset()
     }
     
     func reset() {
         data.removeAll()
         focus = 0
+        previousFocus = focus
+    }
+    
+    func gainFocus() {
+        focus = previousFocus
+        focusChanged()
+    }
+    
+    func loseFocus() {
+        if focus >= 0 { previousFocus = focus }
+        focus = -1
+        focusChanged()
     }
     
     func addEntry(_ nLegend:String,
@@ -130,8 +144,6 @@ class Widget {
     func focusChanged() {
         delegate?.displayWidgets()
         vc.updateWindowTitle()
-        
-        vc.instructionsG.refresh()
     }
     
     func moveFocus(_ direction:Int) {
@@ -196,7 +208,10 @@ class Widget {
         return false
     }
     
-    func focusString() -> String { return data[focus].displayString() }
+    func focusString() -> String {
+        if focus < 0 { return "" }
+        return data[focus].displayString()
+    }
     
     func addinstructionEntries(_ str:NSMutableAttributedString) {
         for i in 0 ..< data.count {

@@ -34,10 +34,12 @@ enum {
 
 typedef struct {
     float bright,power;
-    float x,y,z;
-    float r,g,b;
-    vector_float3 pos;
-    vector_float3 color;
+    float x,y,z;                // relative position as separate values for widgets
+    float r,g,b;                // light color as separate values for widgets
+    vector_float3 relativePos;  // user specified offset fromcamera position and aim for Light
+    vector_float3 pos;          // calculated light position used by shader
+    vector_float3 nrmPos;       // normalized light position used by shader
+    vector_float3 color;        // light color used by shadser
 } FLightData;
 
 typedef struct {
@@ -205,8 +207,8 @@ typedef struct {
 #ifndef __METAL_VERSION__
 
 void setControlPointer(Control *ptr);
-void flightReset(void);
-void flightEncode(void);
+void resetAllLights(void);
+void encodeWidgetDataForAllLights(void);
 float* lightBright(int index);
 float* lightPower(int index);
 float* lightX(int index);

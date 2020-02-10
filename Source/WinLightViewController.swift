@@ -11,20 +11,27 @@ class WinLightViewController: NSViewController, NSWindowDelegate, WidgetDelegate
     @IBOutlet var instructionsG: InstructionsG!
     
     @IBAction func resetButtonPressed(_ sender: NSButton) {
-        flightReset()
+        resetAllLights()
         vc.flagViewToRecalcFractal()
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        vcLight = self
         widget = Widget(2,self)
-        instructionsG.parent = widget
+        instructionsG.initialize(widget)
     }
     
     override func viewDidAppear() {
+        view.window?.delegate = self
+        
         updateLayoutOfChildViews()
         defineWidgets()
         showHelpDialog()
+    }
+    
+    func windowDidBecomeKey(_ notification: Notification) {
+        vc.setWindowFocusToMainWindow(false)
     }
     
     //MARK: -
@@ -54,7 +61,7 @@ class WinLightViewController: NSViewController, NSWindowDelegate, WidgetDelegate
         widget.addLegend(" ")
         widget.addEntry("X Position",lightX(i),-20,20,0.2)
         widget.addEntry("Y",lightY(i),-20,20,0.2)
-        widget.addEntry("Z",lightZ(i),-20,20,0.2)
+        widget.addEntry("Z",lightZ(i),0,20,0.2)
         widget.addLegend(" ")
         widget.addEntry("R Color",lightR(i),0,1,0.1)
         widget.addEntry("G",lightG(i),0,1,0.1)
@@ -67,6 +74,7 @@ class WinLightViewController: NSViewController, NSWindowDelegate, WidgetDelegate
         let str = NSMutableAttributedString()
         widget.addinstructionEntries(str)
         instructions.attributedStringValue = str
+        instructionsG.refresh()
     }
     
     func hasFocus() -> Bool {
@@ -91,7 +99,7 @@ class WinLightViewController: NSViewController, NSWindowDelegate, WidgetDelegate
     override func keyDown(with event: NSEvent) {
         switch event.charactersIgnoringModifiers!.uppercased() {
         case "L" :
-            vc.view.window!.makeKeyAndOrderFront(nil)
+            vc.toggleWindowFocus()
             return
         default : break
         }
