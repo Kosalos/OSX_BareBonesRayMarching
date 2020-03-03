@@ -100,7 +100,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     }
     
     //MARK: -
-
+    
     var isMainWindowFocus:Bool = false
     
     func setWindowFocusToMainWindow(_ onoff:Bool) {
@@ -116,7 +116,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             vcLight.widget.loseFocus()
             widget.gainFocus()
         }
-
+        
         displayWidgets()
         vcLight.displayWidgets()
     }
@@ -125,9 +125,9 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         isMainWindowFocus = !isMainWindowFocus
         setWindowFocusToMainWindow(isMainWindowFocus)
     }
-
+    
     //MARK: -
-
+    
     var fastRenderEnabled:Bool = true
     var slowRenderCountDown:Int = 0
     
@@ -157,7 +157,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         control.win3DFlag = 0
         flagViewToRecalcFractal() // to erase bounding box
     }
-        
+    
     //MARK: -
     
     @objc func timerHandler() {
@@ -245,6 +245,9 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         control.Cycles = 0
         control.orbitStyle = 0
         control.fog = 0
+        
+        control.lightingEffectActive = false
+        control.lightingEffectScale = 0.002
         
         switch Int(control.equation) {
         case EQU_01_MANDELBULB :
@@ -1494,7 +1497,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     
     //MARK: -
     
-     func presentPopover(_ name:String) {
+    func presentPopover(_ name:String) {
         let mvc = NSStoryboard(name: NSStoryboard.Name("Main"), bundle: nil)
         let vc = mvc.instantiateController(withIdentifier: NSStoryboard.SceneIdentifier(name)) as! NSViewController
         self.present(vc, asPopoverRelativeTo: view.bounds, of: view, preferredEdge: .minX, behavior: .semitransient) 
@@ -1521,15 +1524,13 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         }
         
         updateModifierKeyFlags(event)
-        
-//      super.keyDown(with: event)   // comment out to prevent dull tone for every press, auto repeat
         widget.updateAlterationSpeed(event)
-     
+        
         if widget.keyPress(event) {
             setShaderToFastRender()
             return
         }
-
+        
         switch Int32(event.keyCode) {
         case HOME_KEY :
             presentPopover("SaveLoadVC")
@@ -1644,6 +1645,10 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         case ".",">" : adjustWindowSize(+1)
         case "[" : launchVideoRecorder()
         case "]" : if let vr = vr { vr.addKeyFrame() }
+            
+        case "M" :
+            control.lightingEffectActive = !control.lightingEffectActive
+            toggle2()
         default : break
         }
     }
@@ -2225,7 +2230,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             widget.addEntry("   Y",&control.tCenterY,0.01,1,0.02)
             widget.addEntry("   Scale",&control.tScale,0.01,1,0.02)
         }
-
+        
         // ----------------------------
         widget.addLegend("")
         widget.addBoolean("I: Spherical Inversion",&control.doInversion)
@@ -2240,11 +2245,19 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         
         // ----------------------------
         widget.addLegend("")
+        widget.addBoolean("M: Lighting Effect",&control.lightingEffectActive)
+        
+        if control.lightingEffectActive {
+            widget.addEntry("  Scale",&control.lightingEffectScale,0.001,0.1,0.0005)
+        }
+        
+        // ----------------------------
+        widget.addLegend("")
         widget.addEntry("Fog Amount",&control.fog,0,12,0.1)
         widget.addEntry("R",&control.fogR,0,1,0.1)
         widget.addEntry("G",&control.fogG,0,1,0.1)
         widget.addEntry("B",&control.fogB,0,1,0.1)
-
+        
         // ----------------------------
         widget.addLegend("")
         widget.addLegend("Orbit Trap --")
@@ -2262,14 +2275,14 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
         widget.addEntry("X",&vc.control.otFixedX,-10,10,0.1)
         widget.addEntry("Y",&vc.control.otFixedY,-10,10,0.1)
         widget.addEntry("Z",&vc.control.otFixedZ,-10,10,0.1)
-
-//        // ----------------------------
-//        widget.addLegend("")
-//        widget.addEntry("Light",lightPower(0),0,1,0.1)
-//        widget.addEntry("X",lightX(0),-20,20,0.2)
-//        widget.addEntry("Y",lightY(0),-20,20,0.2)
-//        widget.addEntry("Z",lightZ(0),-20,20,0.2)
-
+        
+        //        // ----------------------------
+        //        widget.addLegend("")
+        //        widget.addEntry("Light",lightPower(0),0,1,0.1)
+        //        widget.addEntry("X",lightX(0),-20,20,0.2)
+        //        widget.addEntry("Y",lightY(0),-20,20,0.2)
+        //        widget.addEntry("Z",lightZ(0),-20,20,0.2)
+        
         displayWidgets()
         updateWindowTitle()
     }

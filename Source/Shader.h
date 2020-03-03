@@ -163,6 +163,8 @@ typedef struct {
     float fog,fogR,fogG,fogB;
     
     FLightData flight[NUM_LIGHT];
+    bool lightingEffectActive;
+    float lightingEffectScale;
 } Control;
 
 // 3D window ---------------------------------

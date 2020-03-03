@@ -30,5 +30,4 @@ class HelpViewController: NSViewController {
         let vlist = [ vc,win3D,videoRecorderWindow ]
         vlist[helpIndex]?.keyDown(with: event)
     }
-        
 }

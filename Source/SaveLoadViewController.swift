@@ -77,7 +77,7 @@ class SaveLoadViewController: NSViewController,NSTableViewDataSource, NSTableVie
     
     var fileURL:URL! = nil
     let sz = MemoryLayout<Control>.size
-
+    
     func determineURL(_ index:Int) {
         let name = String(format:"Store%d.dat",index)
         fileURL = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false).appendingPathComponent(name)
@@ -100,7 +100,7 @@ class SaveLoadViewController: NSViewController,NSTableViewDataSource, NSTableVie
                     print(error)
                 }
             }
-
+            
             self.dismiss(self)
         }
     }
@@ -125,13 +125,30 @@ class SaveLoadViewController: NSViewController,NSTableViewDataSource, NSTableVie
     
     //MARK:-
     
+    var xs:Int32 = 0
+    var ys:Int32 = 0
+    
+    func memorizeControlData() {
+        xs = vc.control.xSize
+        ys = vc.control.ySize
+    }
+    
+    func updateControlData() {
+        vc.control.xSize = xs
+        vc.control.ySize = ys
+        vc.control.isStereo = false
+    }
+    
     @discardableResult func loadData(_ index:Int) -> Bool {
+        memorizeControlData()
+        
         determineURL(index)
         
         let data = NSData(contentsOf: fileURL)
         if data == nil { return false } // clicked on empty entry
         
         data?.getBytes(&vc.control, length:sz)
+        updateControlData()
         return true
     }
     
@@ -156,8 +173,9 @@ class SaveLoadViewController: NSViewController,NSTableViewDataSource, NSTableVie
             let data = NSData(contentsOf: fileURL)
             
             if data != nil {
+                memorizeControlData()
                 data?.getBytes(&vc.control, length:sz)
-                //Swift.print("Loaded (base 0): ",loadNextIndex.description)
+                updateControlData()
                 return
             }
             
@@ -175,7 +193,7 @@ extension Date {
         dateFormatter.dateFormat = "MM/dd/yyyy hh:mm"
         return dateFormatter.string(from: self)
     }
-
+    
     func toTimeStampedFilename(_ filename:String, _ extensionString:String) -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyyMMddhhmmss"
