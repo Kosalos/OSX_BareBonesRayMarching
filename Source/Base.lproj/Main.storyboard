@@ -439,7 +439,7 @@
                     <window key="window" title="Lights" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="qLb-ST-m8P">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-                        <rect key="contentRect" x="425" y="461" width="200" height="300"/>
+                        <rect key="contentRect" x="425" y="461" width="200" height="609"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
                         <connections>
                             <outlet property="delegate" destination="vso-m8-sBu" id="xLm-bf-48d"/>
@@ -451,22 +451,22 @@
                 </windowController>
                 <customObject id="4dq-yV-GgL" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2831.5" y="-102"/>
+            <point key="canvasLocation" x="-2832" y="52.5"/>
         </scene>
         <!--Win Light-->
         <scene sceneID="dma-jW-h1U">
             <objects>
                 <viewController title="Win Light" id="gHu-Um-Aer" customClass="WinLightViewController" customModule="OSX_BareBonesRayMarching" customModuleProvider="target" sceneMemberID="viewController">
                     <customView key="view" id="0iU-at-3Qh" customClass="BaseNSView2" customModule="OSX_BareBonesRayMarching" customModuleProvider="target">
-                        <rect key="frame" x="0.0" y="0.0" width="200" height="300"/>
+                        <rect key="frame" x="0.0" y="0.0" width="200" height="628"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <subviews>
                             <customView autoresizesSubviews="NO" wantsLayer="YES" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ELG-wo-29M" customClass="InstructionsG" customModule="OSX_BareBonesRayMarching" customModuleProvider="target">
-                                <rect key="frame" x="16" y="182" width="46" height="108"/>
+                                <rect key="frame" x="13" y="479" width="46" height="139"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                             </customView>
                             <textField autoresizesSubviews="NO" wantsLayer="YES" verticalHuggingPriority="750" fixedFrame="YES" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="R40-DA-Wbt">
-                                <rect key="frame" x="72" y="192" width="121" height="88"/>
+                                <rect key="frame" x="11" y="376" width="121" height="88"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <shadow key="shadow" blurRadius="2">
                                     <size key="offset" width="1" height="-2"/>
@@ -478,8 +478,9 @@
                                     <color key="backgroundColor" name="findHighlightColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="S41-cB-DGn">
-                                <rect key="frame" x="7" y="13" width="75" height="32"/>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="S41-cB-DGn">
+                                <rect key="frame" x="119" y="13" width="67" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="push" title="Reset" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="3eo-Vc-FQ5">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -489,10 +490,6 @@
                                 </connections>
                             </button>
                         </subviews>
-                        <constraints>
-                            <constraint firstAttribute="bottom" secondItem="S41-cB-DGn" secondAttribute="bottom" constant="20" symbolic="YES" id="c2Q-Ix-WFF"/>
-                            <constraint firstItem="S41-cB-DGn" firstAttribute="leading" secondItem="0iU-at-3Qh" secondAttribute="leading" constant="13" id="s6F-IU-lHN"/>
-                        </constraints>
                     </customView>
                     <connections>
                         <outlet property="instructions" destination="R40-DA-Wbt" id="Uw5-26-q5w"/>
@@ -502,7 +499,7 @@
                 </viewController>
                 <customObject id="Lt1-DR-bMr" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2580" y="53.5"/>
+            <point key="canvasLocation" x="-2611" y="34"/>
         </scene>
         <!--Video Recorder View Controller-->
         <scene sceneID="FMk-8g-sDL">

@@ -30,7 +30,7 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     let PIPELINE_NORMAL  = 1
     let shaderNames = [ "rayMarchShader","normalShader" ]
     
-    //MARK: -
+    //MARK:
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -2251,30 +2251,31 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
             widget.addEntry("  Scale",&control.lightingEffectScale,0.001,0.1,0.0005)
         }
         
-        // ----------------------------
-        widget.addLegend("")
-        widget.addEntry("Fog Amount",&control.fog,0,12,0.1)
-        widget.addEntry("R",&control.fogR,0,1,0.1)
-        widget.addEntry("G",&control.fogG,0,1,0.1)
-        widget.addEntry("B",&control.fogB,0,1,0.1)
         
-        // ----------------------------
-        widget.addLegend("")
-        widget.addLegend("Orbit Trap --")
-        widget.addEntry("O Strength",&vc.control.OrbitStrength,0,1,0.1)
-        widget.addEntry("Cycles",&vc.control.Cycles,0,100,0.5)
-        widget.addEntry("X Weight",&vc.control.xWeight,-5,5,0.1)
-        widget.addEntry("Y",&vc.control.yWeight,-5,5,0.1)
-        widget.addEntry("Z",&vc.control.zWeight,-5,5,0.1)
-        widget.addEntry("R",&vc.control.rWeight,-5,5,0.1)
-        widget.addEntry("X Color",&vc.control.xIndex,0,255,10)
-        widget.addEntry("Y",&vc.control.yIndex,0,255,10)
-        widget.addEntry("Z",&vc.control.zIndex,0,255,10)
-        widget.addEntry("R",&vc.control.rIndex,0,255,10)
-        widget.addEntry("Fixed Trap",&control.orbitStyle,0,2,1,.integer,true)
-        widget.addEntry("X",&vc.control.otFixedX,-10,10,0.1)
-        widget.addEntry("Y",&vc.control.otFixedY,-10,10,0.1)
-        widget.addEntry("Z",&vc.control.otFixedZ,-10,10,0.1)
+//        // ----------------------------
+//        widget.addLegend("")
+//        widget.addEntry("Fog Amount",&control.fog,0,12,0.1)
+//        widget.addEntry("R",&control.fogR,0,1,0.1)
+//        widget.addEntry("G",&control.fogG,0,1,0.1)
+//        widget.addEntry("B",&control.fogB,0,1,0.1)
+//        
+//        // ----------------------------
+//        widget.addLegend("")
+//        widget.addLegend("Orbit Trap --")
+//        widget.addEntry("O Strength",&vc.control.OrbitStrength,0,1,0.1)
+//        widget.addEntry("Cycles",&vc.control.Cycles,0,100,0.5)
+//        widget.addEntry("X Weight",&vc.control.xWeight,-5,5,0.1)
+//        widget.addEntry("Y",&vc.control.yWeight,-5,5,0.1)
+//        widget.addEntry("Z",&vc.control.zWeight,-5,5,0.1)
+//        widget.addEntry("R",&vc.control.rWeight,-5,5,0.1)
+//        widget.addEntry("X Color",&vc.control.xIndex,0,255,10)
+//        widget.addEntry("Y",&vc.control.yIndex,0,255,10)
+//        widget.addEntry("Z",&vc.control.zIndex,0,255,10)
+//        widget.addEntry("R",&vc.control.rIndex,0,255,10)
+//        widget.addEntry("Fixed Trap",&control.orbitStyle,0,2,1,.integer,true)
+//        widget.addEntry("X",&vc.control.otFixedX,-10,10,0.1)
+//        widget.addEntry("Y",&vc.control.otFixedY,-10,10,0.1)
+//        widget.addEntry("Z",&vc.control.otFixedZ,-10,10,0.1)
         
         //        // ----------------------------
         //        widget.addLegend("")

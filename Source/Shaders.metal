@@ -177,8 +177,9 @@ float3 rotatePosition(float3 pos, int axis, float angle) {
 }
 
 float SphereRadius(float t,float scale) {
-    //if (t< 1.4) t= (1.4-t) * 4.5;
-    t = t * 0.01; // scale; // 0.04;
+    if (t< 1.4) t= (1.4-t) * 4.5;
+    if (t < 1) t = (1 - t) * 8;
+    t = t * 0.03; 
     return max(t*t, scale);
 }
 
@@ -2466,7 +2467,7 @@ float3 shortest_dist(float3 eye, float3 marchingDirection,device Control &contro
     for(; i < MAX_MARCHING_STEPS; ++i) {
         dist = DE(eye + ans.x * marchingDirection,control,orbitTrap);
         if(dist < MIN_DIST) {
-            if(secondSurface == 0.0) break;     // secondSurface is disabled (equals 0), or has 2already been used
+            if(secondSurface == 0.0) break;     // secondSurface is disabled (equals 0), or has already been used
             ans.x += secondSurface;             // move along ray, and start looking for 2nd surface
             secondSurface = 0;                  // set to zero as 'already been used' marker
         }
@@ -2489,7 +2490,8 @@ float3 shortest_dist(float3 eye, float3 marchingDirection,device Control &contro
                 alphaAcc += alpha;
             }
             
-            t += dist * 0.85 + t * 0.001;
+            // t += dist * 0.85 + t * 0.001;
+            t += dist * 0.8 + t * 0.03;
         }
     }
     

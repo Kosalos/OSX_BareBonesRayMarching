@@ -12,6 +12,14 @@ class WinLightViewController: NSViewController, NSWindowDelegate, WidgetDelegate
     
     @IBAction func resetButtonPressed(_ sender: NSButton) {
         resetAllLights()
+        vc.control.OrbitStrength = 0
+        vc.control.Cycles = 0
+        vc.control.orbitStyle = 0
+        vc.control.fog = 0
+
+        displayWidgets()
+
+//        defineWidgets()
         vc.flagViewToRecalcFractal()
     }
     
@@ -37,7 +45,7 @@ class WinLightViewController: NSViewController, NSWindowDelegate, WidgetDelegate
     //MARK: -
     
     func updateLayoutOfChildViews() {
-        let widgetPanelHeight:Int = 500
+        let widgetPanelHeight:Int = 700
         instructionsG.frame = CGRect(x:5, y:5, width:75, height:widgetPanelHeight)
         instructionsG.bringToFront()
         instructionsG.refresh()
@@ -66,6 +74,31 @@ class WinLightViewController: NSViewController, NSWindowDelegate, WidgetDelegate
         widget.addEntry("R Color",lightR(i),0,1,0.1)
         widget.addEntry("G",lightG(i),0,1,0.1)
         widget.addEntry("B",lightB(i),0,1,0.1)
+        
+        // ----------------------------
+        widget.addLegend("")
+        widget.addEntry("Fog Amount",&vc.control.fog,0,12,0.1)
+        widget.addEntry("R",&vc.control.fogR,0,1,0.1)
+        widget.addEntry("G",&vc.control.fogG,0,1,0.1)
+        widget.addEntry("B",&vc.control.fogB,0,1,0.1)
+        
+        // ----------------------------
+        widget.addLegend("")
+        widget.addLegend("Orbit Trap --")
+        widget.addEntry("O Strength",&vc.control.OrbitStrength,0,1,0.1)
+        widget.addEntry("Cycles",&vc.control.Cycles,0,100,0.5)
+        widget.addEntry("X Weight",&vc.control.xWeight,-5,5,0.1)
+        widget.addEntry("Y",&vc.control.yWeight,-5,5,0.1)
+        widget.addEntry("Z",&vc.control.zWeight,-5,5,0.1)
+        widget.addEntry("R",&vc.control.rWeight,-5,5,0.1)
+        widget.addEntry("X Color",&vc.control.xIndex,0,255,10)
+        widget.addEntry("Y",&vc.control.yIndex,0,255,10)
+        widget.addEntry("Z",&vc.control.zIndex,0,255,10)
+        widget.addEntry("R",&vc.control.rIndex,0,255,10)
+        widget.addEntry("Fixed Trap",&vc.control.orbitStyle,0,2,1,.integer,true)
+        widget.addEntry("X",&vc.control.otFixedX,-10,10,0.1)
+        widget.addEntry("Y",&vc.control.otFixedY,-10,10,0.1)
+        widget.addEntry("Z",&vc.control.otFixedZ,-10,10,0.1)
         
         displayWidgets()
     }
