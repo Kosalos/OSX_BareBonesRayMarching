@@ -133,6 +133,9 @@
 #include <metal_stdlib>
 #include "Shader.h"
 
+// define this is speed up compilation times
+//#define SINGLE_EQUATION 1
+
 using namespace metal;
 
 constant int MAX_MARCHING_STEPS = 255;
@@ -214,6 +217,8 @@ float DE_MANDELBULB(float3 pos,device Control &control,thread float4 &orbitTrap)
     
     return 0.5 * log(r) * r/dr;
 }
+
+#ifndef SINGLE_EQUATION
 
 //MARK: - 2
 float DE_APOLLONIAN(float3 pos,device Control &control,thread float4 &orbitTrap) {
@@ -2375,7 +2380,17 @@ float DE_DONUTS(float3 pos,device Control &control,thread float4 &orbitTrap) {
     return dis;
 }
 
+#endif // SINGLE_EQUATION
+
 //MARK: - distance estimate
+// ===========================================
+
+#ifdef SINGLE_EQUATION
+float DE_Inner(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    return DE_MANDELBULB(pos,control,orbitTrap);
+}
+
+#else
 float DE_Inner(float3 pos,device Control &control,thread float4 &orbitTrap) {
     switch(control.equation) {
         case EQU_01_MANDELBULB  : return DE_MANDELBULB(pos,control,orbitTrap);
@@ -2432,6 +2447,7 @@ float DE_Inner(float3 pos,device Control &control,thread float4 &orbitTrap) {
     
     return 0;
 }
+#endif
 
 float DE(float3 pos,device Control &control,thread float4 &orbitTrap) {
     if(control.doInversion) {
@@ -2514,10 +2530,14 @@ float3 calcNormal(float3 pos, float epsFactor,device Control &control) {
 //MARK: -
 // boxplorer's method
 float3 getBlinnShading(float3 normal, float3 direction, float3 light,device Control &control) {
-    float3 halfLV = normalize(light + direction);
-    float spe = pow(dot(normal, halfLV), 2);
     float dif = dot(normal, light) * 0.5 + 0.75;
-    return dif + spe * control.specular;
+    
+    if(control.specular > 0) {
+        float3 halfLV = normalize(light + direction);
+        dif += pow(dot(normal, halfLV), 2) * control.specular;
+    }
+    
+    return dif;
 }
 
 float3 lerp(float3 a, float3 b, float w) { return a + w*(b-a); }
@@ -2564,8 +2584,12 @@ float3 applyColoring(float3 position, float3 distAns, float3 normal, device Cont
             ans += HSVtoRGB(ans * iterationCount * 0.1);
             break;
         case 4 :
-            ans = abs(normal) * iterationCount * 0.01;
-            ans = hsv2rgb(ans.yzx);
+//            ans = abs(normal) * iterationCount * 0.01;
+//            ans = hsv2rgb(ans.yzx);
+            ans = float3(1 - (normal / 10 + sqrt(iterationCount / 80)));
+            ans.x = (ans.x + ans.y + ans.z)/3;
+            ans.y = ans.x;
+            ans.z = ans.y;
             break;
         case 5 :
         {
@@ -2751,26 +2775,43 @@ kernel void rayMarchShader
         float3 light = getBlinnShading(normal, direction, c.nlight, c);
         color = mix(light, color, 0.8);
         
-        float4 temp = float4(10000);
-        float3 diff = c.viewVector * distAns.y / 10;
-        float d1 = DE(position - diff,c,temp);
-        float d2 = DE(position + diff,c,temp);
-        float d3 = d1-d2;
-        color *= (1 + (1-d3) * c.enhance);
+        // ======================================================
+        if(c.enhance > 0) {
+            float4 temp = float4(10000);
+            float3 diff = c.viewVector * distAns.y / 10;
+            float d1 = DE(position - diff,c,temp);
+            float d2 = DE(position + diff,c,temp);
+            float d3 = d1-d2;
+            color *= (1 + (1-d3) * c.enhance);
+        }
         
+        // ======================================================
         color *= c.bright;
-        color = 0.5 + (color - 0.5) * c.contrast * 2;
         
-        float3 oColor = getOrbitColor(c,orbitTrap);
-        color = mix(color, 3.0 * oColor, c.OrbitStrength);
+        // ======================================================
+//        color = saturate(0.5 + pow((color - 0.5) * c.contrast * 2,1)); // 2;
+        float avg = (color.x + color.y + color.z) / 3;
+        color = saturate(0.5 + (color - 0.5) * c.contrast * 4);
+
+//        float avg = (color.x + color.y + color.z) / 3;
+//        float cc = c.contrast * 16;
+//        color.x = 0.5 + (color.x - avg) * cc;
+//        color.y = 0.5 + (color.y - avg) * cc;
+//        color.z = 0.5 + (color.z - avg) * cc;
+
+        // ======================================================
+        if(c.OrbitStrength > 0) {
+            float3 oColor = getOrbitColor(c,orbitTrap);
+            color = mix(color, 3.0 * oColor, c.OrbitStrength);
+        }
         
-        // fog ---------------------
+        // ======================================================
         if(c.fog > 0) {
             float3 backColor = float3(c.fogR,c.fogG,c.fogB);
             color = mix(color, backColor, 1.0-exp(-pow(c.fog,4.0) * distAns.x * distAns.x));
         }
         
-        // light -------------------
+        // ======================================================
         for(int i=0;i<NUM_LIGHT;++i) {
             if(c.flight[i].bright > 0) {
                 float distance = 0.001 + length_squared(c.flight[i].pos - position) * c.flight[i].power;

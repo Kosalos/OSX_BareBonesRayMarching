@@ -18,8 +18,6 @@ class WinLightViewController: NSViewController, NSWindowDelegate, WidgetDelegate
         vc.control.fog = 0
 
         displayWidgets()
-
-//        defineWidgets()
         vc.flagViewToRecalcFractal()
     }
     

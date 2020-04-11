@@ -133,10 +133,11 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
     
     /// direct shader to sparsely calculate, and copy results to neighboring pixels, for faster fractal rendering
     func setShaderToFastRender() {
-        if fastRenderEnabled {
+        if fastRenderEnabled && control.skip == 1 {
             control.skip = max(control.xSize / 150, 8)
-            slowRenderCountDown = 20 // 30 = 1 second
         }
+
+        slowRenderCountDown = 20 // 30 = 1 second
     }
     
     /// direct 2D fractal view to re-calculate image on next draw call
@@ -171,6 +172,11 @@ class ViewController: NSViewController, NSWindowDelegate, MetalViewDelegate, Wid
                 control.skip = 1
                 isDirty = true
             }
+        }
+        
+        // hold down jog keys cause increasing pixeation (hopefully to speed up shader)
+        if control.skip > 1 && control.skip < 40 {
+            control.skip += 1
         }
         
         if isDirty {
