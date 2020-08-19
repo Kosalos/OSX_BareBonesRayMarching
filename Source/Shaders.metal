@@ -133,7 +133,8 @@
 #include <metal_stdlib>
 #include "Shader.h"
 
-// define this is speed up compilation times
+// Define this is speed up compilation times
+// in the DE() function you are editing: comment out the "#ifdef SINGLE_EQUATION"... and "#endif" lines 
 //#define SINGLE_EQUATION 1
 
 using namespace metal;
@@ -188,6 +189,9 @@ float SphereRadius(float t,float scale) {
 
 //MARK: - 1
 float DE_MANDELBULB(float3 pos,device Control &control,thread float4 &orbitTrap) {
+#ifdef SINGLE_EQUATION
+    return 0;
+#else
     float dr = 1;
     float r,theta,phi,pwr,ss;
     
@@ -216,12 +220,14 @@ float DE_MANDELBULB(float3 pos,device Control &control,thread float4 &orbitTrap)
     }
     
     return 0.5 * log(r) * r/dr;
+#endif
 }
-
-#ifndef SINGLE_EQUATION
 
 //MARK: - 2
 float DE_APOLLONIAN(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     float k,t = control.foam2 + 0.25 * cos(control.bend * PI * control.multiplier * (pos.z - pos.x));
     float scale = 1;
     
@@ -240,10 +246,14 @@ float DE_APOLLONIAN(float3 pos,device Control &control,thread float4 &orbitTrap)
     }
     
     return 1.5 * (0.25 * abs(pos.y) / scale);
+    #endif
 }
 
 //MARK: - 3
 float DE_APOLLONIAN2(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     float t = control.foam2 + 0.25 * cos(control.bend * PI * control.multiplier * (pos.z - pos.x));
     float scale = 1;
     
@@ -266,6 +276,7 @@ float DE_APOLLONIAN2(float3 pos,device Control &control,thread float4 &orbitTrap
     float d1 = sqrt( min( min( dot(pos.xy,pos.xy), dot(pos.yz,pos.yz) ), dot(pos.zx,pos.zx) ) ) - 0.02;
     float dmi = min(d1,abs(pos.y));
     return 0.5 * dmi / scale;
+    #endif
 }
 
 //MARK: - 4
@@ -291,6 +302,9 @@ void TransA(thread float3 &z, thread float &DF, float a, float b) {
 }
 
 float JosKleinian(float3 z,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     float3 lz=z+float3(1.), llz=z+float3(-1.);
     float DE=1e10;
     float DF = 1.0;
@@ -340,6 +354,7 @@ float JosKleinian(float3 z,device Control &control,thread float4 &orbitTrap) {
     DE=min(DE,min(y,control.Clamp_y)/max(DF,control.Clamp_DF));
     
     return DE;
+    #endif
 }
 
 float DE_KLEINIAN(float3 pos,device Control &control,thread float4 &orbitTrap) {
@@ -370,6 +385,9 @@ float boxFold2(float v, float fold) { // http://www.fractalforums.com/new-theori
 }
 
 float DE_MANDELBOX(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     // For the Juliabox, c is a constant. For the Mandelbox, c is variable.
     float3 c = control.juliaboxMode ? control.julia : pos;
     float r2,dr = control.power;
@@ -414,10 +432,14 @@ float DE_MANDELBOX(float3 pos,device Control &control,thread float4 &orbitTrap) 
     }
     
     return length(pos)/abs(dr);
+    #endif
 }
 
 //MARK: - 6
 float DE_QUATJULIA(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     float4 c = 0.5 * float4(control.cx, control.cy, control.cz, control.cw);
     float4 nz;
     float md2 = 1.0;
@@ -442,6 +464,7 @@ float DE_QUATJULIA(float3 pos,device Control &control,thread float4 &orbitTrap) 
     }
     
     return 0.3 * sqrt(mz2/md2) * log(mz2);
+    #endif
 }
 
 //MARK: - 7
@@ -457,6 +480,9 @@ float4x4 rotationMat(float3 xyz )
 }
 
 float DE_MONSTER(float3 pos,device Control &control,thread float4 &orbitTrap) {
+#ifdef SINGLE_EQUATION
+    return 0;
+#else
     float k = 1.0;
     float m = 1e10;
     float r,s = control.cw;
@@ -480,7 +506,7 @@ float DE_MONSTER(float3 pos,device Control &control,thread float4 &orbitTrap) {
         pos = (control.mm * float4((abs(pos)),1.0)).xyz;
         
         r = dot(pos,pos);
-        if(r > 1) break;
+        if(r > 2) break;
         
         k *= control.cw;
         
@@ -491,6 +517,7 @@ float DE_MONSTER(float3 pos,device Control &control,thread float4 &orbitTrap) {
     
     float d = (length(pos)-0.5)/k;
     return d * 0.25;
+#endif
 }
 
 //MARK: - 8
@@ -509,6 +536,9 @@ float4 rotateXZ(float4 pos, float angle) {
 }
 
 float DE_KALI_TOWER(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     float aa = smoothstep(0.,1.,clamp(cos(control.cy - pos.y * 0.4)*1.5,0.,1.)) * PI;
     float4 p = float4(pos,1);
     
@@ -538,6 +568,7 @@ float DE_KALI_TOWER(float3 pos,device Control &control,thread float4 &orbitTrap)
     fl *=.9;
     
     return abs(smin(fl,fr,.7));
+    #endif
 }
 
 //MARK: - 9
@@ -577,6 +608,9 @@ float3 DodecSym(float3 p,device Control &control) {
 }
 
 float DE_POLY_MENGER(float3 p,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     float nIt = 9.69;
     float sclFac = control.cy;
     float3 b = (sclFac - 1) * float3(0.8, 1., 0.5) * (1. + 0.03 * sin (float3(1.23, 1., 1.43)));
@@ -601,10 +635,14 @@ float DE_POLY_MENGER(float3 p,device Control &control,thread float4 &orbitTrap) 
     }
     
     return 0.8 * PrBoxDf (p, float3 (1.)) / pow (sclFac, nIt);
+    #endif
 }
 
 //MARK: - 10
 float DE_GOLD(float3 p,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     p.xz = mod(p.xz + 1.0, 2.0) - 1.0;
     float4 q = float4(p, 1);
     float3 offset1 = float3(control.cx, control.cy, control.cz);
@@ -623,6 +661,7 @@ float DE_GOLD(float3 p,device Control &control,thread float4 &orbitTrap) {
     }
     
     return length(q.xyz)/q.w;
+    #endif
 }
 
 //MARK: - 11
@@ -632,6 +671,9 @@ float smax(float a, float b, float s) { // iq smin
 }
 
 float DE_SPIDER(float3 p,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     float q = sin(p.z * control.cx) * control.cy * 10 + 0.6;
     float t = length(p.xy);
     float s = 1.0;
@@ -652,10 +694,14 @@ float DE_SPIDER(float3 p,device Control &control,thread float4 &orbitTrap) {
     
     float d = (length(p.xz) - control.cz) * s;
     return smax(d,-t, 0.3);
+    #endif
 }
 
 //MARK: - 12
 float DE_KLEINIAN2(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     float k, scale = 1;
     
     float3 ot,trap = control.otFixed;
@@ -674,10 +720,14 @@ float DE_KLEINIAN2(float3 pos,device Control &control,thread float4 &orbitTrap) 
     
     float rxy = length(pos.xy);
     return .7 * max(rxy - control.maxs.w, rxy * pos.z / length(pos)) / scale;
+    #endif
 }
 
 //MARK: - 13
 float DE_KIFS(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     float4 z = float4(pos,1.0);
     float3 offset = float3(control.cx,1.1,0.5);
     float scale = control.cy;
@@ -704,10 +754,14 @@ float DE_KIFS(float3 pos,device Control &control,thread float4 &orbitTrap) {
     }
     
     return(length(max(abs(z.xyz)-float3(1.0),0.0))-0.05)/z.w;
+    #endif
 }
 
 //MARK: - 14
 float DE_IFS_TETRA(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     int n = 0;
     
     float3 ot,trap = control.otFixed;
@@ -731,10 +785,14 @@ float DE_IFS_TETRA(float3 pos,device Control &control,thread float4 &orbitTrap) 
     }
     
     return 0.55 * length(pos) * pow(control.cx, -float(n));
+    #endif
 }
 
 //MARK: - 15
 float DE_IFS_OCTA(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     int n = 0;
     
     float3 ot,trap = control.otFixed;
@@ -759,10 +817,14 @@ float DE_IFS_OCTA(float3 pos,device Control &control,thread float4 &orbitTrap) {
     }
     
     return 0.55 * length(pos) * pow(control.cx, -float(n));
+    #endif
 }
 
 //MARK: - 16
 float DE_IFS_DODEC(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     int n = 0;
     float d;
     
@@ -796,10 +858,14 @@ float DE_IFS_DODEC(float3 pos,device Control &control,thread float4 &orbitTrap) 
     }
     
     return 0.35 * length(pos) * pow(control.cx,float(-n-1));
+    #endif
 }
 
 //MARK: - 17
 float DE_IFS_MENGER(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     pos = pos * 0.5 + float3(0.5);
     float3 pp = abs(pos-0.5)-0.5;
     float k = 1.0;
@@ -824,10 +890,14 @@ float DE_IFS_MENGER(float3 pos,device Control &control,thread float4 &orbitTrap)
     }
     
     return d;
+    #endif
 }
 
 //MARK: - 18
 float DE_SIERPINSKI_T(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     int i;
     
     float3 ot,trap = control.otFixed;
@@ -850,10 +920,14 @@ float DE_SIERPINSKI_T(float3 pos,device Control &control,thread float4 &orbitTra
     }
     
     return (length(pos) - 2) * pow(control.cx, -float(i));
+    #endif
 }
 
 //MARK: - 19
 float DE_HALF_TETRA(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     int i;
     
     float3 ot,trap = control.otFixed;
@@ -876,10 +950,14 @@ float DE_HALF_TETRA(float3 pos,device Control &control,thread float4 &orbitTrap)
     }
     
     return (length(pos) - 2) * pow(control.cx, -float(i));
+    #endif
 }
 
 //MARK: - 20
 float DE_FULL_TETRA(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     int i;
     
     float3 ot,trap = control.otFixed;
@@ -905,10 +983,14 @@ float DE_FULL_TETRA(float3 pos,device Control &control,thread float4 &orbitTrap)
     }
     
     return (length(pos) - 2) * pow(control.cx, -float(i));
+    #endif
 }
 
 //MARK: - 21
 float DE_CUBIC(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     int i;
     
     float3 ot,trap = control.otFixed;
@@ -929,10 +1011,14 @@ float DE_CUBIC(float3 pos,device Control &control,thread float4 &orbitTrap) {
     }
     
     return (length(pos) - 2) * pow(control.cx, -float(i));
+    #endif
 }
 
 //MARK: - 22
 float DE_HALF_OCTA(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     int i;
     
     float3 ot,trap = control.otFixed;
@@ -956,10 +1042,14 @@ float DE_HALF_OCTA(float3 pos,device Control &control,thread float4 &orbitTrap) 
     }
     
     return (length(pos) - 2) * pow(control.cx, -float(i));
+    #endif
 }
 
 //MARK: - 23
 float DE_FULL_OCTA(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     int i;
     
     float3 ot,trap = control.otFixed;
@@ -983,10 +1073,14 @@ float DE_FULL_OCTA(float3 pos,device Control &control,thread float4 &orbitTrap) 
     }
     
     return (length(pos) - 2) * pow(control.cx, -float(i));
+    #endif
 }
 
 //MARK: - 24
 float DE_KALEIDO(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     int i;
     
     float3 ot,trap = control.otFixed;
@@ -1014,6 +1108,7 @@ float DE_KALEIDO(float3 pos,device Control &control,thread float4 &orbitTrap) {
     }
     
     return (length(pos) - 2) * pow(control.cx, -float(i));
+    #endif
 }
 
 //MARK: - 25
@@ -1083,6 +1178,9 @@ float dist2Segments(float4 z, float r,device Control &control) {
 }
 
 float DE_POLYCHORA(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     float r = length(pos);
     float4 z4 = float4(2.*pos,1.-r*r)*1./(1.+r*r);//Inverse stereographic projection of pos: z4 lies onto the unit 3-sphere centered at 0.
     z4=Rotate(z4,control);//z4.xyw=rot*z4.xyw;
@@ -1096,10 +1194,14 @@ float DE_POLYCHORA(float3 pos,device Control &control,thread float4 &orbitTrap) 
     orbitTrap = min(orbitTrap, float4(abs(ot), dot(ot,ot)));
     
     return min(dist2Vertex(z4,r,control),dist2Segments(z4,r,control));
+    #endif
 }
 
 //MARK: - 26
 float DE_QUADRAY(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     float v = control.cz;
     matrix_float3x4 mc = matrix_float3x4(float4(v,-v,-v, v), float4(v,-v, v,-v), float4(v, v,-v,-v));
     
@@ -1137,10 +1239,14 @@ float DE_QUADRAY(float3 pos,device Control &control,thread float4 &orbitTrap) {
     float dr = max(z.x,z.y);
     
     return 5 * r * log(r) / dr;
+    #endif
 }
 
 //MARK: - 27
 float3 powN1(float3 z, float r, thread float &dr,device Control &control) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     // extract polar coordinates
     float theta = acos(z.z/r);
     float phi = atan2(z.y,z.x);
@@ -1155,6 +1261,7 @@ float3 powN1(float3 z, float r, thread float &dr,device Control &control) {
     z = zr*float3(sin(theta)*cos(phi), sin(phi)*sin(theta), cos(theta));
     
     return z;
+    #endif
 }
 
 float3 powN2(float3 z, float zr0, thread float &dr,device Control &control) {
@@ -1258,12 +1365,16 @@ float mandelboxDE(float3 pos,device Control &control,thread float4 &orbitTrap) {
 }
 
 float DE_FRAGM(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     float rd = 0;
     if(control.maxSteps > 0) rd = mandelDE(abs(pos),control,orbitTrap);
     if(control.msIterations > 0) rd += mengersDE(abs(pos),control,orbitTrap);
     if(control.mbIterations > 0) rd += mandelboxDE(abs(pos),control,orbitTrap);
     
     return rd;
+    #endif
 };
 
 //MARK: - 28
@@ -1275,6 +1386,9 @@ float4 stereographic3Sphere(float3 pos,device Control &control) {
 float2 complexMul(float2 a, float2 b) { return float2(a.x*b.x - a.y*b.y, a.x*b.y + a.y * b.x); }
 
 float DE_QUATJULIA2(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     float4 p4 = stereographic3Sphere(pos,control);
     
     p4.xyz += control.julia;    // "offset"
@@ -1301,10 +1415,14 @@ float DE_QUATJULIA2(float3 pos,device Control &control,thread float4 &orbitTrap)
     
     float r = length(p);
     return r * log(r) / abs(dp);
+    #endif
 }
 
 //MARK: - 29
 float DE_MBROT(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     float4 p = float4(pos, control.cx);
     float4 dp = float4(1.0, 0.0,0.0,0.0);
     
@@ -1329,10 +1447,14 @@ float DE_MBROT(float3 pos,device Control &control,thread float4 &orbitTrap) {
     
     float r = length(p);
     return 0.2 * r * log(r) / length(dp);
+    #endif
 }
 
 //MARK: - 30
 float DE_KALIBOX(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     float4 p = float4(pos,1), p0 = float4(control.julia,1);  // p.w is the distance estimate
     
     float3 ot,trap = control.otFixed;
@@ -1355,6 +1477,7 @@ float DE_KALIBOX(float3 pos,device Control &control,thread float4 &orbitTrap) {
     }
     
     return ((length(p.xyz) - control.absScalem1) / p.w - control.AbsScaleRaisedTo1mIters);
+    #endif
 }
 
 //MARK: - 31
@@ -1391,6 +1514,9 @@ void spudsPowN2(thread float3 &z, float zr0, thread float &dr,device Control &co
 }
 
 float DE_SPUDS(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     int n = 0;
     float dz = 1.0;
     float r = length(pos);
@@ -1421,6 +1547,7 @@ float DE_SPUDS(float3 pos,device Control &control,thread float4 &orbitTrap) {
     }
     
     return r * log(r) / dz;
+    #endif
 }
 
 //MARK: - 32
@@ -1494,6 +1621,9 @@ void gravitate (thread float3 &z,device Control &control) {
 }
 
 float DE_MPOLY(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     float t = 9999.0;
     float sc = control.cz;
     float sc1 = sc-1.0;
@@ -1550,6 +1680,7 @@ float DE_MPOLY(float3 pos,device Control &control,thread float4 &orbitTrap) {
     }
     
     return abs(length(pos)) / w;
+    #endif
 }
 
 //MARK: - 33
@@ -1564,6 +1695,9 @@ float2 mHelixRot2D(float2 q, float a) {
 }
 
 float DE_MHELIX(float3 pos,device Control &control,thread float4 &orbitTrap) {
+#ifdef SINGLE_EQUATION
+    return 0;
+#else
 #define sclFac control.cx
 #define nIt 5.0
     
@@ -1601,10 +1735,14 @@ float DE_MHELIX(float3 pos,device Control &control,thread float4 &orbitTrap) {
     }
     
     return 0.8 * mHelixPrBoxDf(pos, float3(1.)) / pow(sclFac, nIt);
+    #endif
 }
 
 //MARK: - 34
 float DE_FLOWER(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     float4 q = float4(pos, 1);
     float4 juliaOffset = float4(control.julia,0);
     
@@ -1624,6 +1762,7 @@ float DE_FLOWER(float3 pos,device Control &control,thread float4 &orbitTrap) {
     }
     
     return (length(q.xy)/q.w - 0.003); // cylinder primative instead of a sphere primative.
+    #endif
 }
 
 //MARK: - 35
@@ -1649,6 +1788,9 @@ float3 sabs(float3 p) {
 }
 
 float DE_JUNGLE(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     float s = control.cx;
     float amp = 1.0/s;
     float c = control.cy;
@@ -1671,6 +1813,7 @@ float DE_JUNGLE(float3 pos,device Control &control,thread float4 &orbitTrap) {
     }
     
     return de + boxmap(pos * control.cz) * 0.02 - 0.01;
+    #endif
 }
 
 //MARK: - 36
@@ -1692,6 +1835,9 @@ float shBox(float3 p, float3 b,float thickness) {
 }
 
 float DE_PRISONER(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     float dr = 1.0;
     float3 w = pos;
     float wo,wi,wr,ot=1;
@@ -1736,10 +1882,14 @@ float DE_PRISONER(float3 pos,device Control &control,thread float4 &orbitTrap) {
     }
     
     return 0.4 * log(wr) * wr/dr;
+    #endif
 }
 
 //MARK: - 37
 float DE_SPIRALBOX(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     float3 z = pos;
     float r,DF = 1.0;
     float3 offset = (control.juliaboxMode ? control.julia/10 : pos);
@@ -1765,10 +1915,14 @@ float DE_SPIRALBOX(float3 pos,device Control &control,thread float4 &orbitTrap) 
     
     r = length(z);
     return 0.5 * sqrt(0.1*r) / (abs(DF)+1.);
+    #endif
 }
 
 //MARK: - 38
 float DE_ALEK_BULB(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     float dr = 1;
     float r,mcangle,theta,pwr;
     
@@ -1800,6 +1954,7 @@ float DE_ALEK_BULB(float3 pos,device Control &control,thread float4 &orbitTrap) 
     }
     
     return 0.5 * log(r) * r/dr;
+    #endif
 }
 
 //MARK: - 39
@@ -1814,6 +1969,9 @@ float surfBoxFold(float v, float fold, float foldModX) {
 }
 
 float DE_SURFBOX(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     float3 c = control.juliaboxMode ? control.julia : pos;
     float r2,dr = control.power;
     float fR2 = control.cz * control.cz;
@@ -1849,10 +2007,14 @@ float DE_SURFBOX(float3 pos,device Control &control,thread float4 &orbitTrap) {
     }
     
     return length(pos)/abs(dr);
+    #endif
 }
 
 //MARK: - 40
 float DE_TWISTBOX(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     float3 c = control.juliaboxMode ? control.julia : pos;
     float r,DF = control.power;
     
@@ -1876,10 +2038,14 @@ float DE_TWISTBOX(float3 pos,device Control &control,thread float4 &orbitTrap) {
     
     r = length(pos);
     return 0.5 * sqrt(r)/(abs(DF)+1);
+    #endif
 }
 
 //MARK: - 41
 float DE_KALI_RONTGEN(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     float d = 10000.;
     float4 p = float4(pos, 1.);
     float3 param = float3(control.cx,control.cy,control.cz);
@@ -1902,10 +2068,14 @@ float DE_KALI_RONTGEN(float3 pos,device Control &control,thread float4 &orbitTra
     }
     
     return d;
+    #endif
 }
 
 //MARK: - 42
 float DE_VERTEBRAE(float3 pos,device Control &control,thread float4 &orbitTrap) {
+#ifdef SINGLE_EQUATION
+    return 0;
+#else
 #define scalelogx  control.dx
 #define scalelogy  control.dy
 #define scalelogz  control.dz
@@ -1949,10 +2119,14 @@ float DE_VERTEBRAE(float3 pos,device Control &control,thread float4 &orbitTrap) 
     }
     
     return 0.3 * sqrt(mz2/md2) * log(mz2);
+    #endif
 }
 
 //MARK: - 43
 float DE_DARKSURF(float3 pos,device Control &control,thread float4 &orbitTrap) {
+#ifdef SINGLE_EQUATION
+    return 0;
+#else
 #define scale_43 control.cx
 #define MinRad2_43 control.cy
 #define Scale_43 control.cz
@@ -2005,11 +2179,12 @@ float DE_DARKSURF(float3 pos,device Control &control,thread float4 &orbitTrap) {
     }
     
     return ((length(p.xyz) - absScalem1) / p.w - AbsScaleRaisedTo1mIters);
+    #endif
 }
 
 //MARK: - 44
 void BuffaloIteration(thread float3 &z, float r, thread float &r_dz,device Control &control) {
-#define power44 control.cy
+    #define power44 control.cy
     r_dz = r_dz * 2 * r;
     
     if (control.preabsx) z.x = abs(z.x);
@@ -2060,6 +2235,9 @@ float3 DE1(float3 pos,device Control &control,thread float4 &orbitTrap) {
 }
 
 float DE_BUFFALO(float3 pos,device Control &control,thread float4 &orbitTrap) {
+#ifdef SINGLE_EQUATION
+    return 0;
+#else
 #define DEScale control.cx
     float3 z = pos;
     if(control.UseDeltaDE) {
@@ -2114,10 +2292,14 @@ float DE_BUFFALO(float3 pos,device Control &control,thread float4 &orbitTrap) {
     }
     
     return 0.5*log(r)*r/dr;
+    #endif
 }
 
 //MARK: - 45
 float DE_TEMPLE(float3 pos,device Control &control,thread float4 &orbitTrap) {
+#ifdef SINGLE_EQUATION
+    return 0;
+#else
 #define Scale45   control.cx
 #define tt        control.cy
 #define ceiling45 control.cz
@@ -2151,10 +2333,14 @@ float DE_TEMPLE(float3 pos,device Control &control,thread float4 &orbitTrap) {
     d=min(d,-pos.y + floor45);
     d=min(d,rr);
     return d;
+    #endif
 }
 
 //MARK: - 46
 float DE_KALI3(float3 pos,device Control &control,thread float4 &orbitTrap) {
+#ifdef SINGLE_EQUATION
+    return 0;
+#else
 #define C46 control.julia
 #define g46 control.cx
     float dr = 1.0;
@@ -2182,6 +2368,7 @@ float DE_KALI3(float3 pos,device Control &control,thread float4 &orbitTrap) {
     return .15*(length(pos.xz))*length(pos.xy)/dr;
     //return .125*sqrt(r2)*log(r2)/dr;
     //return .1*length(pos)/dr;
+    #endif
 }
 
 //MARK: - 47
@@ -2205,6 +2392,9 @@ float sdSponge(float3 z,device Control &control) {
 }
 
 float DE_SPONGE(float3 pos,device Control &control,thread float4 &orbitTrap) {
+#ifdef SINGLE_EQUATION
+    return 0;
+#else
 #define param_min control.mins
 #define param_max control.maxs
     float k, r2;
@@ -2227,6 +2417,7 @@ float DE_SPONGE(float3 pos,device Control &control,thread float4 &orbitTrap) {
     pos /= scale;
     pos *= param_max.w * control.ex;
     return float(0.1 * sdSponge(pos,control) / (param_max.w * control.ex));
+    #endif
 }
 
 //MARK: - 48
@@ -2239,6 +2430,9 @@ float3 tsqr(thread float3 p) {
 float3 talt(thread float3 z) { return float3(z.xy,-z.z); }
 
 float DE_FLORAL(float3 pos,device Control &control,thread float4 &orbitTrap) {
+#ifdef SINGLE_EQUATION
+    return 0;
+#else
 #define ss48     control.cx
 #define g48      control.cy
 #define CSize48  control.n1
@@ -2275,6 +2469,7 @@ float DE_FLORAL(float3 pos,device Control &control,thread float4 &orbitTrap) {
     }
     
     return .85*length(pos)/scale;
+    #endif
 }
 
 //MARK: - 49
@@ -2335,11 +2530,18 @@ float deTorusKnot(float3 p,device Control &control,thread float4 &orbitTrap) {
 }
 
 float DE_KNOT(float3 pos,device Control &control,thread float4 &orbitTrap) {
+    #ifdef SINGLE_EQUATION
+        return 0;
+    #else
     return min(deTorusKnot(pos,control,orbitTrap),deTorus(pos,float2(1.5,0.12)));
+    #endif
 }
 
 //MARK: - 50
 float DE_DONUTS(float3 pos,device Control &control,thread float4 &orbitTrap) {
+#ifdef SINGLE_EQUATION
+    return 0;
+#else
 #define MAJOR_RADIUS control.cx
 #define MINOR_RADIUS control.cy
 #define SCALE        control.cz
@@ -2378,19 +2580,12 @@ float DE_DONUTS(float3 pos,device Control &control,thread float4 &orbitTrap) {
     }
     
     return dis;
+    #endif
 }
-
-#endif // SINGLE_EQUATION
 
 //MARK: - distance estimate
 // ===========================================
 
-#ifdef SINGLE_EQUATION
-float DE_Inner(float3 pos,device Control &control,thread float4 &orbitTrap) {
-    return DE_MANDELBULB(pos,control,orbitTrap);
-}
-
-#else
 float DE_Inner(float3 pos,device Control &control,thread float4 &orbitTrap) {
     switch(control.equation) {
         case EQU_01_MANDELBULB  : return DE_MANDELBULB(pos,control,orbitTrap);
@@ -2447,7 +2642,6 @@ float DE_Inner(float3 pos,device Control &control,thread float4 &orbitTrap) {
     
     return 0;
 }
-#endif
 
 float DE(float3 pos,device Control &control,thread float4 &orbitTrap) {
     if(control.doInversion) {
@@ -2563,6 +2757,147 @@ float3 HSVtoRGB(float3 hsv) {
     return float3(0.);
 }
 
+
+/*
+ 
+
+         // shade
+         vec3 col = vec3(0.0);
+         if( tmat.z>-0.5 )
+         {
+             // geometry
+             vec3 pos = ro + tmat.x*rd;
+             vec3 nor = calcNormal(pos, 0.005);
+             vec3 sor = calcNormal(pos, 0.010);
+
+             // material
+             vec3 mate = vec3(1.0);
+             mate = mix( vec3(0.5,0.5,0.2), vec3(0.5,0.3,0.0), 0.5 + 0.5*sin(4.0+8000.0*tmat.y)  );
+             mate = mix( vec3(1.0,0.9,0.8), mate, 0.5 + 0.5*sin(4.0+20.0*tmat.z) );
+             mate.x *= 1.15;
+
+             // lighting
+             float occ = 1.1*calcAO( pos, nor );
+             occ *= 0.75 + 0.25*clamp(tmat.y*400.0,0.0,1.0);
+
+             // diffuse
+             col = vec3(0.0);
+             for( int i=0; i<32; i++ )
+             {
+                 //vec3 rr = normalize(-1.0 + 2.0*texture( iChannel2, vec2((0.5+float(i)),0.5)/256.0,-100.0).xyz);
+                 vec3 rr = normalize(-1.0 + 2.0*hash3(float(i)*123.5463));
+                 rr = normalize( nor + 7.0*rr );
+                 rr = rr * sign(dot(nor,rr));
+                 float ds = occ;//softshadow( pos, rr, 0.01, 32.0 );
+                 col += pow( texture( iChannel0, rr ).xyz, vec3(2.2) ) * dot(rr,nor) * ds;
+             }
+             col /= 32.0;
+
+             col *= 1.8;
+
+             // subsurface
+             col *= 1.0 + 1.0*vec3(1.0,0.6,0.1)*pow(clamp(1.0+dot(rd,sor),0.0,1.0),2.0)*vec3(1.0);
+
+             // specular
+             float fre = pow( clamp(1.0+dot(rd,nor),0.0,1.0), 5.0 );
+             vec3 ref = reflect( rd, nor );
+             float rs = softshadow( pos, ref, 0.01, 32.0 );
+             col += 1.8 * (0.04 + 12.0*fre) * occ * pow( texture( iChannel0, ref ).xyz, vec3(2.0) ) * rs;
+
+             col *= mate;
+         }
+         else
+         {
+             // background
+             col = pow( texture( iChannel0, rd ).xyz, vec3(2.2) );
+         }
+         tot += col;
+ #if AA>1
+     }
+     tot /= float(AA*AA);
+ #endif
+     
+     // gamma
+     tot = pow( clamp( tot*1.5, 0.0, 1.0 ), vec3(0.45) );
+
+     // vigneting
+     {
+         vec2 q = fragCoord/ iResolution.xy;
+         tot *= 0.5 + 0.5*pow( 16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y), 0.1 );
+     }
+     
+     fragColor = vec4( tot, 1.0 );
+ }
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+typedef float3 vec3;
+
+float3 monsterColor(float3 pos, float3 distAns, float3 normal, device Control &control) {
+    float3 ans = float3();
+    float iterationCount = distAns.y;
+
+    return float3(1 - (normal / 10 + sqrt(iterationCount / 80)));
+
+    // geometry
+    vec3 nor = calcNormal(pos, 0.005,control);
+    vec3 sor = calcNormal(pos, 0.010,control);
+    
+    // tmat.x = dist
+    // y = min orbit
+    // z =
+    
+    // material
+    vec3 mate = vec3(1.0);
+    mate = mix( vec3(0.5,0.5,0.2), vec3(0.5,0.3,0.0), 0.5 + 0.5*sin(4.0+8000.0*tmat.y)  );
+    mate = mix( vec3(1.0,0.9,0.8), mate, 0.5 + 0.5*sin(4.0+20.0*tmat.z) );
+    mate.x *= 1.15;
+
+    // lighting
+    float occ = 1.1*calcAO( pos, nor );
+    occ *= 0.75 + 0.25*clamp(tmat.y*400.0,0.0,1.0);
+
+    // diffuse
+    col = vec3(0.0);
+    for( int i=0; i<32; i++ )
+    {
+        //vec3 rr = normalize(-1.0 + 2.0*texture( iChannel2, vec2((0.5+float(i)),0.5)/256.0,-100.0).xyz);
+        vec3 rr = normalize(-1.0 + 2.0*hash3(float(i)*123.5463));
+        rr = normalize( nor + 7.0*rr );
+        rr = rr * sign(dot(nor,rr));
+        float ds = occ;//softshadow( pos, rr, 0.01, 32.0 );
+        col += pow( texture( iChannel0, rr ).xyz, vec3(2.2) ) * dot(rr,nor) * ds;
+    }
+    col /= 32.0;
+
+    col *= 1.8;
+
+    // subsurface
+    col *= 1.0 + 1.0*vec3(1.0,0.6,0.1)*pow(clamp(1.0+dot(rd,sor),0.0,1.0),2.0)*vec3(1.0);
+
+    // specular
+    float fre = pow( clamp(1.0+dot(rd,nor),0.0,1.0), 5.0 );
+    vec3 ref = reflect( rd, nor );
+    float rs = softshadow( pos, ref, 0.01, 32.0 );
+    col += 1.8 * (0.04 + 12.0*fre) * occ * pow( texture( iChannel0, ref ).xyz, vec3(2.0) ) * rs;
+
+    col *= mate;
+
+
+
+
+
+
+}
+
+*/
+
 float3 applyColoring(float3 position, float3 distAns, float3 normal, device Control &control) {
     float3 cc,ans = float3();
     float iterationCount = distAns.y;
@@ -2570,6 +2905,7 @@ float3 applyColoring(float3 position, float3 distAns, float3 normal, device Cont
     switch(control.colorScheme) {
         case 0 :
             ans = float3(1 - (normal / 10 + sqrt(iterationCount / 80)));
+//            return monsterColor(position,distAns,normal,control);
             break;
         case 1 :
             ans = float3(abs(1 - (normal / 3 + sqrt(iterationCount / 8)))) / 10;
